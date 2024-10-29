@@ -1,0 +1,8 @@
+export const GET_SEEDS = "GET_SEEDS"
+export const START_LOADING = "START_LOADING"
+export const END_LOADING = "END_LOADING"
+export const ADD_SEED = "ADD_SEED"
+export const UPDATE_SEED = "UPDATE_SEED"
+export const REMOVE_SEED = "REMOVE_SEED"
+export const ERROR = "ERROR"
+export const RESET = "RESET"

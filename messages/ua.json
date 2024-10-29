@@ -1,0 +1,101 @@
+{
+ "Header": {
+	    "title":"Флора",
+	    "badge":"Карт",
+	    "guest":"Гiсть",
+	    "login":"Увійти",
+	    "logout":"Вийти"
+	 },
+ "First": {
+        "title":"Ласкаво просимо.",
+        "second":"Понад  15 років на ринку. Тепер онлайн.",
+        "seeds": "Насіння",
+        "goods": "Товари"
+        },
+ "List": {
+	    "add_butt": "Додати",
+	    "details": "Дeталi",
+	    "menu": "Меню",
+	    "category": "категорія",
+	    "type": "тип",
+	    "price": "ціна"	 
+	 },
+ "Pages":{"pages": "Сторінки"},
+ "Cart": {"price":"ціна",
+	      "quantity":"кількість",
+	      "increase":"збільшити",
+	      "decrease":"зменшити",
+	      "remove":"видалити",
+	      "total":"сума",
+	      "buy_items":"Купити",
+	      "clear_cart":"Очистити",
+	      "Menu":"Меню"},
+ "AddForm":{
+	    "seed": "Насіння",
+	    "item":"Товари",
+	    "title":"Назва",
+	    "description":"Опис",
+	    "price":"Ціна",
+	    "photo":"Фото",
+	    "select":"обрати",
+	    "no file":"немає файлу",
+	    "category":"Категорія",
+	    "type":"Тип",
+	    "save":"Зберегти",
+	    "close":"Закрити"
+	 },
+ "Filter":{
+	    "show": "Фільтри",
+	    "category": "Категорія",
+	    "type": "Тип",
+	    "sort": "Сортувати за ціною",
+	    "search": "Пошук за текстом",
+	    "reset": "Скинути"    	
+	 },
+ "AuthForm":{
+	 "sign_in": "Вхід",
+	 "sign_up": "Створити",
+	 "e_mail": "E-mail",
+	 "p_mail": "Написати e-mail",
+	 "password":"Пароль",
+	 "p_create":"Написати пароль",
+	 "p_confirm":"Підтвердити",
+	 "name":"Ім'я",
+	 "p_name":"Написати iм'я",
+	 "submit":"Прийняти",
+	 "menu": "Меню"
+	 },
+ "categories":{
+	 "flowers": "квіти",
+	 "veggies": "овочі",
+	 "seedlings": "саджанці",
+	 "cuttings": "живці",
+	 "soils": "ґрунти",
+	 "supplements": "додатки",
+	 "equipment": "обладнання",
+	 "products":"продукти"    
+	 },
+ "types":{
+	 "annual": "однорічний",
+	 "multi-year": "багаторічний",
+	 "early": "ранні",
+	 "late": "пізні",
+	 "fruit": "фрукти",
+	 "veggies": "овочі",
+	 "flowers": "квіти",
+	 "grape": "виноград",
+	 "trees": "дерева",
+	 "for flowers": "для квітів",
+	 "for veggies": "для овочів",
+	 "for fruit": "для фруктів",
+	 "fertilizers": "добрива",
+	 "pesticides": "пестициди",
+	 "other": "інше",
+	 "gloves": "рукавиці",
+	 "tools": "інструменти",
+	 "gear": "знаряддя",
+	 "honey": "мед",
+	 "fruit": "фрукти",
+	 "veggies": "овочі"
+	 }
+        }
