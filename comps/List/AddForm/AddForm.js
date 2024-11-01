@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import { usePathname } from '../../../navigation';
-import {useSeedContext} from '../../../context/seeds/SeedState'
+import {useEstateContext} from '../../../context/estates/EstateState'
 import {useItemContext} from '../../../context/items/ItemState'
 import {useQueryContext} from '../../../context/queries/QueryState'
 import * as S from './add-form.styled'
@@ -27,7 +27,7 @@ export function AddForm({setOpen, currItem, setCurrItem}){
 	const pathname = usePathname()
 	const isSeed = pathname === '/seed-list'
 	
-	const {addSeed, updateSeed, fetchSeeds} = useSeedContext()
+	const {addEstate, updateEstate, fetchEstates} = useEstateContext()
 	const {addItem, updateItem, fetchItems} = useItemContext()
 	const {state} = useQueryContext()
 	

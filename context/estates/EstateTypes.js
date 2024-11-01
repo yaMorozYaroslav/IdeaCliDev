@@ -1,0 +1,8 @@
+export const GET_ESTATES = "GET_ESTATES"
+export const START_LOADING = "START_LOADING"
+export const END_LOADING = "END_LOADING"
+export const ADD_ESTATE = "ADD_ESTATE"
+export const UPDATE_ESTATE = "UPDATE_ESTATE"
+export const REMOVE_ESTATE = "REMOVE_ESTATE"
+export const ERROR = "ERROR"
+export const RESET = "RESET"

@@ -3,7 +3,7 @@ import {locales, localePrefix} from './navigation';
  
 
 export default createMiddleware({
-  defaultLocale: 'ua',
+  defaultLocale: 'en',
   localeDetection: true,
   localePrefix,
   locales

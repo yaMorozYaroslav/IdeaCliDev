@@ -12,7 +12,7 @@ export function Header(){
   React.useEffect(()=>{
 	    },[])
 	return <S.HeadCont>
-	          <S.MainCont><S.MainTitle>{t("title")}</S.MainTitle></S.MainCont>              
+	          <S.MainCont><S.MainTitle>HasanProperty</S.MainTitle></S.MainCont>              
 	            <CartBadge/> 
 	            <LangSwitch/>
 	            <AuthPanel/>
