@@ -2,19 +2,17 @@
 import React from 'react'
 import { usePathname } from '../../../navigation';
 import {useEstateContext} from '../../../context/estates/EstateState'
-import {useItemContext} from '../../../context/items/ItemState'
 import {useQueryContext} from '../../../context/queries/QueryState'
 import * as S from './add-estate.styled'
 import revalidator from '../revalidator'
-import {allCats, seedTypes, itemTypes} from '../select-types'
 
 import {useTranslations} from 'next-intl'
 import {uploadImage} from './convert-base64'
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 
-const initialState = { provName: '', provCode:'', location:'', street:'',
-	                   available: 0, photo: ''}
+const initialState = { provName: '', provCode:'', location:'', 
+	                   street:'', photo: '' }
 
 export function AddEstate({servData, setOpen, currItem, setCurrItem}){
 	const t = useTranslations("AddForm")
@@ -72,7 +70,6 @@ export function AddEstate({servData, setOpen, currItem, setCurrItem}){
 	const isSeed = true
 	
 	const {addEstate, updateEstate, fetchEstates} = useEstateContext()
-	const {addItem, updateItem, fetchItems} = useItemContext()
 	const {state} = useQueryContext()
 	
 	const ref = React.useRef()
@@ -84,7 +81,7 @@ export function AddEstate({servData, setOpen, currItem, setCurrItem}){
 		setLabel(file.name)
 		}
    
-   const fetcher =()=> {fetchEstates(state)}
+   const fetcher =()=> {}
    
     
     React.useEffect(()=>{		
@@ -109,11 +106,12 @@ export function AddEstate({servData, setOpen, currItem, setCurrItem}){
 	
 	const handSubmit =(e)=> {
 		e.preventDefault()
-	if(isSeed){if(!source._id){addEstate(source).then(()=>fetcher())		           
-	          }else{updateEstate(source._id, source).then(()=>fetcher())}
-			 
-   }else{     if(!source._id){addItem(source).then(()=>fetcher())		           
-	          }else{updateItem(source._id, source).then(()=>fetcher())}  }
+		    if(!source._id){addEstate(source).then(()=>fetchEstates(state))		           
+	                     
+	        }else{updateEstate(source._id, source)
+							                   .then(()=>fetchEstates(state))}
+							
+							                   	 
         reset()
 	    setOpen(false)
 		     setTimeout(() => {

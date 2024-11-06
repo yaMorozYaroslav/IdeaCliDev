@@ -10,12 +10,13 @@ API.interceptors.request.use((req)=>{
     return req
 })
 
-export const getItems =(category, type, page, search, sort)=> API.get(
-     `/items?category=${category}&type=${type}&page=${page}
-                             &search=${search}&sort=${sort}`)
-export const createItem =(source)=> API.post('/items', source)
-export const editItem =(id, source)=>API.patch(`/items/${id}`, source)
-export const deleteItem =(id)=>API.delete(`/items/${id}`)
+export const getEstateUnits =(estateID, page)=> API.get(`/units/${estateID}`)
+//~ export const getUnits =(category, type, page, search, sort)=> API.get(
+     //~ `/items?category=${category}&type=${type}&page=${page}
+                             //~ &search=${search}&sort=${sort}`)
+export const createUnit =(estateID, source)=> API.post(`/units/${estateID}`, source)
+export const editUnit =(unitID, source)=>API.patch(`/units/${unitID}`, source)
+export const deleteUnit =(unitID)=>API.delete(`/units/${unitID}`)
 
 export const getEstates =(location = '', page)=> API.get(
      `/estates?location=${location}&page=${page}`)

@@ -7,7 +7,7 @@ import {AddForm} from './AddForm/AddForm'
 import {SpinZone} from '../../blocks/SpinZone'
 //~ import LinearProgress from '@mui/material/LinearProgress';
 
-import {useItemContext} from '../../context/items/ItemState'
+import {useUnitsContext} from '../../context/units/UnitState'
 import {useEstateContext} from '../../context/estates/EstateState'
 import {useQueryContext} from '../../context/queries/QueryState'
 import {useUserContext} from '../../context/user/UserState'
@@ -37,14 +37,14 @@ export function List({servData}){
 	
 	const {userData} = useUserContext()
 	const {cartItems, addToCart} = useCartContext()
-	const {fetchItems, loadingItems, items,
-		               removeItem, resetItems} = useItemContext()
-	const {fetchEstatess, loadingEstates, estates, 
+	const {fetchUnits, loadingUnits, units,
+		               removeUnit, resetUnits} = useUnitContext()
+	const {fetchEstates, loadingEstates, estates, 
 		               removeEstates, resetEstates} = useEstateContext()
 	const {state, category} = useQueryContext()
 	
 	
-	const units = !items.length?seeds:items
+	const things = !items.length?estates:units
 	const loading = loadingItems||loadingSeeds
 	
 	const creator =(id)=> userData.user && (userData.user._id === id)
@@ -60,14 +60,14 @@ export function List({servData}){
 							            resetSeeds()}else{resetItems()}}
 	const showOptions =()=>{setOpen({...open, options: !open.options});}
 	
-	function fetchUnits(){if(isSeed){fetchSeeds(state)}
+	function fetchThings(){if(isSeed){fetchSeeds(state)}
 		                       else{fetchItems(state)} } 
                        
 	function delUnit(e, id){
 		e.preventDefault();
 		if(isSeed){removeSeed(id)}else{removeItem(id)}
 		revalidator()
-		setTimeout(()=>{fetchUnits()},500)
+		setTimeout(()=>{fetchThings()},500)
 		}	
 
    React.useEffect(()=>{ if(seeds.data && isSeed){setShown(seeds.data)}

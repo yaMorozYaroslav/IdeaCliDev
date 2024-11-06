@@ -2,19 +2,16 @@ import styled from 'styled-components'
 import {Link} from '../../../navigation'
 import Image from 'next/image'
 
-export const Cell = styled.li`font-size: 20px; 
-                              border: 2px solid 
-                              ${p=>p.$emptyData === 0? 'red': 'black'};
-                              
-                              text-align:center;height: 365px;
-                              width:85%;padding:10px;
-                              margin-top:10px;background:white;
+export const Cell = styled.li`font-size: 20px; border: 2px solid black;
+                               text-align:center;height: 365px;
+                               width:85%;padding:10px;
+                               margin-top:10px;background:white;
                     @media (max-width: 600px) {font-size: 18px;padding:3px;
                                                width:95%;height:385px;}
                     @media (max-width: 400px) {font-size: 20px;width:85%;
                                                height:360px;}`
-export const StyledImage = styled(Image)`margin:7px 10px 13px 10px;
-                                         height:200px;width:80%;`
+export const StyledImage = styled(Image)`margin:7px 10px 5px 10px;
+                                         height:250px;width:90%;`
 export const FourButtons = styled.section`display:flex;`
 export const StyledButtons = styled.section`margin-left:10%;margin-top:7px;
                                             height:194px;width:80%;`

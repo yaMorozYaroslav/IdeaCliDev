@@ -12,8 +12,8 @@ export function Header(){
   React.useEffect(()=>{
 	    },[])
 	return <S.HeadCont>
-	          <S.MainCont><S.MainTitle>HasanProperty</S.MainTitle></S.MainCont>              
-	            <CartBadge/> 
+	          <S.MainCont><S.MainTitle>HesenProperties</S.MainTitle></S.MainCont>              
+	           <h4>About Us</h4>
 	            <LangSwitch/>
 	            <AuthPanel/>
 	        </S.HeadCont>

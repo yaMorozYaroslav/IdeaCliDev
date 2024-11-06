@@ -1,29 +1,31 @@
 'use client'
 import React from 'react'
-import * as S from './estates.styled'
+import * as S from './units.styled'
 import Box from '@mui/material/Box';
-import {AddEstate} from './AddEstate/AddEstate'
+import {AddUnit} from './AddUnit/AddUnit'
 import {SpinZone} from '../../blocks/SpinZone'
 //~ import LinearProgress from '@mui/material/LinearProgress';
 
-import {useEstateContext} from '../../context/estates/EstateState'
+import {useUnitContext} from '../../context/units/UnitState'
 import {useQueryContext} from '../../context/queries/QueryState'
 import {useUserContext} from '../../context/user/UserState'
-import {useCartContext} from '../../context/cart/CartState'
 
 import revalidator from './revalidator'
 
 import { usePathname } from '../../navigation'
 import { useRouter } from '../../navigation'
 import {useTranslations} from 'next-intl'
+import { useParams } from 'next/navigation'
 
-import {ECell} from './ECell/ECell'
+import {UCell} from './UCell/UCell'
 
-export function Estates(servData){
+export function Units(servData){
 	
 	const t = useTranslations('List')
+	
 	const pathname = usePathname()
 	const router = useRouter()
+	const params = useParams()
 	
 	const [open, setOpen] = React.useState({form: false})
     const [shown, setShown] = React.useState(servData.servData)
@@ -31,64 +33,63 @@ export function Estates(servData){
 	const [staticData, setStaticData] = React.useState(servData.servData)
 	
 	const {userData} = useUserContext()
-	const {cartItems, addToCart} = useCartContext()
 	
-	const {fetchEstates, loadingEstates, estates, 
-		               removeEstate, resetEstates} = useEstateContext()
+	const {fetchEstateUnits, loadingUnits, units, 
+		               removeUnit, resetUnits} = useUnitContext()
 		               
 	const {state, category} = useQueryContext()
 	
 	
+	
 	const creator =(id)=> userData.user && (userData.user._id === id)
-	const admin = userData.user && userData.user.role === 'admin'
+	const admin = userData.user && userData.user.role === 'admin'||'owner'
 	
-	
-	const handAdd =(e, s)=> {e.preventDefault();addToCart(s);}
 	
 	const handEdit =(e, s)=> {e.preventDefault(); 
 		                      setCurrItem(s);setOpen({...open, form: true})}
 		                      
-    const onMenu = () => {router.push('/');if(true){
-							            resetEstates()}else{resetItems()}}
+    const onMenu = () => {router.push('/'); resetUnits()}
 	const showOptions =()=>{setOpen({...open, options: !open.options});}
 	
                        
-	function deleteEstate(e, id){
+	function deleteUnit(e, id){
 		e.preventDefault();
-		removeEstate(id)
+		removeUnit(id)
 		revalidator()
-		setTimeout(()=>{fetchEstates(state)},500)
+		setTimeout(()=>{fetchEstateUnits({'estateID': params.id,
+									      'page': state.page})},500)
 		}	
 
-   React.useEffect(()=>{ if(estates.data){setShown(estates.data)}
-	                  },[ estates])
+   React.useEffect(()=>{ if(units.data){setShown(units.data)}
+	                  },[ units])
        
 return (<S.Container>
       <S.ListButts>
-       {true &&       
-			 <S.AddAdmin onClick={()=>setOpen({...open, form: true})}>
-			                   Add </S.AddAdmin>}
-	  <S.Title>Estates</S.Title>
        {open.form &&
-		     <AddEstate setOpen={setOpen} 
+		     <AddUnit setOpen={setOpen} 
 		                currItem={currItem}
 		                setCurrItem={setCurrItem}
 		               />} 
-            
+        {true &&       
+			<S.AddAdmin onClick={()=>setOpen({...open, form: true})}>
+			                   Add </S.AddAdmin>}
+       
+     <SpinZone><S.NotLink onClick={()=>onMenu()}>
+                                  {t('menu')}</S.NotLink></SpinZone>      
       </S.ListButts> 
          
      
 		               
-	   {loadingEstates &&  <S.SpinCont><S.Spinner/></S.SpinCont>}
-       {shown && shown.length>0 && !loadingEstates && <S.List>
+	   {loadingUnits &&  <S.SpinCont><S.Spinner/></S.SpinCont>}
+       {shown && shown.length>0 && !loadingUnits && <S.List>
           
           
          {shown.map(item => 
-		   <ECell key={item._id} item={item} open={open}
+		   <UCell key={item._id} item={item} open={open}
 			     showOptions={showOptions} creator={creator} 
 			     admin={admin} 
-			     handEdit={handEdit} handAdd={handAdd} 
-			     deleteEstate={deleteEstate}/>)}       
+			     handEdit={handEdit} 
+			     deleteUnit={deleteUnit}/>)}       
         </S.List>}
         
          {!shown.length&&<S.NoData>No products found for this request</S.NoData>}

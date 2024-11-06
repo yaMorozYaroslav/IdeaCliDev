@@ -2,7 +2,7 @@
 import {UserState} from '../../context/user/UserState'
 import {EstateState} from '../../context/estates/EstateState'
 import {QueryState} from '../../context/queries/QueryState'
-import {ItemState} from '../../context/items/ItemState'
+import {UnitState} from '../../context/units/UnitState'
 import {CartState} from '../../context/cart/CartState'
 import {LoadState} from '../../context/LoadState'
 
@@ -54,7 +54,7 @@ let messages
      <StyledComponentsRegistry>
       <GlobalStyle/>
        <EstateState>
-       <ItemState>
+       <UnitState>
        <UserState>
        <CartState>
        <QueryState>
@@ -65,7 +65,7 @@ let messages
       </QueryState>
       </CartState>
       </UserState>
-      </ItemState>
+      </UnitState>
       </EstateState>
      </StyledComponentsRegistry>
       </NextIntlClientProvider>

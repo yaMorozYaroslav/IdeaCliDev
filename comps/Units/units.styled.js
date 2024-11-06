@@ -5,10 +5,7 @@ export const Container = styled.div`padding-top:1px;
                                     margin-bottom:5px;
                          @media (max-width:600px) {margin-top:25px;}
                          @media (max-width:400px) {}`
-export const ListButts = styled.section`display:grid;
-                                        grid-template-columns:10% 80%;
-                                        
-                                        margin-top:90px;
+export const ListButts = styled.section`display:flex;margin-top:90px;
                          @media (max-width:600px) {margin-top:156px;
                          @media (max-width:400px) {margin-left:-15px;`
 export const AddAdmin = styled.button`font-size:23px;border-style: dashed;padding:10px;
@@ -16,14 +13,12 @@ export const AddAdmin = styled.button`font-size:23px;border-style: dashed;paddin
                         @media (max-width: 600px) {font-size:20px;}
                         @media (max-width: 400px) {font-size:18px;padding:5px;
                                                    margin-left:-7px;}`
-export const Title = styled.p`grid-column:2; text-align:center; 
-                              margin:5px 0px -5px 0px;font-size: 40px;`
-//~ export const NotLink = styled.p`margin:5px;
-                                //~ font-size: 24px;padding: 15px;
-                                //~ border:1px solid olive;
-                                //~ color:black; background:white;
-                        //~ @media (max-width: 400px){font-size:20px; padding: 18px;
-                                                  //~ padding-left:5px;padding-right:5px}`                                    
+export const NotLink = styled.p`margin:5px;
+                                font-size: 24px;padding: 15px;
+                                border:1px solid olive;
+                                color:black; background:white;
+                        @media (max-width: 400px){font-size:20px; padding: 18px;
+                                                  padding-left:5px;padding-right:5px}`                                    
 export const List = styled.ul` display: grid;
                                grid-template-columns: repeat(4,24%);
                                grid-template-rows: 400px;
