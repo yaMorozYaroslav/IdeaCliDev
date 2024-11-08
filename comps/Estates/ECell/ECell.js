@@ -4,12 +4,13 @@ import * as S from './e-cell.styled'
 
 import {Link} from '../../../navigation'
 
-import AddCartIcon from '@mui/icons-material/AddShoppingCart';
+//~ import AddCartIcon from '@mui/icons-material/AddShoppingCart';
 import SearchIcon from '@mui/icons-material/ContentPasteSearch';
 import OffIcon from '@mui/icons-material/HighlightOff';
 import EditIcon from '@mui/icons-material/Edit';
+import ApartmentIcon from '@mui/icons-material/Apartment';
 
-export const ECell =({item, showOptions, creator, admin,
+export const ECell =({item, showOptions, owner, admin,
 	                  open, handAdd, handEdit, deleteEstate})=> {
 
 const [options, setOptions] = React.useState(false)
@@ -46,24 +47,29 @@ return(<>
 				   
 				            
 	     <S.DetailsLink className='styledLink'
-                        href={`/${urlSingle}/${item._id}`}>
+                        href={`/estate/${item._id}`}>
 	    
-	          <S.DetailsButt>
-	                          Details
+	          <S.InnerButt>
+	                          Estate Info    
 	             <SearchIcon style={{position:'relative',
-				                   top:'5px',fontSize:'25px'}}/>
-	          </S.DetailsButt>
+				                     top:'5px', left: '5px',
+				                     fontSize:'26px'}}/>
+	          </S.InnerButt>
 	          
 	     </S.DetailsLink>
 				             
-		 <S.AddButt onClick={(e)=>handAdd(e,item)}>Add
-              <AddCartIcon style={{position:'relative',
-				                   top:'5px',fontSize:'25px'}}/>
-         </S.AddButt>
+		 <S.UnitsLink className='styledLink' href={`/unit-list/${item._id}`}>
+		    <S.InnerButt style={{borderBottom: '2px solid'}}>
+		                      Show Units
+              <ApartmentIcon style={{position:'relative',
+				                   top:'5px', left: '5px',
+				                   fontSize:'26px'}}/>
+		    </S.InnerButt>
+         </S.UnitsLink>
 	                
 				  </S.StyledButtons>
 				  
-				  {(creator(item.creator)||admin)
+				  {(owner(item.owner)||admin)
 				   
 				&&<S.SuperButts><S.KingButt onClick={(e)=>
 					      deleteEstate(e, item._id)}>
@@ -80,8 +86,7 @@ return(<>
            
                <S.Parag>province: {item.provName}</S.Parag>
                <S.Parag>location: {item.location?item.location:'---'}</S.Parag>
-               <S.Parag>owner: {item.owner} </S.Parag>               
-               <Link href={`/unit-list/${item._id}`}>Link</Link>
+               <S.Parag>owner: {item.owner} </S.Parag>          
               
 </S.Cell>
              </> )}

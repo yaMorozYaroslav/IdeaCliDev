@@ -20,8 +20,9 @@ export const MainCont = styled.div`background-color: black;
                         @media (max-width: 600px) {grid-column: 1/3;width:90%;
                                                    margin-left:2%;}
                         @media (max-width: 400px) {width:85%;margin-left:7%;}`
-export const MainTitle = styled.h6`color:white;font-size:40px;margin:-5px 10px 10px 0px;
-                                  width:30%;
+export const MainTitle = styled.h6`color:white;font-size:40px;
+                                   margin:-5px 10px 10px -25px;
+                                   width:30%; display: inline;
                           @media (max-width: 800px) {font-size:50px;
                                                      margin-left:-5px;margin-top:-10px;}
                           @media (max-width: 400px) {font-size:44px;

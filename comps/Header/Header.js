@@ -12,7 +12,7 @@ export function Header(){
   React.useEffect(()=>{
 	    },[])
 	return <S.HeadCont>
-	          <S.MainCont><S.MainTitle>HesenProperties</S.MainTitle></S.MainCont>              
+	          <S.MainCont><S.MainTitle>Hesen Properties</S.MainTitle></S.MainCont>              
 	           <h4>About Us</h4>
 	            <LangSwitch/>
 	            <AuthPanel/>

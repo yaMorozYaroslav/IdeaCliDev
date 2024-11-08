@@ -18,13 +18,13 @@ export const StyledImage = styled(Image)`margin:7px 10px 13px 10px;
 export const FourButtons = styled.section`display:flex;`
 export const StyledButtons = styled.section`margin-left:10%;margin-top:7px;
                                             height:194px;width:80%;`
-export const DetailsButt = styled.button`width:100%;height:50%;
-                                         font-size:21px;border-style:groove;
-                                         border-bottom:none;`
 export const DetailsLink = styled(Link)`
                          @media (max-width: 600px) {font-size: 18px;}`
-export const AddButt = styled.button`border-style:groove;font-size:21px;
-                                     width:100%;height:50%;`
+export const InnerButt = styled.button`width:100%;height:50%;
+                                         font-size:21px;border-style:groove;
+                                         border-bottom:none;`                                        
+export const UnitsLink = styled(Link)`
+                         @media (max-width: 600px) {font-size: 18px;}`
 export const SuperButts = styled.section``
 export const KingButt = styled.button`border-style:groove;margin:3px;font-size:21px;
                                       color: gold;background:black;height:40px;

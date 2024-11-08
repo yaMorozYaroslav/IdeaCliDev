@@ -5,7 +5,7 @@ import EstateReducer from "./EstateReducer";
 import {getEstates, createEstate, editEstate, deleteEstate} from '../../api'
 
 import {GET_ESTATES, START_LOADING, END_LOADING, ADD_ESTATE, 
-	    UPDATE_ESTATE, REMOVE_ESTATE, ERROR, RESET} from "./EstateTypes"
+	    UPDATE_ESTATE, REMOVE_ESTATE, ERROR, RESET, SET_MANUALLY} from "./EstateTypes"
 
 const EstateContext = React.createContext()
 
@@ -69,7 +69,7 @@ export const EstateState = ({ children }) => {
 	}
    }
    const resetEstates = () => {dispatch({type: RESET, payload: initialState})}
-  
+   const setEstates = (data) => {dispatch({type: SET_MANUALLY, payload: data})}
   return (
 
     <EstateContext.Provider
@@ -82,6 +82,7 @@ export const EstateState = ({ children }) => {
         updateEstate,
         removeEstate,  
         resetEstates,
+        setEstates,
         ...state
       }}>
       {children}

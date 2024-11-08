@@ -16,6 +16,7 @@ import revalidator from './revalidator'
 import { usePathname } from '../../navigation'
 import { useRouter } from '../../navigation'
 import {useTranslations} from 'next-intl'
+import AddHomeIcon from '@mui/icons-material/AddHomeWork';
 
 import {ECell} from './ECell/ECell'
 
@@ -34,12 +35,12 @@ export function Estates(servData){
 	const {cartItems, addToCart} = useCartContext()
 	
 	const {fetchEstates, loadingEstates, estates, 
-		               removeEstate, resetEstates} = useEstateContext()
-		               
+		   removeEstate, resetEstates, setEstates} = useEstateContext()
+  	               
 	const {state, category} = useQueryContext()
 	
-	
-	const creator =(id)=> userData.user && (userData.user._id === id)
+	const propertyOwner =(id)=> userData.user && (userData.user._id === id)
+	const owner = userData.user && userData.user.role === 'owner'
 	const admin = userData.user && userData.user.role === 'admin'
 	
 	
@@ -48,8 +49,7 @@ export function Estates(servData){
 	const handEdit =(e, s)=> {e.preventDefault(); 
 		                      setCurrItem(s);setOpen({...open, form: true})}
 		                      
-    const onMenu = () => {router.push('/');if(true){
-							            resetEstates()}else{resetItems()}}
+    const onMenu = () => {router.push('/'); resetEstates()}
 	const showOptions =()=>{setOpen({...open, options: !open.options});}
 	
                        
@@ -59,15 +59,18 @@ export function Estates(servData){
 		revalidator()
 		setTimeout(()=>{fetchEstates(state)},500)
 		}	
-
-   React.useEffect(()=>{ if(estates.data){setShown(estates.data)}
-	                  },[ estates])
+   //~ console.log(servData.servData)
+   React.useEffect(()=>{ if(!estates.data){setEstates(servData.servData)}
+	                    if(estates.data){setShown(estates.data)
+	                    }
+	                  },[estates])
+	                  console.log(estates)
        
 return (<S.Container>
       <S.ListButts>
-       {true &&       
+       {owner||admin &&       
 			 <S.AddAdmin onClick={()=>setOpen({...open, form: true})}>
-			                   Add </S.AddAdmin>}
+			                   <AddHomeIcon fontSize='large'/> </S.AddAdmin>}
 	  <S.Title>Estates</S.Title>
        {open.form &&
 		     <AddEstate setOpen={setOpen} 
@@ -85,7 +88,7 @@ return (<S.Container>
           
          {shown.map(item => 
 		   <ECell key={item._id} item={item} open={open}
-			     showOptions={showOptions} creator={creator} 
+			     showOptions={showOptions} owner={propertyOwner} 
 			     admin={admin} 
 			     handEdit={handEdit} handAdd={handAdd} 
 			     deleteEstate={deleteEstate}/>)}       

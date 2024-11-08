@@ -1,5 +1,5 @@
 import {GET_ESTATES, START_LOADING, END_LOADING, ADD_ESTATE, 
-	    UPDATE_ESTATE, REMOVE_ESTATE, ERROR, RESET} from "./EstateTypes"
+	    UPDATE_ESTATE, REMOVE_ESTATE, ERROR, RESET, SET_MANUALLY} from "./EstateTypes"
 
 const EstateReducer = (state, action) => {
   switch (action.type) {
@@ -39,6 +39,9 @@ const EstateReducer = (state, action) => {
 	
 	case RESET: 
 	return action.payload
+	
+	case SET_MANUALLY:
+	return {...state, estates: action.payload}
 	
     default:
       return state;

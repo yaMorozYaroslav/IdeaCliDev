@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { usePathname } from '../../../navigation';
+import { usePathname } from '../../../navigation'
 import {useEstateContext} from '../../../context/estates/EstateState'
 import {useQueryContext} from '../../../context/queries/QueryState'
 import * as S from './add-estate.styled'
@@ -10,62 +10,23 @@ import {useTranslations} from 'next-intl'
 import {uploadImage} from './convert-base64'
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
+import {getProvinces, getLocations, searchLocations} from './requests'
 
 const initialState = { provName: '', provCode:'', location:'', 
 	                   street:'', photo: '' }
 
 export function AddEstate({servData, setOpen, currItem, setCurrItem}){
+	
 	const t = useTranslations("AddForm")
 	const tc = useTranslations("categories")
 	const tt = useTranslations("types")
+	
 	const [source, setSource] = React.useState(initialState)
 	const [label, setLabel] = React.useState(t('no file'))
 	
 	const [selected, setSelected] = React.useState({provinces: [],
 		                                            locations: []})
-		                                            
-  const base = 'https://geogratis.gc.ca/services/geoname/en/geonames.json'
-  
-  async function getProvinces() {
-      let allData = await fetch(`${base}?concise=PROV`, )
-                                                   .then((res) => res.json())
-      let provinceData = allData.items.map(({name, province}) => 
-                                          ({name: name, code: province.code}))
-                                          
-      setSelected({...selected, provinces: provinceData})}
-          
-          console.log(selected.locations)
-          
-   React.useEffect(()=>{getProvinces()},[])
-
-   
-  async function getLocations(e){
-	  e.preventDefault()
-	  let targetValues = JSON.parse(event.target.value)
-	  let allData = await fetch(`${base}?province=${targetValues.code}`, )
-                                                   .then((res) => res.json())
-                                         
-      let locationData = allData.items.map(item => ({label:item.name, id:item.id}))
-      setSelected({...selected, locations: locationData})
-      setSource({...source, provName: targetValues.name, provCode: targetValues.code})
-      console.log(targetValues)
-	  }
-  
-	  async function searchLocations(e){
-	  e.preventDefault()
-	  
-	   let allData = await fetch(
-	        `${base}?province=${source.provCode}&q=${event.target.value}`, )
-                                                   .then((res) => res.json())
-        console.log(allData)
-	   let locationData = allData.items.map(item => ({label:item.name, 
-		                                              id:item.id})) 
-	   setSelected({...selected, locations: locationData})
-	   setSource({...source, location: e.target.value})                                      
-	   }
- console.log(source)
-	
-		                                          
+		                                                                                      
 	const pathname = usePathname()
 	const isSeed = true
 	
@@ -120,6 +81,27 @@ export function AddEstate({servData, setOpen, currItem, setCurrItem}){
 	    revalidator()
 		        }
     console.log(source)
+    
+                                          
+    async function onProvinces(e){
+		const {provinceData} = await getProvinces(e)
+		setSelected({...selected, provinces: provinceData})
+		}             
+   React.useEffect((e)=>{onProvinces(e)},[])
+   
+    async function onLocations(e){
+		const {locationData, targetValues} = await getLocations(e)
+		
+		   setSelected({...selected, locations: locationData})
+           setSource({...source, provName: targetValues.name,
+			                     provCode: targetValues.code})
+		}
+    async function onSearch(e){
+		const {locationData, targetValue} = await searchLocations(e, source.provCode)
+		//~ console.log(locationData)
+		setSelected({...selected, locations: locationData})
+	   setSource({...source, location: targetValue}) 
+		}
 	 return(
 	<S.ExtraCont>
 	 <S.Container>
@@ -130,7 +112,7 @@ export function AddEstate({servData, setOpen, currItem, setCurrItem}){
 	 
 	 <label>Province:</label><br/>
 	                              
-	 <select onChange={(e) => getLocations(e)} mode="multiple" 
+	 <select onChange={(e) => onLocations(e)} mode="multiple" 
 	         defaultValue={source.provName}>
 	         
 	              {!source.provName && <option >Select Province...</option>}
@@ -148,7 +130,7 @@ export function AddEstate({servData, setOpen, currItem, setCurrItem}){
             onChange={(e,value)=>{value?setSource({...source, location: value.label}):null}}                     
             renderInput = {(data) => (
                <TextField {...data}  label = "Location"
-                          onChange={((e)=>searchLocations(e))}/>
+                          onChange={((e)=>onSearch(e))}/>
             )} />}
    <S.Selector>
       <label>Photo:&#160;</label>
