@@ -13,14 +13,14 @@ async function anyName() {
 
       //~ revalidateTag('estates')  
    
-  return  allData
+  return  {allData}
 }
 //~ export const metadata = { title: 'Title', description: 'gardening store'}
 const lora = Russo_One({ subsets: ['cyrillic'], weight:['400'] })
 
 export default async function Main() {
 	
-	const allData = await anyName()
+	const {allData} = await anyName()
 	
 	//~ className={lora.className}
   return (<><Estates servData={allData} />
