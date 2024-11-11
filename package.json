@@ -31,7 +31,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-image-file-resizer": "^0.4.8",
-    "stripe": "^17.2.0",
+    "stripe": "16.12.0",
     "styled-components": "^6.1.8",
     "supports-color": "^9.4.0",
     "typescript": "^5.5.4"
