@@ -6,8 +6,9 @@ import {UnitState} from '../../context/units/UnitState'
 import {CartState} from '../../context/cart/CartState'
 import {LoadState} from '../../context/LoadState'
 
-import { Lora } from 'next/font/google'
 import {Header} from '../../comps/Header/Header'
+
+import { Lora } from 'next/font/google'
 import {GlobalStyle} from './extra.styled'
 import StyledComponentsRegistry from './registry';
 import {Russo_One} from 'next/font/google'
@@ -59,7 +60,7 @@ let messages
        <CartState>
        <QueryState>
        <LoadState>
-        <Header />
+       <Header />
           {children}
       </LoadState>
       </QueryState>

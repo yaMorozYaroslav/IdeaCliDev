@@ -8,30 +8,32 @@ import {SpinZone} from '../../blocks/SpinZone'
 
 import {useEstateContext} from '../../context/estates/EstateState'
 import {useQueryContext} from '../../context/queries/QueryState'
-import {useUserContext} from '../../context/user/UserState'
+//~ import {useUserContext} from '../../context/user/UserState'
 import {useCartContext} from '../../context/cart/CartState'
-
+import {getSession} from '/lib'
 import revalidator from './revalidator'
 
 import { usePathname } from '../../navigation'
 import { useRouter } from '../../navigation'
 import {useTranslations} from 'next-intl'
-import AddHomeIcon from '@mui/icons-material/AddHomeWork';
+import AddEstateIcon from '@mui/icons-material/AddHomeWork';
+import cookies from 'js-cookie';
 
 import {ECell} from './ECell/ECell'
 
-export function Estates(servData){
+export function Estates (servData){
 	
+	const session = JSON.parse(cookies.get('session')||'{}')
 	const t = useTranslations('List')
 	const pathname = usePathname()
 	const router = useRouter()
-	
+	console.log(session)
 	const [open, setOpen] = React.useState({form: false})
-    const [shown, setShown] = React.useState(servData.servData)
+    const [shown, setShown] = React.useState(servData.servData.data)
 	const [currItem, setCurrItem] = React.useState({})
 	const [staticData, setStaticData] = React.useState(servData.servData)
 	
-	const {userData} = useUserContext()
+	//~ const {userData} = useUserContext()
 	const {cartItems, addToCart} = useCartContext()
 	
 	const {fetchEstates, loadingEstates, estates, 
@@ -39,9 +41,9 @@ export function Estates(servData){
   	               
 	const {state, category} = useQueryContext()
 	
-	const propertyOwner =(id)=> userData.user && (userData.user._id === id)
-	const owner = userData.user && userData.user.role === 'owner'
-	const admin = userData.user && userData.user.role === 'admin'
+	const propertyOwner =(id)=> session.user && (session.user._id === id)
+	const owner = session.user && session.user.role === 'owner'
+	const admin = session.user && session.user.role === 'admin'
 	
 	
 	const handAdd =(e, s)=> {e.preventDefault();addToCart(s);}
@@ -55,22 +57,24 @@ export function Estates(servData){
                        
 	function deleteEstate(e, id){
 		e.preventDefault();
-		removeEstate(id)
+		removeEstate(id).then(()=>{alert('Estate has been deleted.')
+			                              fetchEstates(state)})
+		
 		revalidator()
-		setTimeout(()=>{fetchEstates(state)},500)
 		}	
    //~ console.log(servData.servData)
-   React.useEffect(()=>{ if(!estates.data){setEstates(servData.servData)}
-	                    if(estates.data){setShown(estates.data)
-	                    }
-	                  },[estates])
-	                  console.log(estates)
+   React.useEffect(()=>{
+	                    //~ if(!estates.data){setEstates(servData.servData)}
+	                    if(estates.data)setShown(estates.data)
+	                    
+	                  },[estates.data])
+	                  console.log(estates.data)
        
 return (<S.Container>
       <S.ListButts>
        {owner||admin &&       
 			 <S.AddAdmin onClick={()=>setOpen({...open, form: true})}>
-			                   <AddHomeIcon fontSize='large'/> </S.AddAdmin>}
+			                   <AddEstateIcon fontSize='large'/> </S.AddAdmin>}
 	  <S.Title>Estates</S.Title>
        {open.form &&
 		     <AddEstate setOpen={setOpen} 

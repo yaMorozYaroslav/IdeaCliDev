@@ -3,15 +3,27 @@ import React from 'react'
 import * as S from './one-estate.styled'
 //import {AddForm} from '../AddForm/AddForm'
 import Image from 'next/image'
-import { usePathname } from '../../navigation'
+import { useParams } from 'next/navigation'
 
-export const OneEstate =({estate})=>{
+export const OneEstate = ({cliEstate})=>{
 	//~ console.log(params)
-	const pathname = usePathname()
-	const pathBack = '/' + pathname.split('/')[1].slice(0,4) + '-list'
+	const params = useParams()
+	const [estate, setEstate] = React.useState(cliEstate||{})
 	//~ console.log(pathBack)
-	
-	
+   //~ await new Promise(resolve => setTimeout(resolve, 10000))
+   let servEstate = []
+   async function getServEstate(){
+	   const result = await fetch(`http://localhost:5000/estates/${params.id}`)
+                                              .then((res) => res.json())
+       setEstate(result)}
+   if(!estate._id)getServEstate()
+       console.log(estate)
+       
+      //~ { next: { tags: ['estate'] }}
+      //~ revalidateTag('estate')
+   //~ return estate
+
+     
   return (<S.Container>		              
              <Image style ={{marginTop:"150px"}}
                     alt='' src={estate.photo&&estate.photo.length?estate.photo:'/next.svg'}

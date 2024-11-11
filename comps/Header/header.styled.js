@@ -20,10 +20,13 @@ export const MainCont = styled.div`background-color: black;
                         @media (max-width: 600px) {grid-column: 1/3;width:90%;
                                                    margin-left:2%;}
                         @media (max-width: 400px) {width:85%;margin-left:7%;}`
-export const MainTitle = styled.h6`color:white;font-size:40px;
-                                   margin:-5px 10px 10px -25px;
-                                   width:30%; display: inline;
-                          @media (max-width: 800px) {font-size:50px;
-                                                     margin-left:-5px;margin-top:-10px;}
-                          @media (max-width: 400px) {font-size:44px;
-                                                     margin-left:-10px;margin-top:-5px;} `
+export const MainTitle = styled.h6`color:white;font-size:35px;
+                                   text-align:left;
+                                   margin:0px 0px 10px 0px;
+                                   width:100%; 
+                          @media (max-width: 1200px) {font-size:32px;}
+                          @media (max-width: 1000px) {width:50%;
+                                                      font-size:28px;
+                                                      margin-top:-18px;}
+                          @media (max-width: 400px) {font-size:30px;
+                                                     margin-top:-20px;} `

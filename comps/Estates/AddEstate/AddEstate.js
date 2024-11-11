@@ -72,7 +72,7 @@ export function AddEstate({servData, setOpen, currItem, setCurrItem}){
 	        }else{updateEstate(source._id, source)
 							                   .then(()=>fetchEstates(state))}
 							
-							                   	 
+		console.log(source._id)					                   	 
         reset()
 	    setOpen(false)
 		     setTimeout(() => {
@@ -83,11 +83,11 @@ export function AddEstate({servData, setOpen, currItem, setCurrItem}){
     console.log(source)
     
                                           
-    async function onProvinces(e){
-		const {provinceData} = await getProvinces(e)
+    async function onProvinces(){
+		const {provinceData} = await getProvinces()
 		setSelected({...selected, provinces: provinceData})
 		}             
-   React.useEffect((e)=>{onProvinces(e)},[])
+   React.useEffect(()=>{onProvinces()},[])
    
     async function onLocations(e){
 		const {locationData, targetValues} = await getLocations(e)

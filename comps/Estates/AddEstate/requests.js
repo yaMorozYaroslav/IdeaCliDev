@@ -1,12 +1,13 @@
 const base = 'https://geogratis.gc.ca/services/geoname/en/geonames.json'
   
 
-export async function getProvinces(e) {
-	  e.preventDefault()
+export async function getProvinces() {
       let allData = await fetch(`${base}?concise=PROV`, )
                                                    .then((res) => res.json())
       let provinceData = allData.items.map(({name, province}) => 
-                                          ({name: name, code: province.code}))}
+                                          ({name: name, code: province.code}))
+            return {provinceData}                              
+            }
 export async function getLocations(e){
 	  e.preventDefault()
 	  let targetValues = JSON.parse(event.target.value)

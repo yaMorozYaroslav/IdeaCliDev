@@ -8,6 +8,8 @@ import { useRouter } from '../../navigation'
 import {useTranslations} from 'next-intl'
 
 import {useUserContext} from '../../context/user/UserState'
+import {signIn, signUp} from '/lib'
+import cookies from 'js-cookie';
 
 const initialState = {name: '', email: '', password: '', confPass: ''}
 
@@ -15,26 +17,26 @@ export function AuthForm(){
 	const t = useTranslations("AuthForm")
 	const router = useRouter()
 	
-	const {userData, setFromStorage, signIn, signUp, logout,
-		                         error, clearError} =  useUserContext()
-		                         
+	const {setFromStorage, error, clearError} =  useUserContext()
+    const [userData, setUserData] = React.useState()        
 	const [source, setSource] = React.useState(initialState)
 	
 	const [registered, setRegistered] = React.useState(false)	
 	
-	function handSubmit(e){
+	async function handSubmit(e){
 		e.preventDefault()			 
-			if(registered){signIn(source)
+			if(registered){await signIn(source).then(data=>setUserData(data))
 		   }else{
 			  if((source.password !== source.confPass)){
 	              alert('Passwords do not match.')
-	         }else{signUp(source)
+	         }else{ await signUp(source).then(data=>setUserData(data))
          }}}     
-	     
+	     console.log(userData)
 	const handChange =(e)=> setSource({...source, [e.target.name]: e.target.value})
     
     React.useEffect(()=>{
-		  if(userData.user)router.push('/')
+		  const session = cookies.get('session')
+		  if(session)router.push('/')
 		},[userData])
 		
   return  <S.Container>

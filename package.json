@@ -23,8 +23,10 @@
     "axios": "^1.6.8",
     "babel-plugin-styled-components": "^2.1.4",
     "debug": "^4.3.4",
+    "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
     "next": "^14.2.3",
+    "next-client-cookies": "^2.0.0",
     "next-intl": "^3.10.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -38,6 +40,7 @@
     "styled-components": "^6"
   },
   "devDependencies": {
+    "@types/js-cookie": "^3",
     "yarn-upgrade-all": "^0.7.2"
   },
   "packageManager": "yarn@4.4.0"

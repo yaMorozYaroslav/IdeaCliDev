@@ -13,22 +13,12 @@ import {useEstateContext} from '../../../../context/estates/EstateState'
     //~ return items.data.map((item) => ({id: item._id}))
 	//~ }
 
- //~ async function getItem(params) {
-   //~ await new Promise(resolve => setTimeout(resolve, 10000))
-   //~ const item = await fetch(
-    //~ `https://seed-shop-back-78049b8c30bb.herokuapp.com/items/${params.id}`)
-                                            //~ .then((res) => res.json())
-      
-         //~ { next: { tags: ['item'] }}
-      //~ revalidateTag('item')
-   //~ return item
-
-       //~ }
+ 
 export default function Estate({params}){
         const {estates} = useEstateContext()
         const thisEstate = estates.filter(estate => estate._id === params.id) 
-	//~ const item = await getItem(params)
-	console.log(thisEstate)
+       
+	console.log(estates)
 	
-	return <OneEstate estate={thisEstate[0]} />
+	return <OneEstate cliEstate={thisEstate[0]} />
 	}

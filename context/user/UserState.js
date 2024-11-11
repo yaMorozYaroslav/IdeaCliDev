@@ -46,8 +46,10 @@ export const UserState = ({children}) => {
 	return (
 
     <UserContext.Provider
-      value={{userData: state.userData, error: state.error, signUp,
-		                signIn, logout, setFromStorage, clearError}}>
+      value={{userData: state.userData,
+		      error: state.error,
+		      signUp, signIn, logout,
+		      setFromStorage, clearError}}>
       {children}
     </UserContext.Provider>
   )

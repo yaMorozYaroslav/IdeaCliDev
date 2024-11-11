@@ -952,6 +952,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/js-cookie@npm:^3":
+  version: 3.0.6
+  resolution: "@types/js-cookie@npm:3.0.6"
+  checksum: 10c0/173afaf5ea9d86c22395b9d2a00b6adb0006dcfef165d6dcb0395cdc32f5a5dcf9c3c60f97194119963a15849b8f85121e1ae730b03e40bc0c29b84396ba22f9
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:>=8.1.0":
   version: 22.7.5
   resolution: "@types/node@npm:22.7.5"
@@ -1823,6 +1830,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"js-cookie@npm:^3.0.5":
+  version: 3.0.5
+  resolution: "js-cookie@npm:3.0.5"
+  checksum: 10c0/04a0e560407b4489daac3a63e231d35f4e86f78bff9d792011391b49c59f721b513411cd75714c418049c8dc9750b20fcddad1ca5a2ca616c3aca4874cce5b3a
+  languageName: node
+  linkType: hard
+
 "js-tokens@npm:^3.0.0 || ^4.0.0, js-tokens@npm:^4.0.0":
   version: 4.0.0
   resolution: "js-tokens@npm:4.0.0"
@@ -2031,6 +2045,18 @@ __metadata:
   version: 0.6.3
   resolution: "negotiator@npm:0.6.3"
   checksum: 10c0/3ec9fd413e7bf071c937ae60d572bc67155262068ed522cf4b3be5edbe6ddf67d095ec03a3a14ebf8fc8e95f8e1d61be4869db0dbb0de696f6b837358bd43fc2
+  languageName: node
+  linkType: hard
+
+"next-client-cookies@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "next-client-cookies@npm:2.0.0"
+  dependencies:
+    js-cookie: "npm:^3.0.5"
+  peerDependencies:
+    next: ">= 15.0.0"
+    react: ">= 16.8.0"
+  checksum: 10c0/de4a49dad74ab7e6bc2ad1627aefb6d4453a0f54715e470f6f8aa390998046f543f6881e1e8c395f20867be6b2f631844d635fccddce37905ac26b4f3b0874d2
   languageName: node
   linkType: hard
 
@@ -2420,14 +2446,17 @@ __metadata:
     "@mui/material": "npm:^5.15.14"
     "@stripe/react-stripe-js": "npm:^2.8.1"
     "@stripe/stripe-js": "npm:^4.8.0"
+    "@types/js-cookie": "npm:^3"
     "@types/node": "npm:^22.1.0"
     "@types/react": "npm:^18.3.3"
     anchor-pki: "npm:^0.3.2"
     axios: "npm:^1.6.8"
     babel-plugin-styled-components: "npm:^2.1.4"
     debug: "npm:^4.3.4"
+    js-cookie: "npm:^3.0.5"
     jwt-decode: "npm:^4.0.0"
     next: "npm:^14.2.3"
+    next-client-cookies: "npm:^2.0.0"
     next-intl: "npm:^3.10.0"
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"

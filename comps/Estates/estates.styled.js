@@ -11,6 +11,7 @@ export const ListButts = styled.section`display:grid;
                                         margin-top:90px;
                          @media (max-width:600px) {margin-top:156px;
                          @media (max-width:400px) {margin-left:-15px;`
+                         
 export const AddAdmin = styled.button`font-size:23px;border-style: dashed;padding:10px;
                                       background: white;height:63px;margin-top:5px;
                         @media (max-width: 600px) {font-size:20px;}

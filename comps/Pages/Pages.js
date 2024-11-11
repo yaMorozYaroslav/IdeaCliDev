@@ -23,8 +23,8 @@ export function Pages(total) {
 	const {state, setPage} = useQueryContext()
 	const {estates, fetchEstates} = useEstateContext()
 	const {units, fetchEstateUnits} = useUnitContext()
-	console.log(units)
-	console.log(estates)
+	//~ console.log(units)
+	//~ console.log(estates)
 	const notExist = estates.message||units.message?true:false
 	//~ const notExist = estates.message||items.message?true:false
     

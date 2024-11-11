@@ -69,7 +69,7 @@ return(<>
 	                
 				  </S.StyledButtons>
 				  
-				  {(owner(item.owner)||admin)
+				  {(owner(item.owner)||admin||true)
 				   
 				&&<S.SuperButts><S.KingButt onClick={(e)=>
 					      deleteEstate(e, item._id)}>

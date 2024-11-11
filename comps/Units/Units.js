@@ -18,6 +18,7 @@ import {useTranslations} from 'next-intl'
 import { useParams } from 'next/navigation'
 
 import {UCell} from './UCell/UCell'
+import AddHomeIcon from '@mui/icons-material/AddHome';
 
 export function Units(servData){
 	
@@ -72,10 +73,10 @@ return (<S.Container>
 		               />} 
         {true &&       
 			<S.AddAdmin onClick={()=>setOpen({...open, form: true})}>
-			                   Add </S.AddAdmin>}
-       
-     <SpinZone><S.NotLink onClick={()=>onMenu()}>
-                                  {t('menu')}</S.NotLink></SpinZone>      
+			                   <AddHomeIcon fontSize='large'/> </S.AddAdmin>}
+             <S.Title>Units</S.Title>
+     <S.NotLink onClick={()=>onMenu()}>
+                                 <SpinZone> {t('menu')}</SpinZone></S.NotLink>      
       </S.ListButts> 
          
      
