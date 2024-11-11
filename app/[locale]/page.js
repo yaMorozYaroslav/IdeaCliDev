@@ -2,7 +2,7 @@ import {Estates} from '../../comps/Estates/Estates'
 import { Acme } from 'next/font/google'
 import {Russo_One} from 'next/font/google'
 import {Pages} from '../../comps/Pages/Pages'
-import {getSession} from '/lib'
+import {getSession} from '../../lib'
 //~ import {Metadata} from 'next'
 
 async function anyName() {
