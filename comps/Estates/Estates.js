@@ -23,7 +23,7 @@ import {ECell} from './ECell/ECell'
 
 export function Estates (servData){
 	
-	const session = cookies.get('session')?JSON.parse(cookies.get('session')):{})
+	const session = cookies.get('session')?JSON.parse(cookies.get('session')):{}
 	const t = useTranslations('List')
 	const pathname = usePathname()
 	const router = useRouter()
