@@ -6,7 +6,7 @@ import {Pages} from '../../comps/Pages/Pages'
 
 async function anyName() {
   const allData = 
-     await fetch('http://localhost:5000/estates?page=&location=', { next: { tags: ['estates'] }})
+     await fetch('https://hesen-properties-3eefa0d80ae7.herokuapp.com/estates?page=&location=', { next: { tags: ['estates'] }})
                                             .then((res) => res.json())
 
       //~ revalidateTag('estates')  
