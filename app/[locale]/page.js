@@ -23,7 +23,7 @@ export default async function Main() {
 	const allData = await anyName()
 	
 	//~ className={lora.className}
-  return      <div><Estates servData={allData} />
-              <Pages total={allData.totalPages}/>
-              </div>
+  return (<><Estates servData={allData} />
+               <Pages total={allData.totalPages}/>
+          </>)
 }
