@@ -22,7 +22,8 @@ const [emptyData, setEmptyData] = React.useState(0)
 React.useEffect(()=>{
 		const hasEmpty = async () => {
 		let allData = await fetch(
-		                   'http://localhost:5000/units/all/empty')
+		                   //~ 'http://localhost:5000/units/all/empty')
+		                   'https://hesen-properties-3eefa0d80ae7.herokuapp.com/units/all/empty')
 		                                 .then((res) => res.json())
 		const isEmpty = allData.data.filter(unit => unit._id === item._id)
 		const result = isEmpty.length?isEmpty[0].quantity:0

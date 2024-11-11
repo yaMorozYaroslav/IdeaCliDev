@@ -15,5 +15,7 @@ export const LogBut = styled.p`padding:14.5px 3% 14.5px 3%;
                                border:2px solid olive;border-radius:10px;
                                cursor:pointer;
                                font-size:24px;
+                      @media (max-width: 800px) {padding:14.5px 1% 14.5px 1%;
+                                                 }
                       @media (max-width: 600px) {margin:6px 10% 0% -10%;}
                       @media (max-width: 400px) {margin:6px -5% 0px 10%;}`

@@ -5,6 +5,7 @@ import {CartBadge} from './CartBadge/CartBadge'
 import * as S from './header.styled'
 import {useTranslations} from 'next-intl'
 import {LangSwitch} from './LangSwitch/LangSwitch'
+import {AboutButt} from './AboutButt/AboutButt'
 
 export function Header(){
   const t = useTranslations('Header')
@@ -13,7 +14,7 @@ export function Header(){
 	    },[])
 	return <S.HeadCont>
 	          <S.MainCont><S.MainTitle>Hesen Properties</S.MainTitle></S.MainCont>              
-	           <h4>About Us</h4>
+	            <AboutButt/>
 	            <LangSwitch/>
 	            <AuthPanel/>
 	        </S.HeadCont>
