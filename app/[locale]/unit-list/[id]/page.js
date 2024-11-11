@@ -5,7 +5,7 @@ import { revalidateTag } from 'next/cache'
 
 async function anyName(estateID) {
   const allData = 
-     await fetch(`http://localhost:5000/units/${estateID}`, 
+     await fetch(`https://hesen-properties-3eefa0d80ae7.herokuapp.com/estates/${estateID}`, 
                             { next: { tags: ['units'] }})
                                             .then((res) => res.json())
       //~ revalidateTag('seeds')
