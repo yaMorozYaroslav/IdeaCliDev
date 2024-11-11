@@ -1,4 +1,4 @@
-'use client'
+
 
 import React from 'react'
 
@@ -12,15 +12,17 @@ import cookies from 'js-cookie';
 
 import {useUserContext} from '../../../context/user/UserState'
  
-export function AuthPanel(){
+export function AuthPanel(rawData){
  const r = useRouter()
  const t = useTranslations('Header')
  const [update, setUpdate] = React.useState(0)
  const {setFromStorage, signIn,
 	    signUp, error, clearError} =  useUserContext()
+
+ //~ console.log(rawData.userData)
  const rawString = cookies.get('session')
- const userData = rawString?JSON.parse(rawString):{}  	
-    	//~ const removeProfile = () => localStorage.removeItem('profile')
+ const userData = JSON.parse(rawData.userData||'{}')	
+    	const removeProfile = () => localStorage.removeItem('profile')
         const onLogin = () => r.push('/auth') 
     //~ let profile
 	//~ let currentUser

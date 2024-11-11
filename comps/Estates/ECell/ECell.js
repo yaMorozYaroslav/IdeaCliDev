@@ -14,7 +14,6 @@ export const ECell =({item, showOptions, owner, admin,
 	                  open, handAdd, handEdit, deleteEstate})=> {
 
 const [options, setOptions] = React.useState(false)
-const urlSingle = true?'seeds':'items'
 function keyy(num){ return Object.keys(item)[num] }	
 
 const [emptyData, setEmptyData] = React.useState(0)
@@ -28,7 +27,7 @@ React.useEffect(()=>{
 		const isEmpty = allData.data.filter(unit => unit._id === item._id)
 		const result = isEmpty.length?isEmpty[0].quantity:0
 		setEmptyData(result)
-		console.log(result)	
+		//~ console.log(allData)	
 	}
 	hasEmpty()
 		},[])

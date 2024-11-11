@@ -17,6 +17,7 @@ import {notFound} from 'next/navigation'
 import { NextIntlClientProvider } from 'next-intl'
 import {unstable_setRequestLocale} from 'next-intl/server'
 import {Metadata} from 'next'
+import {getSession} from '/lib'
 
 const lora = Russo_One({ subsets: ['cyrillic'], weight: ['400'] })
 //~ import {useLocale} from 'next-intl'
@@ -24,6 +25,7 @@ const lora = Russo_One({ subsets: ['cyrillic'], weight: ['400'] })
 const locales = ['en', 'ua', 'ru']
 
 export function generateStaticParams() {
+	
   return locales.map((locale) => ({locale}));
 }
 //~ const lora = Lora({ subsets: ['latin'] })
@@ -39,6 +41,7 @@ export function generateStaticParams() {
 //~ }
 
 export default async function RootLayout({ children, params: {locale}}) {
+	const userData = await getSession()
 let messages
   try {
     messages = (await import(`../../messages/${locale}.json`)).default
@@ -60,7 +63,7 @@ let messages
        <CartState>
        <QueryState>
        <LoadState>
-       <Header />
+       <Header userData={userData}/>
           {children}
       </LoadState>
       </QueryState>

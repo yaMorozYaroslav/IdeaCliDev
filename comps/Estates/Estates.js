@@ -72,7 +72,7 @@ export function Estates (servData){
        
 return (<S.Container>
       <S.ListButts>
-       {owner||admin &&       
+       {true &&       
 			 <S.AddAdmin onClick={()=>setOpen({...open, form: true})}>
 			                   <AddEstateIcon fontSize='large'/> </S.AddAdmin>}
 	  <S.Title>Estates</S.Title>

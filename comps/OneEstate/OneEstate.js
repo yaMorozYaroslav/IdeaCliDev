@@ -4,6 +4,7 @@ import * as S from './one-estate.styled'
 //import {AddForm} from '../AddForm/AddForm'
 import Image from 'next/image'
 import { useParams } from 'next/navigation'
+import {getEstate} from '/api'
 
 export const OneEstate = ({cliEstate})=>{
 	//~ console.log(params)
@@ -13,7 +14,8 @@ export const OneEstate = ({cliEstate})=>{
    //~ await new Promise(resolve => setTimeout(resolve, 10000))
    let servEstate = []
    async function getServEstate(){
-	   const result = await fetch(`http://localhost:5000/estates/${params.id}`)
+	   const result = await fetch(`https://hesen-properties-3eefa0d80ae7.herokuapp.com/estates/${params.id}`)
+	                  //~ await fetch(`http://localhost:5000/estates/${params.id}`)
                                               .then((res) => res.json())
        setEstate(result)}
    if(!estate._id)getServEstate()

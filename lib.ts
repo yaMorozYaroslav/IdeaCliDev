@@ -14,7 +14,8 @@ export const signUp = async(formData)=> {
 	cookies().set('session', stringified)
 	return session.data
 	}
-//~ export const getSession =async()=> {
-	//~ const session = await cookies().get('session').value
-	//~ return session}
+export const getSession =async()=> {
+	let session = '{}'
+	if(cookies().get('session')) return cookies().get('session').value
+	return session}
 export const logOut =async()=> await cookies().delete('session')

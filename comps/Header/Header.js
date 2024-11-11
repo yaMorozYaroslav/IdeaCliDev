@@ -7,7 +7,7 @@ import {useTranslations} from 'next-intl'
 import {LangSwitch} from './LangSwitch/LangSwitch'
 import {AboutButt} from './AboutButt/AboutButt'
 
-export function Header(){
+export function Header({userData}){
   const t = useTranslations('Header')
   
   React.useEffect(()=>{
@@ -16,7 +16,7 @@ export function Header(){
 	          <S.MainCont><S.MainTitle>Hesen Properties</S.MainTitle></S.MainCont>              
 	            <AboutButt/>
 	            <LangSwitch/>
-	            <AuthPanel/>
+	            <AuthPanel userData={userData}/>
 	        </S.HeadCont>
 	          
 	       
