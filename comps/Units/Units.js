@@ -29,7 +29,7 @@ export function Units(servData){
 	const params = useParams()
 	
 	const [open, setOpen] = React.useState({form: false})
-    const [shown, setShown] = React.useState(servData.servData)
+    const [shown, setShown] = React.useState(servData.servData||[])
 	const [currItem, setCurrItem] = React.useState({})
 	const [staticData, setStaticData] = React.useState(servData.servData)
 	
@@ -76,7 +76,10 @@ return (<S.Container>
 			                   <AddHomeIcon fontSize='large'/> </S.AddAdmin>}
              <S.Title>Units</S.Title>
      <S.NotLink onClick={()=>onMenu()}>
-                                 <SpinZone> {t('menu')}</SpinZone></S.NotLink>      
+                                 <SpinZone> {t('menu')}</SpinZone></S.NotLink> 
+                                      
+     <S.NotEstate onClick={()=>router.push(`/estate/${params.id}`)}>
+                                 <SpinZone>Estate</SpinZone></S.NotEstate>      
       </S.ListButts> 
          
      

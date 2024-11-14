@@ -29,7 +29,7 @@ return(<>
 				   
 				            
 	     <S.DetailsLink className='styledLink'
-                        href={`/${urlSingle}/${item._id}`}>
+                        href={`/unit/${item._id}`}>
 	    
 	          <S.DetailsButt>
 	                          Details

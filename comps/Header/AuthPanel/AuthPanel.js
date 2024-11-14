@@ -22,7 +22,7 @@ export function AuthPanel(rawData){
  //~ console.log(rawData.userData)
  const rawString = cookies.get('session')
  const userData = JSON.parse(rawData.userData||'{}')	
-    	const removeProfile = () => localStorage.removeItem('profile')
+    	//~ const removeProfile = () => localStorage.removeItem('profile')
         const onLogin = () => r.push('/auth') 
     //~ let profile
 	//~ let currentUser
@@ -52,7 +52,7 @@ export function AuthPanel(rawData){
 		 //~ if(error)alert(error)
 	     //~ if(error)clearError() 
 			//~ },[error])
-   
+   //~ console.log(jwtDecode(userData.token))
      React.useEffect(()=>{
 	              let token
 	        	if(userData)token = userData.token
@@ -62,7 +62,6 @@ export function AuthPanel(rawData){
                     
 	        		if(decodedToken.exp * 999.999 < new Date().getTime()){
 	        		 logOut()
-	        		 removeProfile()
 	        		 alert('Token has expired')
 	              }
 	        	}

@@ -2,11 +2,11 @@
 import axios from 'axios'
 //~ import { cookies } from 'next/headers'
 //~ import {useCookies} from 'next-client-cookies'
-import cookies from 'js-cookie';
+import cookies from 'js-cookie'
 
-const API = axios.create({baseURL:'https://hesen-properties-3eefa0d80ae7.herokuapp.com'})
-//~ const API = axios.create({baseURL:'http://localhost:5000'})
-//~ const API = axios.create({baseURL:'https://flora-storage-95930743be75.herokuapp.com'})
+//~ export const base = 'https://hesen-properties-3eefa0d80ae7.herokuapp.com'
+export const base = 'http://localhost:5000'
+const API = axios.create({baseURL:`${base}`})
 //~ const cooks = cookies().get('session').value
 
 API.interceptors.request.use((req)=>{

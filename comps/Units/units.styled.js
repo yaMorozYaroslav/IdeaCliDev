@@ -3,32 +3,47 @@ import styled from 'styled-components'
 export const Container = styled.div`padding-top:1px;
                                     width:100%;
                                     margin-bottom:5px;
-                         @media (max-width:600px) {margin-top:25px;}
+                         @media (max-width:600px) {}
                          @media (max-width:400px) {}`
                          
 export const ListButts = styled.section`display:grid;
                                         grid-template-columns:9% 10% 60%;
                                         
                                         margin-top:90px;margin-left:7px;
+                         @media (max-width:1200px) {grid-template-columns:9% 15% 60%;
+                         @media (max-width:800px) {grid-template-columns:12% 20% 60%;
                          @media (max-width:600px) {margin-top:156px;
-                         @media (max-width:400px) {margin-left:-15px;`
+                                                   grid-template-columns:20% 30% 50%;}
+                         @media (max-width:400px) {margin-left:2%;}`
                       
-export const AddAdmin = styled.button`grid-column:1;font-size:23px;border-style: dashed;
+export const AddAdmin = styled.button`grid-column:1; grid-row:1;
+                                      font-size:23px;border-style: dashed;
                                       padding:10px;background: white;
                                       height:63px;margin-top:5px;
                         @media (max-width: 600px) {font-size:20px;}
                         @media (max-width: 400px) {font-size:18px;padding:5px;
                                                    margin-left:-7px;}
                                                    margin-left:-7px;}`
-export const NotLink = styled.p`grid-column:2;grid-row:1;margin:5px;
+export const NotLink = styled.div`grid-row:1;margin:5px; width:70%;
                                 font-size: 24px;padding: 15px;text-align: center;
                                 border:1px solid olive;
                                 color:black; background:white;
                         @media (max-width: 400px){font-size:20px; padding: 18px;
                                                   padding-left:5px;padding-right:5px}`                                    
                                                  
-export const Title = styled.p`grid-column:3; text-align:center; 
-                              margin:5px 0px -5px 0px;font-size: 40px;`
+export const NotEstate = styled.div`grid-row:1; grid-column:4;
+                                    margin:5px; width:60%;
+                                font-size: 24px;padding: 15px;text-align: center;
+                                border:1px solid olive;
+                                color:black; background:white;
+                        @media (max-width: 800px){grid-column:3;margin-left:15px;
+                                                  width:70%;}
+                        @media (max-width: 400px){font-size:20px; padding: 18px;
+                                                  padding-left:5px;padding-right:5px}`                                    
+                                                 
+export const Title = styled.p`grid-column:3; grid-row:1; text-align:center; 
+                              margin:5px 0px -5px 0px;font-size: 40px;
+       @media (max-width: 800px) {grid-row:3;grid-column:1/4}`
 export const List = styled.ul` display: grid;
                                grid-template-columns: repeat(4,24%);
                                grid-template-rows: 400px;
@@ -38,7 +53,7 @@ export const List = styled.ul` display: grid;
                                list-style: none;
                     @media (max-width: 1000px) {grid-template-columns: repeat(2, 47%);
                                                 margin-left:4%;}
-                    @media (max-width: 800px) {} 
+                    @media (max-width: 800px) {margin-top:10px;} 
                     @media (max-width: 600px) {margin-left:-4%;column-gap:2%;row-gap:5px;}
                     @media (max-width: 400px) {display:block;
                                                margin-left:-5%;}`

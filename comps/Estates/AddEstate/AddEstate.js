@@ -13,7 +13,8 @@ import Autocomplete from "@mui/material/Autocomplete";
 import {getProvinces, getLocations, searchLocations} from './requests'
 
 const initialState = { provName: '', provCode:'', location:'', 
-	                   street:'', photo: '' }
+	                   street:'', main: '', bath:'', live: '',
+	                   kitch: '', park: '' }
 
 export function AddEstate({servData, setOpen, currItem, setCurrItem}){
 	
@@ -22,7 +23,9 @@ export function AddEstate({servData, setOpen, currItem, setCurrItem}){
 	const tt = useTranslations("types")
 	
 	const [source, setSource] = React.useState(initialState)
-	const [label, setLabel] = React.useState(t('no file'))
+	const [labels, setLabels] = React.useState({main: 'no file', bath:'no file',
+		                                        live: 'no file',
+		                                        kitch: 'no file', park: 'no file'})
 	
 	const [selected, setSelected] = React.useState({provinces: [],
 		                                            locations: []})
@@ -34,13 +37,6 @@ export function AddEstate({servData, setOpen, currItem, setCurrItem}){
 	const {state} = useQueryContext()
 	
 	const ref = React.useRef()
-    
-   const onImage =   async(e) => {
-		const {base64, file, sizeInKb} = await uploadImage(e)
-		console.log(sizeInKb)
-		setSource({...source, photo: base64})
-		setLabel(file.name)
-		}
    
    const fetcher =()=> {}
    
@@ -102,6 +98,21 @@ export function AddEstate({servData, setOpen, currItem, setCurrItem}){
 		setSelected({...selected, locations: locationData})
 	   setSource({...source, location: targetValue}) 
 		}
+    const onImage = async(e) => {
+    const {base64, file, sizeInKb} = await uploadImage(e)
+    console.log(sizeInKb)
+    setSource({...source, [e.target.id]: base64})
+    setLabels({...labels, [e.target.id]: file.name})
+		}
+	function PhotoSelector({label, name}){
+		return <S.Selector>
+          <label>{label}:&#160;</label>
+	      <S.PhotoBut htmlFor={name}>Select:</S.PhotoBut>
+	      <S.Selected>{eval(`labels.${name}`)}</S.Selected>
+	      <input type='file' id={name} style={{display:"none"}}
+	             onChange={(e)=>onImage(e)}/><br/>
+               </S.Selector> 
+		} 
 	 return(
 	<S.ExtraCont>
 	 <S.Container>
@@ -132,17 +143,12 @@ export function AddEstate({servData, setOpen, currItem, setCurrItem}){
                <TextField {...data}  label = "Location"
                           onChange={((e)=>onSearch(e))}/>
             )} />}
-   <S.Selector>
-      <label>Photo:&#160;</label>
-	  <S.PhotoBut htmlFor="input">{t('select')}</S.PhotoBut>
-	  <S.Selected>{label}</S.Selected>
-	  <input type='file' id="input" style={{display:"none"}}
-	         onChange={(e)=>onImage(e)}/><br/>
-   </S.Selector> 
-     
-	 
-	
-	
+   
+   <PhotoSelector label='Main' name='main'/>	
+   <PhotoSelector label='Bathroom' name='bath'/>	
+   <PhotoSelector label='Living Room' name='live'/>	
+   <PhotoSelector label='Kitchen' name='kitch'/>	
+   <PhotoSelector label='Parking' name='park'/>	
                             
 	     <S.Submit onMouseOver={changeBorder} type='submit'>{t('save')}</S.Submit>
 	     <S.Close onMouseOver={changeBorder} 

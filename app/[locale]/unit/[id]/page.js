@@ -1,6 +1,6 @@
 'use client'
-import {OneEstate} from '../../../../comps/OneEstate/OneEstate'
-import {useEstateContext} from '../../../../context/estates/EstateState'
+import {OneUnit} from '../../../../comps/OneUnit/OneUnit'
+import {useUnitContext} from '../../../../context/units/UnitState'
 //~ import { revalidateTag } from 'next/cache'
 
 //~ export const dynamicParams = true
@@ -14,14 +14,14 @@ import {useEstateContext} from '../../../../context/estates/EstateState'
 	//~ }
 
  
-export default function Estate({params}){
-        const {estates} = useEstateContext()
+export default function Unit({params}){
+        const {units} = useUnitContext()
         //~ console.log(estates.length)
-        const thisEstate = estates.length?
-                               estates.filter(estate => estate._id === params.id)
+        const thisUnit = units.length?
+                               units.filter(unit => unit._id === params.id)
                                : {} 
        
 	//~ console.log(estates)
 	
-	return <OneEstate cliEstate={thisEstate[0]} />
+	return <OneUnit cliUnit={thisUnit[0]} />
 	}
