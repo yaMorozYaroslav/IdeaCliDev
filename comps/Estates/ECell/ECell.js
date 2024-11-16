@@ -31,13 +31,13 @@ React.useEffect(()=>{
 	}
 	hasEmpty()
 		},[])
-
+  console.log(item)
 return(<>
     <S.Cell  key={item._id} $emptyData={emptyData}
              onMouseLeave={()=>setOptions(false)}>
              {!options && <S.StyledImage alt='' 
-				                         src={item.photo&&item.photo.length
-				                                    ?item.photo:'/next.svg'}
+				                         src={item.main&&item.main.length
+				                                    ?item.main:'/next.svg'}
 				                         //~ onClick={(e)=>handAdd(e,item)}
 				                         onClick={()=>setOptions(true)}
                                          width={0} height={0} 

@@ -26,12 +26,11 @@ export function AddEstate({servData, setOpen, currItem, setCurrItem}){
 	const [labels, setLabels] = React.useState({main: 'no file', bath:'no file',
 		                                        live: 'no file',
 		                                        kitch: 'no file', park: 'no file'})
-	
+	   console.log(source)
 	const [selected, setSelected] = React.useState({provinces: [],
 		                                            locations: []})
 		                                                                                      
 	const pathname = usePathname()
-	const isSeed = true
 	
 	const {addEstate, updateEstate, fetchEstates} = useEstateContext()
 	const {state} = useQueryContext()

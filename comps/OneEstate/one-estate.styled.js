@@ -29,12 +29,32 @@ export const StyledLink = styled(Link)`display: block;
        @media (max-width:400px) {margin-left:15%;}`
 export const Pictures = styled.div`display: flex; position:relative;
                                    top:110px;left:10px;
-                        @media (max-width:1000px) {}
-                        @media (max-width:800px) {top:80px;left:10%;}
-                        @media (max-width:600px) {top:100px;left:10%;}
-                        @media (max-width:400px) {display: block;}`
+       @media (max-width:1000px) {}
+       @media (max-width:800px) {top:80px;left:10%;}
+       @media (max-width:600px) {top:100px;left:10%;}
+       @media (max-width:400px) {display: block;}`
+export const BigPicture = styled(Image)`z-index:3;position:absolute;
+                                        width:500px;height:500px;
+                                        margin:100px 0% 0px 45%;
+       @media (max-width:1000px) {margin-left:35%;}
+       @media (max-width:800px) {width:520px;height:520px;
+                                 margin-top:75px;margin-left:6%;}
+       @media (max-width:600px) {width:420px;height:420px;
+                                 margin-top:100px;}
+       @media (max-width:500px) {width:350px;height:350px;}
+       @media (max-width:400px) {width:83%;height:300px;position:fixed;top:100px;}`
+export const ClosePicture = styled.button`position:absolute;top:80px;left:60px;
+                                          z-index:2;
+       @media (max-width:400px) {position:fixed;}`
+export const ShownPicture = styled(Image)`position: absolute;left:45px;top:72px;
+                                          z-index:1;cursor: pointer;
+                                          width:350px;height:350px;
+       @media (max-width:800px) {height:400px;width:400px;}
+       @media (max-width:600px) {height:300px;width:300px;}
+       @media (max-width:500px) {height:250px;width:250px;}
+       @media (max-width:400px) {position:fixed;left:8%;}`
 export const ImgName = styled.p`margin: -5px 0px -5px 20px;`
-export const RoomImage = styled(Image)`
+export const RoomImage = styled(Image)`cursor:pointer;
        @media (max-width:800px) {height:230px;width:230px;}
        @media (max-width:600px) {height:180px;width:180px;}
        @media (max-width:500px) {height:150px;width:150px;}

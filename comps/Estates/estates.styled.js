@@ -3,7 +3,7 @@ import styled from 'styled-components'
 export const Container = styled.div`padding-top:1px;
                                     width:100%;
                                     margin-bottom:5px;
-                         @media (max-width:600px) {margin-top:25px;}
+                         @media (max-width:600px) {}
                          @media (max-width:400px) {}`
 export const ListButts = styled.section`display:grid;
                                         grid-template-columns:10% 80%;

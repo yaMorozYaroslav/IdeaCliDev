@@ -10,11 +10,13 @@ export const OneEstate = ({cliEstate})=>{
 	//~ console.log(params)
 	const params = useParams()
 	const [estate, setEstate] = React.useState(cliEstate||{})
+	const [shownPicture, setPicture] = React.useState()
+	const [bigPicture, setBigPicture] = React.useState(false)
 	//~ console.log(pathBack)
    //~ await new Promise(resolve => setTimeout(resolve, 10000))
    let servEstate = []
    async function getServEstate(){
-	   const result = await fetch(`${base}/estates/${params.id}`)
+	   const result = await fetch(`${base}/estates/${params.id}`, { next: { tags: ['estate'] }})
 	                  //~ await fetch(`http://localhost:5000/estates/${params.id}`)
                                               .then((res) => res.json())
        setEstate(result)}
@@ -24,17 +26,19 @@ export const OneEstate = ({cliEstate})=>{
       //~ { next: { tags: ['estate'] }}
       //~ revalidateTag('estate')
    //~ return estate
-  const GenericImg = ({text, imgUrl}) => {
+  const GenericImg = ({text, imgUrl, value}) => {
 	  return(<><S.ImgName>{text}</S.ImgName>
-	            <S.RoomImage alt={text} width={200} style={{margin:'10px'}}
+	            <S.RoomImage onClick={()=>{setPicture(value)}}
+	                         
+	                         alt={text} width={200} style={{margin:'10px'}}
 	                   height={200} src={`/estate/${imgUrl}`}/>             
 	         </>)
 	  }
-     
+     console.log(estate)
   return (<S.Container>	
            <S.EstateCont>	              
              <S.EstateImg style ={{marginTop:"130px"}}
-                    alt='' src={estate.photo&&estate.photo.length?estate.photo:'/next.svg'}
+                    alt='' src={estate.main&&estate.main.length?estate.main:'/next.svg'}
                     width={250} height={250} priority={true}/><br/>
             
              <S.Paragraph><S.Label>province:</S.Label>
@@ -52,13 +56,34 @@ export const OneEstate = ({cliEstate})=>{
                 href={'/'}>Back To List</S.StyledLink><br/>
    <S.StyledLink className='styledLink' 
                 href={`/unit-list/${estate._id}`}>Show Units</S.StyledLink>
-        
-        </S.EstateCont>
-          <S.Pictures> <div><GenericImg text='kitchen' imgUrl='kitchen.jpg'/>
-                            <GenericImg text='bathroom' imgUrl='bath.jpg'/></div>
+                
+         
+       </S.EstateCont>  
+               {bigPicture && <S.BigPicture onClick={()=>setBigPicture(false)}
+			                           src={shownPicture} 
+			                           width={100} height={100} />}    
+         
+         <S.Pictures>  
+                   
+               {shownPicture && !bigPicture && 
+			     <><S.ClosePicture onClick={()=>{setPicture('')}}>
+			                                      close</S.ClosePicture>
+			         
+			       <S.ShownPicture alt=''
+			                       onClick={()=>{setBigPicture(true)}}
+                                   src={shownPicture||'/next.svg'} 
+                                   width={100} height={100}/></>}
+                                                
+                                                
+                       <div><GenericImg value={estate.kitch} text='kitchen' 
+                                        imgUrl='kitchen.jpg'/>
+                            <GenericImg value={estate.bath}
+                                        text='bathroom' imgUrl='bath.jpg'/></div>
                        
-                       <div><GenericImg text='living room' imgUrl='living.jpg'/>
-                            <GenericImg text='parking' imgUrl='parkin.jpg'/></div>
+                       <div><GenericImg value={estate.live} 
+                                        text='living room' imgUrl='living.jpg'/>
+                            <GenericImg value={estate.park} 
+                                        text='parking' imgUrl='parkin.jpg'/></div>
           </S.Pictures>
 	</S.Container>)
 	}
