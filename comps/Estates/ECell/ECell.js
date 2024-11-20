@@ -31,7 +31,7 @@ React.useEffect(()=>{
 	}
 	hasEmpty()
 		},[])
-  console.log(item)
+  //~ console.log(item)
 return(<>
     <S.Cell  key={item._id} $emptyData={emptyData}
              onMouseLeave={()=>setOptions(false)}>

@@ -4,8 +4,8 @@ import axios from 'axios'
 //~ import {useCookies} from 'next-client-cookies'
 import cookies from 'js-cookie'
 
-export const base = 'https://hesen-properties-3eefa0d80ae7.herokuapp.com'
-//~ export const base = 'http://localhost:5000'
+//~ export const base = 'https://hesen-properties-3eefa0d80ae7.herokuapp.com'
+export const base = 'http://localhost:5000'
 const API = axios.create({baseURL:`${base}`})
 //~ const cooks = cookies().get('session').value
 

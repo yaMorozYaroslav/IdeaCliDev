@@ -21,18 +21,18 @@ import cookies from 'js-cookie';
 
 import {ECell} from './ECell/ECell'
 
-export function Estates (servData){
+export function Estates ({userData, servData}){
 	
 	const session = cookies.get('session')?JSON.parse(cookies.get('session')):{}
 	const t = useTranslations('List')
 	const pathname = usePathname()
 	const router = useRouter()
-	console.log(session)
-	const [open, setOpen] = React.useState({form: false})
-    const [shown, setShown] = React.useState(servData.servData.data)
-	const [currItem, setCurrItem] = React.useState({})
-	const [staticData, setStaticData] = React.useState(servData.servData)
 	
+	const [open, setOpen] = React.useState({form: false})
+    const [shown, setShown] = React.useState(servData.data)
+	const [currItem, setCurrItem] = React.useState({})
+	const [staticData, setStaticData] = React.useState(servData)
+	console.log(servData)
 	//~ const {userData} = useUserContext()
 	const {cartItems, addToCart} = useCartContext()
 	
@@ -41,10 +41,10 @@ export function Estates (servData){
   	               
 	const {state, category} = useQueryContext()
 	
-	const propertyOwner =(id)=> session.user && (session.user._id === id)
-	const owner = session.user && session.user.role === 'owner'
-	const admin = session.user && session.user.role === 'admin'
-	
+	const propertyOwner =(id)=> userData.user && (userData.user._id === id)
+	const owner = userData.user && userData.user.role === 'owner'
+	const admin = userData.user && userData.user.role === 'admin'
+	console.log(propertyOwner)
 	
 	const handAdd =(e, s)=> {e.preventDefault();addToCart(s);}
 	
@@ -62,17 +62,17 @@ export function Estates (servData){
 		
 		revalidator()
 		}	
-   //~ console.log(servData.servData)
+   console.log(servData)
    React.useEffect(()=>{
 	                    //~ if(!estates.data){setEstates(servData.servData)}
 	                    if(estates.data)setShown(estates.data)
 	                    
 	                  },[estates.data])
-	                  console.log(estates.data)
        
+       console.log(userData)
 return (<S.Container>
       <S.ListButts>
-       {true &&       
+       {admin || owner &&      
 			 <S.AddAdmin onClick={()=>setOpen({...open, form: true})}>
 			                   <AddEstateIcon fontSize='large'/> </S.AddAdmin>}
 	  <S.Title>Estates</S.Title>
@@ -92,10 +92,10 @@ return (<S.Container>
           
          {shown.map(item => 
 		   <ECell key={item._id} item={item} open={open}
-			     showOptions={showOptions} owner={propertyOwner} 
-			     admin={admin} 
-			     handEdit={handEdit} handAdd={handAdd} 
-			     deleteEstate={deleteEstate}/>)}       
+			      showOptions={showOptions} owner={propertyOwner} 
+			      admin={admin} 
+			      handEdit={handEdit} handAdd={handAdd} 
+			      deleteEstate={deleteEstate}/>)}       
         </S.List>}
         
          {!shown.length&&<S.NoData>No products found for this request</S.NoData>}

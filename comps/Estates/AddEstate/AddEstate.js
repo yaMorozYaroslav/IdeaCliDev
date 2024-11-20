@@ -7,14 +7,10 @@ import * as S from './add-estate.styled'
 import revalidator from '../revalidator'
 
 import {useTranslations} from 'next-intl'
-import {uploadImage} from './convert-base64'
 import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete";
-import {getProvinces, getLocations, searchLocations} from './requests'
 
-const initialState = { provName: '', provCode:'', location:'', 
-	                   street:'', main: '', bath:'', live: '',
-	                   kitch: '', park: '' }
+import {requests} from './requests'
+
 
 export function AddEstate({servData, setOpen, currItem, setCurrItem}){
 	
@@ -22,13 +18,8 @@ export function AddEstate({servData, setOpen, currItem, setCurrItem}){
 	const tc = useTranslations("categories")
 	const tt = useTranslations("types")
 	
-	const [source, setSource] = React.useState(initialState)
-	const [labels, setLabels] = React.useState({main: 'no file', bath:'no file',
-		                                        live: 'no file',
-		                                        kitch: 'no file', park: 'no file'})
-	   console.log(source)
-	const [selected, setSelected] = React.useState({provinces: [],
-		                                            locations: []})
+	const {source, setSource, labels, locations,
+	       searchLocations, onImage} = requests()
 		                                                                                      
 	const pathname = usePathname()
 	
@@ -46,7 +37,7 @@ export function AddEstate({servData, setOpen, currItem, setCurrItem}){
     //~ console.log(source)
     const reset =()=> {	
 		setCurrItem({})
-		setSource(initialState)
+		setSource({})
 		ref.current.reset()
 		}		
 		       
@@ -67,42 +58,16 @@ export function AddEstate({servData, setOpen, currItem, setCurrItem}){
 	        }else{updateEstate(source._id, source)
 							                   .then(()=>fetchEstates(state))}
 							
-		console.log(source._id)					                   	 
-        reset()
-	    setOpen(false)
-		     setTimeout(() => {
-					alert('Element has been '+
-	                      (!source._id?'added.':'updated.'))},1000)
-	    revalidator()
+	        	console.log(source._id)					                   	 
+                reset()
+	            setOpen(false)
+	        	     setTimeout(() => {
+	        				alert('Element has been '+
+	                              (!source._id?'added.':'updated.'))},1000)
+	            revalidator()
 		        }
-    console.log(source)
-    
-                                          
-    async function onProvinces(){
-		const {provinceData} = await getProvinces()
-		setSelected({...selected, provinces: provinceData})
-		}             
-   React.useEffect(()=>{onProvinces()},[])
-   
-    async function onLocations(e){
-		const {locationData, targetValues} = await getLocations(e)
-		
-		   setSelected({...selected, locations: locationData})
-           setSource({...source, provName: targetValues.name,
-			                     provCode: targetValues.code})
-		}
-    async function onSearch(e){
-		const {locationData, targetValue} = await searchLocations(e, source.provCode)
-		//~ console.log(locationData)
-		setSelected({...selected, locations: locationData})
-	   setSource({...source, location: targetValue}) 
-		}
-    const onImage = async(e) => {
-    const {base64, file, sizeInKb} = await uploadImage(e)
-    console.log(sizeInKb)
-    setSource({...source, [e.target.id]: base64})
-    setLabels({...labels, [e.target.id]: file.name})
-		}
+  
+  
 	function PhotoSelector({label, name}){
 		return <S.Selector>
           <label>{label}:&#160;</label>
@@ -120,28 +85,35 @@ export function AddEstate({servData, setOpen, currItem, setCurrItem}){
 	<S.Form onSubmit={handSubmit} ref={ref}>
 	
 	 
-	 <label>Province:</label><br/>
+	 {/* <label>Province:</label><br/>
 	                              
 	 <select onChange={(e) => onLocations(e)} mode="multiple" 
 	         defaultValue={source.provName}>
 	         
-	              {!source.provName && <option >Select Province...</option>}
-	              {selected.provinces.map((province, i)=>
-								<option key={i} value={JSON.stringify(province)} 
-										          >{province.name}
-										                  </option>)} </select>
-    {source.provName&&<Autocomplete
-            style = {{ width: 200, marginLeft: 167, marginTop: 10 }}
-            autoComplete
-            autoHighlight
-            freeSolo
-            options = {selected.locations?selected.locations:[{label:"Loading.."}]}
-            getOptionKey={option=>option.id}
-            onChange={(e,value)=>{value?setSource({...source, location: value.label}):null}}                     
-            renderInput = {(data) => (
-               <TextField {...data}  label = "Location"
-                          onChange={((e)=>onSearch(e))}/>
-            )} />}
+	        {!source.provName && <option >Select Province...</option>}
+	          {selected.provinces.map((province, i)=>
+				 <option key={i} value={JSON.stringify(province)} 
+						          >{province.name}
+    					                  </option>)} </select><br/>
+         
+    
+    {selected.locations.length > 0 &&
+		        <><input list="location_names" placeholder="Location Name"
+                       onChange={(e)=>onSearch(e)}/> <br/>
+         <datalist id="location_names">
+              {selected.locations.length &&
+				  selected.locations.map(location => 
+	                               <option value={location.label}/>)}       
+         </datalist></>} */}
+    <label for="locations_input">Location: </label>
+    <input id="locations_input" list="locations_names"
+           autocomplete={false} placeholder="location"
+          onChange={(e)=>searchLocations(e)}/> <br/>
+   <datalist id="locations_names">
+   {locations.length && locations.map(location => 
+	                               <option key={location.id}
+	                                       value={location.label}/>)}       
+  </datalist>
    
    <PhotoSelector label='Main' name='main'/>	
    <PhotoSelector label='Bathroom' name='bath'/>	

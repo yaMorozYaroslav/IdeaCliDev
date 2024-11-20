@@ -991,7 +991,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-transition-group@npm:^4.4.10":
+"@types/react-transition-group@npm:^4.4.1, @types/react-transition-group@npm:^4.4.10":
   version: 4.4.11
   resolution: "@types/react-transition-group@npm:4.4.11"
   dependencies:
@@ -2271,6 +2271,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"primereact@npm:^10.8.4":
+  version: 10.8.4
+  resolution: "primereact@npm:10.8.4"
+  dependencies:
+    "@types/react-transition-group": "npm:^4.4.1"
+    react-transition-group: "npm:^4.4.1"
+  peerDependencies:
+    "@types/react": ^17.0.0 || ^18.0.0 || ^19.0.0
+    react: ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: 10c0/fabecc7a9ec17e83f55b853150cab7966d4887171f3e6803e1d03c9124b456a57f6fe7640c1d79059de05bdfa0141e22c1a539bc0f36102d783a8b45fb043bcf
+  languageName: node
+  linkType: hard
+
 "prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
@@ -2347,7 +2364,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-transition-group@npm:^4.4.5":
+"react-transition-group@npm:^4.4.1, react-transition-group@npm:^4.4.5":
   version: 4.4.5
   resolution: "react-transition-group@npm:4.4.5"
   dependencies:
@@ -2458,6 +2475,7 @@ __metadata:
     next: "npm:^14.2.3"
     next-client-cookies: "npm:^2.0.0"
     next-intl: "npm:^3.10.0"
+    primereact: "npm:^10.8.4"
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
     react-image-file-resizer: "npm:^0.4.8"

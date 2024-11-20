@@ -41,7 +41,9 @@ export function generateStaticParams() {
 //~ }
 
 export default async function RootLayout({ children, params: {locale}}) {
-	const userData = await getSession()
+	const rawData = await getSession()
+	const stringified = JSON.parse(rawData||'{}')
+	const userData = stringified.user?stringified.user:stringified
 let messages
   try {
     messages = (await import(`../../messages/${locale}.json`)).default
