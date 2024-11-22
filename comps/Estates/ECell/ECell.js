@@ -69,7 +69,7 @@ return(<>
 	                
 				  </S.StyledButtons>
 				  
-				  {(owner(item.owner)||admin||true)
+				  {(owner(item.owner)||admin)
 				   
 				&&<S.SuperButts><S.KingButt onClick={(e)=>
 					      deleteEstate(e, item._id)}>
@@ -84,7 +84,6 @@ return(<>
 				  </S.FourButtons>}
             <br/>                   
            
-               <S.Parag>province: {item.provName}</S.Parag>
                <S.Parag>location: {item.location?item.location:'---'}</S.Parag>
                <S.Parag>owner: {item.owner} </S.Parag>          
               

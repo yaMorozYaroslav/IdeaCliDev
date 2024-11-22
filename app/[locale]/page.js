@@ -18,13 +18,13 @@ async function anyName() {
 const lora = Russo_One({ subsets: ['cyrillic'], weight:['400'] })
 
 export default async function Main() {
+	
 	const rawData = await getSession()
-	//~ console.log(rawData)
 	const stringified = JSON.parse(rawData||'{}')
 	const userData = stringified.user?stringified.user:stringified
+	
 	const {allData} = await anyName()
-	//~ userData={userData}
-	//~ className={lora.className}
+	
   return (<><Estates  userData={userData} servData={allData} />
                <Pages total={allData.totalPages}/>
           </>)

@@ -32,7 +32,7 @@ export const NotLink = styled.div`grid-row:1;margin:5px; width:70%;
                                                   padding-left:5px;padding-right:5px}`                                    
                                                  
 export const NotEstate = styled.div`grid-row:1; grid-column:4;
-                                    margin:5px; width:60%;
+                                    margin:0px 0px 10px 0px; width:60%;
                                 font-size: 24px;padding: 15px;text-align: center;
                                 border:1px solid olive;
                                 color:black; background:white;

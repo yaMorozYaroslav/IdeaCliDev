@@ -1,20 +1,20 @@
 import styled from 'styled-components'
 
-export const ExtraCont = styled.div`width:100%;height:100%; grid-column:3;grid-row:1;
+export const ExtraCont = styled.div`width:100%;height:100%; grid-column:3;grid-row:2;
                                     display:flex;justify-content:center;
                          @media (max-width:1000px) {grid-column:1/5;top:50px;}`
 export const Container = styled.div`
                                     position: fixed;
-                                    top:150px;
+                                    top:180px;
                                     background: white;
                                     display: block;
 		                            text-align:center;
 		                            width:40%;
 		                            border:solid;
 		                            z-index:1;
-		                 @media (max-width:1000px) {width:50%;top:170px;}
-		                 @media (max-width:800px) {width:55%;}
-		                 @media (max-width:600px) {width:70%;top:255px;}
+		                 @media (max-width:1000px) {width:45%;top:180px;}
+		                 @media (max-width:800px) {width:55%;top:235px;}
+		                 @media (max-width:600px) {width:70%;top:303px;}
 		                 @media (max-width:400px) {width:85%;}
                        `
 export const Title = styled.h1`font-size:30px`

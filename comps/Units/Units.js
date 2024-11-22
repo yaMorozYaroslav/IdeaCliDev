@@ -20,8 +20,8 @@ import { useParams } from 'next/navigation'
 import {UCell} from './UCell/UCell'
 import AddHomeIcon from '@mui/icons-material/AddHome';
 
-export function Units(servData){
-	
+export function Units({userData, servData}){
+	console.log(userData)
 	const t = useTranslations('List')
 	
 	const pathname = usePathname()
@@ -29,11 +29,9 @@ export function Units(servData){
 	const params = useParams()
 	
 	const [open, setOpen] = React.useState({form: false})
-    const [shown, setShown] = React.useState(servData.servData||[])
+    const [shown, setShown] = React.useState(servData||[])
 	const [currItem, setCurrItem] = React.useState({})
-	const [staticData, setStaticData] = React.useState(servData.servData)
-	
-	const {userData} = useUserContext()
+	const [staticData, setStaticData] = React.useState(servData)
 	
 	const {fetchEstateUnits, loadingUnits, units, 
 		               removeUnit, resetUnits} = useUnitContext()

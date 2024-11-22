@@ -41,12 +41,9 @@ export const OneEstate = ({cliEstate})=>{
                     alt='' src={estate.main&&estate.main.length?estate.main:'/next.svg'}
                     width={250} height={250} priority={true}/><br/>
             
-             <S.Paragraph><S.Label>province:</S.Label>
-                                  {estate.provName}</S.Paragraph>
+           
               <S.Paragraph><S.Label>location:</S.Label>
                                   {estate.location}</S.Paragraph>
-              <S.Paragraph><S.Label>street:</S.Label>
-                                  {estate.street||'unknown'}</S.Paragraph>
               <S.Paragraph><S.Label>owner:</S.Label>
                                   {estate.owner}</S.Paragraph>    
 	          <S.Paragraph><S.Label>technician:</S.Label>
