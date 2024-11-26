@@ -42,9 +42,9 @@ export function Estates ({userData, servData}){
 	const {state, category} = useQueryContext()
 	
 	const propertyOwner =(id)=> userData.user && (userData.user._id === id)
-	const owner = userData.user && userData.user.role === 'owner'
-	const admin = userData.user && userData.user.role === 'admin'
-	console.log(propertyOwner)
+	const owner = userData.role && userData.role === 'owner'
+	const admin = userData.role && userData.role === 'admin'
+	
 	
 	const handAdd =(e, s)=> {e.preventDefault();addToCart(s);}
 	
@@ -72,7 +72,7 @@ export function Estates ({userData, servData}){
        console.log(userData)
 return (<S.Container>
       <S.ListButts>
-       {admin || owner &&      
+       {owner||admin &&      
 			 <S.AddAdmin onClick={()=>setOpen({...open, form: true})}>
 			                   <AddEstateIcon fontSize='large'/> </S.AddAdmin>}
 	  <S.Title>Estates</S.Title>

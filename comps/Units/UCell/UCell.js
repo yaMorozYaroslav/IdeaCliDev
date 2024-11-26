@@ -43,7 +43,7 @@ return(<>
 	                
 				  </S.StyledButtons>
 				  
-				  {(creator(item.creator)||admin)
+				  {(creator||admin)
 				   
 				&&<S.SuperButts><S.KingButt onClick={(e)=>
 					      deleteUnit(e, item._id)}>

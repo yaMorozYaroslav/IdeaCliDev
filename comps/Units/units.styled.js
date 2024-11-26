@@ -24,11 +24,13 @@ export const AddAdmin = styled.button`grid-column:1; grid-row:1;
                         @media (max-width: 400px) {font-size:18px;padding:5px;
                                                    margin-left:-7px;}
                                                    margin-left:-7px;}`
-export const NotLink = styled.div`grid-row:1;margin:5px; width:70%;
+export const NotLink = styled.div`grid-row:1;margin:5px; width:100%;
                                 font-size: 24px;padding: 15px;text-align: center;
                                 border:1px solid olive;
                                 color:black; background:white;
-                        @media (max-width: 400px){font-size:20px; padding: 18px;
+                        @media (max-width: 800px){margin:10px 10px 10px 15px;}
+                        @media (max-width: 400px){width: 120%;
+                                                  font-size:20px; padding: 18px;
                                                   padding-left:5px;padding-right:5px}`                                    
                                                  
 export const NotEstate = styled.div`grid-row:1; grid-column:4;
@@ -36,7 +38,8 @@ export const NotEstate = styled.div`grid-row:1; grid-column:4;
                                 font-size: 24px;padding: 15px;text-align: center;
                                 border:1px solid olive;
                                 color:black; background:white;
-                        @media (max-width: 800px){grid-column:3;margin-left:15px;
+                        @media (max-width: 800px){grid-column:3;
+                                                  margin:10px 10px 10px 15px;
                                                   width:70%;}
                         @media (max-width: 400px){font-size:20px; padding: 18px;
                                                   padding-left:5px;padding-right:5px}`                                    

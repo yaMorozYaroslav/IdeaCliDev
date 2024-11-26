@@ -20,8 +20,8 @@ import { useParams } from 'next/navigation'
 import {UCell} from './UCell/UCell'
 import AddHomeIcon from '@mui/icons-material/AddHome';
 
-export function Units({userData, servData}){
-	console.log(userData)
+export function Units({userData, servData, estate}){
+	//~ console.log(userData)
 	const t = useTranslations('List')
 	
 	const pathname = usePathname()
@@ -40,8 +40,9 @@ export function Units({userData, servData}){
 	
 	
 	
-	const creator =(id)=> userData.user && (userData.user._id === id)
-	const admin = userData.user && userData.user.role === 'admin'||'owner'
+	const creator = userData && (userData.email === estate.owner)
+	console.log(creator)
+	const admin = userData && userData.role === 'admin'
 	
 	
 	const handEdit =(e, s)=> {e.preventDefault(); 
@@ -69,7 +70,7 @@ return (<S.Container>
 		                currItem={currItem}
 		                setCurrItem={setCurrItem}
 		               />} 
-        {true &&       
+        {creator &&       
 			<S.AddAdmin onClick={()=>setOpen({...open, form: true})}>
 			                   <AddHomeIcon fontSize='large'/> </S.AddAdmin>}
              <S.Title>Units</S.Title>
