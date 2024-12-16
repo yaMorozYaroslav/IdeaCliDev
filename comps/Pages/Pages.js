@@ -15,7 +15,7 @@ export function Pages(total) {
 	const pathname = usePathname()
     const isEstate = pathname === '/'
     const params = useParams()
-    console.log(isEstate)
+    //~ console.log(isEstate)
 	
 	//~ console.log(isSeed)
 	
@@ -36,9 +36,7 @@ export function Pages(total) {
 	const dynamicTotal = !estates.totalPages && !units.totalPages && !notExist
 	                                  ?total.total
 	                                  :(estates.totalPages||units.totalPages)
-	  //~ console.log(items.message, seeds.message)
-    //console.log(state)                       
-   console.log(isEstate)
+	
     function fetchThings(e){
 		e.preventDefault()
 		if(isEstate){fetchEstates({'page': e.target.value})

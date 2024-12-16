@@ -13,7 +13,12 @@ export const signUp = async(formData)=> {
 	const stringified = JSON.stringify(session.data)
 	cookies().set('session', stringified)
 	return session.data
-	}
+}
+//~ export const getReadySession =async()=> {
+	//~ let session = '{}'
+	//~ if(cookies().get('session')) return cookies().get('session').value
+	//~ return session
+	//~ }
 export const getSession =async()=> {
 	let session = '{}'
 	if(cookies().get('session')) return cookies().get('session').value

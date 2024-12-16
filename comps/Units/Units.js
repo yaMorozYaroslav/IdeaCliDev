@@ -40,8 +40,8 @@ export function Units({userData, servData, estate}){
 	
 	
 	
-	const creator = userData && (userData.email === estate.owner)
-	console.log(creator)
+	const creator = userData.email && (userData.email.address === estate.owner)
+	console.log(userData.email)
 	const admin = userData && userData.role === 'admin'
 	
 	

@@ -6,6 +6,7 @@ import * as S from './header.styled'
 import {useTranslations} from 'next-intl'
 import {LangSwitch} from './LangSwitch/LangSwitch'
 import {AboutButt} from './AboutButt/AboutButt'
+import Image from 'next/image'
 
 export function Header({userData}){
   const t = useTranslations('Header')
@@ -13,7 +14,14 @@ export function Header({userData}){
   React.useEffect(()=>{
 	    },[])
 	return <S.HeadCont>
-	          <S.MainCont><S.MainTitle>Hesen Properties</S.MainTitle></S.MainCont>              
+	         
+	          <S.MainCont>
+	           <S.LogoImg src="/HesenProperties.png"
+                     width={50}
+                     height={50}
+                     alt="Picture of the author" />    
+	          <S.MainTitle>Honest Property</S.MainTitle></S.MainCont> 
+	                  
 	            <AboutButt/>
 	            <LangSwitch/>
 	            <AuthPanel userData={userData}/>

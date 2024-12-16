@@ -19,6 +19,8 @@ import {unstable_setRequestLocale} from 'next-intl/server'
 import {Metadata} from 'next'
 import {getSession} from '../../lib'
 
+import { Metadata } from 'next';
+
 const lora = Russo_One({ subsets: ['cyrillic'], weight: ['400'] })
 //~ import {useLocale} from 'next-intl'
 
@@ -40,10 +42,15 @@ export function generateStaticParams() {
 
 //~ }
 
+export const metadata: Metadata = {
+  title: 'Honest Property',
+  description: 'The official Honest Property website, built with NextJS.',
+  metadataBase: new URL('https://next-learn-dashboard.vercel.sh'),
+};
 export default async function RootLayout({ children, params: {locale}}) {
 	const rawData = await getSession()
-	const stringified = JSON.parse(rawData||'{}')
-	const userData = stringified.user?stringified.user:stringified
+	//~ console.log(rawData)
+	const userData = JSON.parse(rawData||'{}')
 let messages
   try {
     messages = (await import(`../../messages/${locale}.json`)).default
@@ -55,6 +62,9 @@ let messages
    unstable_setRequestLocale(locale)
   return (
   <html lang={locale}>
+    <head>
+			<link rel='icon' href='/HesenProperties.png' />
+		</head>
     <body className={lora.className}>
       <NextIntlClientProvider locale={locale} messages={messages}>
      <StyledComponentsRegistry>

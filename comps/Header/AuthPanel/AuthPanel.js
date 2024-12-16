@@ -8,17 +8,18 @@ import {logOut} from '/lib'
 import cookies from 'js-cookie';
 
 
-import {useUserContext} from '../../../context/user/UserState'
+//~ import {useUserContext} from '../../../context/user/UserState'
  
 export function AuthPanel({userData}){
  const r = useRouter()
  const t = useTranslations('Header')
- console.log(userData)
- const {setFromStorage, signIn,
-	    signUp, error, clearError} =  useUserContext()
 
-   const onLogin = () => r.push('/auth')  
-		
+ //~ const {setFromStorage, signIn,
+	    //~ signUp, error, clearError} =  useUserContext()
+
+   const onLogin = () => r.push('/auth') 
+    
+		console.log(userData)
      React.useEffect(()=>{
 	              let token
 	        	if(userData)token = userData.token
@@ -28,7 +29,6 @@ export function AuthPanel({userData}){
                     
 	        		if(decodedToken.exp * 999.999 < new Date().getTime()){
 	        		 logOut()
-	        		 setUserData()
 	        		 alert('Token has expired')
 	              }
 	        	}
@@ -39,10 +39,10 @@ export function AuthPanel({userData}){
 	        	//~ return () => clearInterval(interval);
 	                     },[userData, logOut, r])
 	     
-	  
+	  //~ console.log(userData)
 	    return <>
-	    <S.Name>{userData.name?userData.name:t('guest')}</S.Name>
-	    {userData.name
+	    <S.Name>{userData.user?userData.user.name:t('guest')}</S.Name>
+	    {userData.user
 			?<S.LogBut className='styledLink'
 			           onClick={()=>{logOut();}}>{t('logout')}</S.LogBut>
 						             

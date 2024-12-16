@@ -12,7 +12,7 @@ export const Form = styled.form`grid-column: 3/5;
                                 margin-top: 110px;
                                 text-align: center;
                                 border: 2px solid brown;
-                    @media (max-width: 1000px) {grid-column:2/6;}
+                    @media (max-width: 1100px) {grid-column:2/6;}
                     @media (max-width: 600px) {grid-column:1/7;margin-top:150px;
                                                padding-left: 8%;padding-right: 8%;}
                     @media (max-width: 400px) {padding:0px;}`

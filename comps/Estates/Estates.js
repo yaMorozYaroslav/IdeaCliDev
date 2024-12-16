@@ -32,7 +32,7 @@ export function Estates ({userData, servData}){
     const [shown, setShown] = React.useState(servData.data)
 	const [currItem, setCurrItem] = React.useState({})
 	const [staticData, setStaticData] = React.useState(servData)
-	console.log(servData)
+	//~ console.log(servData)
 	//~ const {userData} = useUserContext()
 	const {cartItems, addToCart} = useCartContext()
 	
@@ -42,8 +42,9 @@ export function Estates ({userData, servData}){
 	const {state, category} = useQueryContext()
 	
 	const propertyOwner =(id)=> userData.user && (userData.user._id === id)
-	const owner = userData.role && userData.role === 'owner'
-	const admin = userData.role && userData.role === 'admin'
+	const owner = userData.role && userData.role === 'Owner'
+	const admin = userData.role && userData.role === 'Admin'
+	console.log(owner)
 	
 	
 	const handAdd =(e, s)=> {e.preventDefault();addToCart(s);}
@@ -62,17 +63,17 @@ export function Estates ({userData, servData}){
 		
 		revalidator()
 		}	
-   console.log(servData)
+		
    React.useEffect(()=>{
 	                    //~ if(!estates.data){setEstates(servData.servData)}
 	                    if(estates.data)setShown(estates.data)
 	                    
 	                  },[estates.data])
        
-       console.log(userData)
+       //~ console.log(userData)
 return (<S.Container>
       <S.ListButts>
-       {owner||admin &&      
+       {admin||owner &&      
 			 <S.AddAdmin onClick={()=>setOpen({...open, form: true})}>
 			                   <AddEstateIcon fontSize='large'/> </S.AddAdmin>}
 	  <S.Title>Estates</S.Title>
