@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import {Link} from '../navigation'
+import Link from 'next/link'
 import React from 'react'
 
 const Container = styled.div`cursor: ${p => p.$value?'wait':'pointer'}`

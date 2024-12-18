@@ -1,7 +1,7 @@
 'use client'
 import Image from 'next/image'
 import styled from 'styled-components'
-import {Link} from '../../navigation'
+import Link from 'next/link'
 
 export const Container = styled.div`display:grid;grid-template-columns: 60% 50%;
                                     width:75%;

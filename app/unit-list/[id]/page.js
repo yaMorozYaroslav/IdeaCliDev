@@ -1,8 +1,8 @@
-import {Pages} from '../../../../comps/Pages/Pages'
-import {Units} from '../../../../comps/Units/Units'
+import {Pages} from '/comps/Pages/Pages'
+import {Units} from '/comps/Units/Units'
 import { revalidateTag } from 'next/cache'
-import {base} from '../../../../api'
-import {getSession} from '../../../../lib'
+import {base} from '/api'
+import {getSession} from '/lib'
 
 async function anyName(estateID) {
   const allData = 

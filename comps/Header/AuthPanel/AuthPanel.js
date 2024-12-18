@@ -2,8 +2,7 @@ import React from 'react'
 
 import {jwtDecode} from 'jwt-decode'
 import * as S from './auth-panel.styled'
-import {useTranslations} from 'next-intl'
-import {useRouter} from '../../../navigation'
+import {useRouter} from 'next/navigation'
 import {logOut} from '/lib'
 import cookies from 'js-cookie';
 
@@ -12,7 +11,6 @@ import cookies from 'js-cookie';
  
 export function AuthPanel({userData}){
  const r = useRouter()
- const t = useTranslations('Header')
 
  //~ const {setFromStorage, signIn,
 	    //~ signUp, error, clearError} =  useUserContext()
@@ -41,11 +39,11 @@ export function AuthPanel({userData}){
 	     
 	  //~ console.log(userData)
 	    return <>
-	    <S.Name>{userData.user?userData.user.name:t('guest')}</S.Name>
+	    <S.Name>{userData.user?userData.user.name:'Guest'}</S.Name>
 	    {userData.user
 			?<S.LogBut className='styledLink'
-			           onClick={()=>{logOut();}}>{t('logout')}</S.LogBut>
+			           onClick={()=>logOut()}>{'Log Out'}</S.LogBut>
 						             
-			:<S.LogBut onClick={()=>onLogin()}>{t('login')}</S.LogBut>}
+			:<S.LogBut onClick={()=>onLogin()}>{'Log In'}</S.LogBut>}
 		 </>
 		}

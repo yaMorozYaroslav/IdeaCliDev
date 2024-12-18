@@ -1,6 +1,6 @@
 //~ 'use client'
-import {OneUnit} from '../../../../comps/OneUnit/OneUnit'
-import {useUnitContext} from '../../../../context/units/UnitState'
+import {OneUnit} from '/comps/OneUnit/OneUnit'
+import {useUnitContext} from '/context/units/UnitState'
 import {base} from '/api'
 //~ import { revalidateTag } from 'next/cache'
 

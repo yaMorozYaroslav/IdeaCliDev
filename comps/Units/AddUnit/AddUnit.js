@@ -1,12 +1,11 @@
 'use client'
 import React from 'react'
-import { usePathname } from '../../../navigation';
-import {useUnitContext} from '../../../context/units/UnitState'
-import {useQueryContext} from '../../../context/queries/QueryState'
+import { usePathname } from 'next/navigation';
+import {useUnitContext} from '/context/units/UnitState'
+import {useQueryContext} from '/context/queries/QueryState'
 import * as S from './add-unit.styled'
 import revalidator from '../revalidator'
 
-import {useTranslations} from 'next-intl'
 import {uploadImage} from './convert-base64'
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
@@ -17,9 +16,7 @@ const initialState = { price: '', rooms: '', photo: ''}
 export function AddUnit({servData, setOpen, currItem, setCurrItem}){
 	const params = useParams()
 	
-	const t = useTranslations("AddForm")
-	const tc = useTranslations("categories")
-	const tt = useTranslations("types")
+	
 	const [source, setSource] = React.useState(initialState)
 	const [label, setLabel] = React.useState(t('no file'||source.photo))
 	

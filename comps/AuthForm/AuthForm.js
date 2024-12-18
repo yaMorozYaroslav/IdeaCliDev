@@ -4,18 +4,16 @@ import * as S from './auth-form.styled'
 import {Label} from './auth-form.styled'
 
 import Link from 'next/link'
-import { useRouter } from '../../navigation'
-import {useTranslations} from 'next-intl'
+import { useRouter } from 'next/navigation'
 
 //~ import {useUserContext} from '../../context/user/UserState'
 import {signIn, signUp} from '/lib'
-import {sendEmail} from '../../api'
+import {sendEmail} from '/api'
 import cookies from 'js-cookie';
 
 const initialState = {name: '', email: '', password: '', confPass: '', role: ''}
 
 export function AuthForm(){
-	const t = useTranslations("AuthForm")
 	const router = useRouter()
 	
 	//~ const {setFromStorage, error, clearError} =  useUserContext()
@@ -54,20 +52,20 @@ export function AuthForm(){
 		
   return  <S.Container>
     <S.Form onSubmit={handSubmit} id='form'>
-     <S.Title>{!registered?t("sign_up"):t("sign_in")}</S.Title>
-	 <S.Label>{t('e_mail')}:</S.Label>
-	 <S.Input name='email' placeholder={t('p_mail')}
+     <S.Title>{!registered?'Sign Up':'Sign in'}</S.Title>
+	 <S.Label>email: </S.Label>
+	 <S.Input name='email' placeholder='Email'
 	          onChange={handChange} required/><br/>
-	 <S.Label text='green'>{t('password')}:</S.Label>
-	 <S.Input text='black' placeholder={t('p_create')} name='password'
+	 <S.Label text='green'>Password: </S.Label>
+	 <S.Input text='black' placeholder='Password' name='password'
 	          onChange={handChange} required/><br/>
 	 {!registered && (<>
-	 <S.Label>{t('name')}:</S.Label>
-	 <S.Input name='name' placeholder={t('p_name')}
+	 <S.Label>name: </S.Label>
+	 <S.Input name='name' placeholder='Name'
 	          onChange={handChange} required/><br/>
 	 
-	 <S.Label>{t('password')}:</S.Label>
-	 <S.Input placeholder={t('p_confirm')} name='confPass'
+	 <S.Label>Password :</S.Label>
+	 <S.Input placeholder='Confirm' name='confPass'
 	          onChange={handChange} required/>
 	                   <br/></>)} 
 	                   
@@ -79,14 +77,14 @@ export function AuthForm(){
 	   <option style={{fontSize:20}}>Owner</option>
 	   <option style={{fontSize:20}}>Tenant</option>
 	 </select> <br/></>}
-	 <S.Submit type='submit'>{t('submit')}</S.Submit><br/>          
+	 <S.Submit type='submit'>Submit</S.Submit><br/>          
 	 
 	</S.Form>
 	 <S.Toggler className='styledLink'
 	            onClick={()=>setRegistered(!registered)}>
-	                        {!registered?t("sign_in")
-								        :t("sign_up")}</S.Toggler>
+	                        {!registered?'Sign In'
+								        :'Sign Up'}</S.Toggler>
 								        
-	  <S.StyledLink className='styledLink' href={'/'}>{t('menu')}</S.StyledLink>
+	  <S.StyledLink className='styledLink' href={'/'}>Menu</S.StyledLink>
   </S.Container>
 	}

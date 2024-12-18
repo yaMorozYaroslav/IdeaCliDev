@@ -1,17 +1,17 @@
 'use client'
 import React from 'react'
-import { usePathname } from '../../navigation';
+import { usePathname } from 'next/navigation';
 import {useEstateContext} from '../../context/estates/EstateState'
 import {useUnitContext} from '../../context/units/UnitState'
 import {useQueryContext} from '../../context/queries/QueryState'
 import * as S from './pages.styled.js'
 import {Button} from './pages.styled.js'
-import {useTranslations} from 'next-intl'
+//~ import {useTranslations} from 'next-intl'
 import { useParams } from 'next/navigation'
 
 
 export function Pages(total) {
-	const t = useTranslations("Pages")
+	//~ const t = useTranslations("Pages")
 	const pathname = usePathname()
     const isEstate = pathname === '/'
     const params = useParams()

@@ -2,7 +2,6 @@
 import React from 'react'
 import * as S from './e-cell.styled'
 
-import {Link} from '../../../navigation'
 
 //~ import AddCartIcon from '@mui/icons-material/AddShoppingCart';
 import SearchIcon from '@mui/icons-material/ContentPasteSearch';
@@ -46,8 +45,7 @@ return(<>
       {options && <S.FourButtons><S.StyledButtons>
 				   
 				            
-	     <S.DetailsLink className='styledLink'
-                        href={`/estate/${item._id}`}>
+	     <S.DetailsLink href={`/estate/${item._id}`}>
 	    
 	          <S.InnerButt>
 	                          Estate Info    
@@ -58,7 +56,7 @@ return(<>
 	          
 	     </S.DetailsLink>
 				             
-		 <S.UnitsLink className='styledLink' href={`/unit-list/${item._id}`}>
+		 <S.UnitsLink href={`/unit-list/${item._id}`}>
 		    <S.InnerButt style={{borderBottom: '2px solid'}}>
 		                      Show Units
               <ApartmentIcon style={{position:'relative',

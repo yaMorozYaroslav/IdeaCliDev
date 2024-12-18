@@ -1,6 +1,6 @@
 'use client'
 import styled from 'styled-components'
-import {Link} from '../../../navigation'
+import Link from 'next/link'
 
 export const Name = styled.p`background:black;color:white;
                              border-radius:10px;font-size:23px;

@@ -1,7 +1,7 @@
 'use client'
 import styled from 'styled-components'
 //~ import Image from 'next/image'
-import {Link} from '/navigation'
+import Link from 'next/link'
 
 export const AboutLink = styled(Link)`margin-top:25px;
        @media (max-width: 600px){display:flex;margin-left:15%;}

@@ -6,15 +6,15 @@ import {AddUnit} from './AddUnit/AddUnit'
 import {SpinZone} from '../../blocks/SpinZone'
 //~ import LinearProgress from '@mui/material/LinearProgress';
 
-import {useUnitContext} from '../../context/units/UnitState'
-import {useQueryContext} from '../../context/queries/QueryState'
-import {useUserContext} from '../../context/user/UserState'
+import {useUnitContext} from '/context/units/UnitState'
+import {useQueryContext} from '/context/queries/QueryState'
+import {useUserContext} from '/context/user/UserState'
 
 import revalidator from './revalidator'
 
-import { usePathname } from '../../navigation'
-import { useRouter } from '../../navigation'
-import {useTranslations} from 'next-intl'
+import { usePathname } from 'next/navigation'
+import { useRouter } from 'next/navigation'
+
 import { useParams } from 'next/navigation'
 
 import {UCell} from './UCell/UCell'
@@ -22,7 +22,6 @@ import AddHomeIcon from '@mui/icons-material/AddHome';
 
 export function Units({userData, servData, estate}){
 	//~ console.log(userData)
-	const t = useTranslations('List')
 	
 	const pathname = usePathname()
 	const router = useRouter()
@@ -75,7 +74,7 @@ return (<S.Container>
 			                   <AddHomeIcon fontSize='large'/> </S.AddAdmin>}
              <S.Title>Units</S.Title>
      <S.NotLink onClick={()=>onMenu()}>
-                                 <SpinZone> {t('menu')}</SpinZone></S.NotLink> 
+                                 <SpinZone> Menu </SpinZone></S.NotLink> 
                                       
      <S.NotEstate onClick={()=>router.push(`/estate/${params.id}`)}>
                                  <SpinZone>Estate</SpinZone></S.NotEstate>      

@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import {Link} from '../../../navigation'
+import Link from 'next/link'
 import Image from 'next/image'
 
 export const Cell = styled.li`font-size: 20px; border: 2px solid black;

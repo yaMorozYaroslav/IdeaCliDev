@@ -13,9 +13,9 @@ import {useCartContext} from '../../context/cart/CartState'
 import {getSession} from '/lib'
 import revalidator from './revalidator'
 
-import { usePathname } from '../../navigation'
-import { useRouter } from '../../navigation'
-import {useTranslations} from 'next-intl'
+import { useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
+
 import AddEstateIcon from '@mui/icons-material/AddHomeWork';
 import cookies from 'js-cookie';
 
@@ -23,8 +23,6 @@ import {ECell} from './ECell/ECell'
 
 export function Estates ({userData, servData}){
 	
-	//~ const session = cookies.get('session')?JSON.parse(cookies.get('session')):{}
-	const t = useTranslations('List')
 	const pathname = usePathname()
 	const router = useRouter()
 	

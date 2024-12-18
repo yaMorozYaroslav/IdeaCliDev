@@ -1,7 +1,7 @@
 'use client'
 import styled from 'styled-components'
 import Image from 'next/image'
-import {Link} from '../../navigation'
+import Link from 'next/link'
 
 export const HeadCont = styled.section`display: flex;position:absolute;
                                        width:98%;text-align:center;

@@ -1,5 +1,5 @@
 import autoCert from "anchor-pki/auto-cert/integrations/next";
-import nextIntl from "next-intl/plugin"
+//~ import nextIntl from "next-intl/plugin"
 
 const nextConfig = {
   compiler: {
@@ -9,6 +9,7 @@ const nextConfig = {
 const withAutoCert = autoCert({
   enabledEnv: "development",
 });
-const withNextIntl = nextIntl('./i18n.js')
+//~ const withNextIntl = nextIntl('./i18n.js')
 
-export default withAutoCert(withNextIntl(nextConfig))
+//~ export default withAutoCert(withNextIntl(nextConfig))
+export default withAutoCert(nextConfig)

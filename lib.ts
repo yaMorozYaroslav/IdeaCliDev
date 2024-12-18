@@ -5,13 +5,13 @@ import {cookies} from 'next/headers'
 export const signIn = async(formData)=> {
 	const session = await auth(formData)
 	const stringified = JSON.stringify(session.data)
-	cookies().set('session', stringified)
+	await cookies().set('session', stringified)
 	return session.data
 	} 
 export const signUp = async(formData)=> {
 	const session = await register(formData)
 	const stringified = JSON.stringify(session.data)
-	cookies().set('session', stringified)
+	await cookies().set('session', stringified)
 	return session.data
 }
 //~ export const getReadySession =async()=> {
@@ -19,9 +19,11 @@ export const signUp = async(formData)=> {
 	//~ if(cookies().get('session')) return cookies().get('session').value
 	//~ return session
 	//~ }
-export const getSession =async()=> {
+export async function getSession() {
 	let session = '{}'
-	if(cookies().get('session')) return cookies().get('session').value
+	const sesCooks = await cookies().get('session')
+	if(sesCooks) return sesCooks.value
 	return session
 	}
-export const logOut =async()=> await cookies().delete('session')
+export const logOut =async()=> {await cookies().delete('session')
+	                            return {}}
