@@ -1,33 +1,34 @@
-'use client';
+import { cookies } from "next/headers";
+import StyledComponentsRegistry from "../lib/StyledComponentsRegistry";
+import Header from "../comps/Header";
 
-import StyledComponentsRegistry from '../lib/StyledComponentsRegistry';
-import Header from '../comps/Header';
-import axios from 'axios';
-import { useEffect, useState } from 'react';
+export default async function RootLayout({ children }) {
+  let user = null;
 
-export default function RootLayout({ children }) {
-  const [user, setUser] = useState(null);
+  try {
+    const cookieStore = cookies(); // Get cookies from the request
+    const cookieHeader = cookieStore.toString(); // Convert cookies to a string
 
-  const fetchUser = async () => {
-    try {
-      const response = await axios.get('http://localhost:5000/google/me', {
-        withCredentials: true,
-      });
-      setUser(response.data);
-    } catch (error) {
-      console.log('User not authenticated');
+    const response = await fetch("http://localhost:5000/google/me", {
+      method: "GET",
+      headers: {
+        Cookie: cookieHeader, // Pass user cookies to API
+      },
+      cache: "no-store", // Ensure fresh data on every request
+    });
+
+    if (response.ok) {
+      user = await response.json();
     }
-  };
-
-  useEffect(() => {
-    fetchUser();
-  }, []);
+  } catch (error) {
+    console.log("User not authenticated on SSR", error);
+  }
 
   return (
     <html lang="en">
       <body>
         <StyledComponentsRegistry>
-          <Header user={user} refreshUser={fetchUser} />
+          <Header user={user} />
           {children}
         </StyledComponentsRegistry>
       </body>
