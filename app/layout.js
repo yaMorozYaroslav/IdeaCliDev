@@ -6,7 +6,7 @@ export default async function RootLayout({ children }) {
   let user = null;
 
   try {
-    const cookieStore = cookies(); // Get cookies from the request
+    const cookieStore = await cookies(); // Get cookies from the request
     const cookieHeader = cookieStore.toString(); // Convert cookies to a string
 
     const response = await fetch("http://localhost:5000/google/me", {

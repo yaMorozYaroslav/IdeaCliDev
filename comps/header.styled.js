@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-// Header Container
+// Header Container (FIXED: Proper Spacing & Wrapping)
 export const HeaderContainer = styled.header`
   display: flex;
   align-items: center;
@@ -16,10 +16,10 @@ export const HeaderContainer = styled.header`
   transition: transform 0.3s ease-in-out;
   transform: ${({ $isVisible }) => ($isVisible ? "translateY(0)" : "translateY(-100%)")};
 
-  @media (max-width: 480px) {
-    padding: 8px 15px;
-    flex-direction: column;
-    align-items: flex-start;
+  @media (max-width: 768px) {
+    padding: 12px;
+    flex-wrap: wrap; /* Allows elements to wrap on smaller screens */
+    gap: 12px; /* Adds spacing between elements */
   }
 `;
 
@@ -27,6 +27,7 @@ export const HeaderContainer = styled.header`
 export const LogoContainer = styled.div`
   display: flex;
   align-items: center;
+  gap: 12px; /* Ensures spacing between logo and text */
 
   h1 {
     font-size: 1.5rem;
@@ -51,15 +52,21 @@ export const LogoImage = styled.img`
   }
 `;
 
-// User Section
-export const UserSection = styled.div`
+// NEW: User Container (FIXED: Properly Groups User Avatar, Name, and Login Button)
+export const UserContainer = styled.div`
+  margin-left: 20%;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 20px; /* Increased spacing between avatar, name, and button */
+
+  @media (max-width: 768px) {
+    gap: 15px;
+  }
 
   @media (max-width: 480px) {
-    flex-direction: row;
-    gap: 5px;
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px;
   }
 `;
 
@@ -71,8 +78,8 @@ export const UserAvatar = styled.img`
   border: 2px solid white;
 
   @media (max-width: 480px) {
-    width: 30px;
-    height: 30px;
+    width: 35px;
+    height: 35px;
   }
 `;
 
@@ -81,21 +88,23 @@ export const UserName = styled.p`
   font-size: 1rem;
   font-weight: bold;
   margin-left: 8px;
+  white-space: nowrap; /* Prevents text from breaking */
 
   @media (max-width: 480px) {
     font-size: 0.85rem;
   }
 `;
 
-// Authentication Button
+// Authentication Button (FIXED SPACING)
 export const AuthButton = styled.button`
   background: #0057b7; /* Blue */
   color: white;
   border: none;
-  padding: 8px 12px;
+  padding: 10px 14px;
   cursor: pointer;
   border-radius: 5px;
   transition: background 0.2s ease-in-out;
+  margin-left: 10px; /* Ensures spacing from avatar/name */
 
   &:hover {
     background: #0044a3;
@@ -103,27 +112,35 @@ export const AuthButton = styled.button`
 
   @media (max-width: 480px) {
     font-size: 0.9rem;
-    padding: 6px 10px;
+    padding: 8px 12px;
   }
 `;
 
-// Menu Button (Hamburger)
+// FIXED: Menu Button (Hamburger)
 export const MenuButton = styled.button`
   background: transparent;
   border: none;
   font-size: 1.5rem;
   color: white;
+  margin-right:10%;
   cursor: pointer;
+  margin-left: auto; /* Pushes button to the right */
+
+  @media (max-width: 768px) {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+  }
 
   @media (max-width: 480px) {
     font-size: 1.2rem;
+    right: 10px;
   }
 `;
 
-// Menu Dropdown
+// FIXED: Menu Dropdown Positioning
 export const MenuDropdown = styled.div`
-  display: ${({ $isOpen }) => ($isOpen ? "block" : "none")};
-  position: absolute;
+  display: ${({ $isOpen }) => ($isOpen ? "flex" : "none")};
   top: 60px;
   right: 10px;
   background: white;
@@ -131,14 +148,16 @@ export const MenuDropdown = styled.div`
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   padding: 10px;
   z-index: 1000;
+  min-width: 180px;
 
   @media (max-width: 480px) {
-    width: 90%;
     right: 5%;
+    width: 80%;
+    max-width: 250px;
   }
 `;
 
-// Individual Menu Item
+// Menu Item
 export const MenuItem = styled.div`
   padding: 10px 15px;
   font-size: 1rem;
@@ -158,25 +177,3 @@ export const MenuItem = styled.div`
   }
 `;
 
-// Loading Skeleton (for Avatar & Name)
-export const LoadingSkeleton = styled.div`
-  background: #ddd;
-  border-radius: 4px;
-  animation: pulse 1.5s infinite;
-  ${({ width, height }) => `
-    width: ${width}px;
-    height: ${height}px;
-  `}
-
-  @keyframes pulse {
-    0% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.5;
-    }
-    100% {
-      opacity: 1;
-    }
-  }
-`;

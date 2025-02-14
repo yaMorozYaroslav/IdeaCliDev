@@ -41,52 +41,40 @@ export default function Header({ user, refreshUser }) {
   };
 
   return (
-    <S.HeaderContainer $isVisible={isVisible}>
-      {/* Logo Section */}
-      <S.LogoContainer>
-        <S.LogoImage src="/IconIdea.png" alt="Idea Sphere Logo" width={80} height={80} />
-        <h1>Idea Sphere</h1>
-      </S.LogoContainer>
+   <S.HeaderContainer $isVisible={isVisible}>
+  {/* Logo Section */}
+  <S.LogoContainer>
+    <S.LogoImage src="/IconIdea.png" alt="Idea Sphere Logo" width={80} height={80} />
+    <h1>Idea Sphere</h1>
+  </S.LogoContainer>
 
-      {/* User Section */}
-      <S.UserSection>
-        {user ? (
-          <>
-            <S.UserAvatar src={user.picture} alt={user.name} width={40} height={40} />
-            <S.UserName>{user.name}</S.UserName>
-          </>
-        ) : (
-          <>
-            <S.LoadingSkeleton width={40} height={40} /> {/* Placeholder Avatar */}
-            <S.LoadingSkeleton width={100} height={20} /> {/* Placeholder Name */}
-          </>
-        )}
-      </S.UserSection>
+  {/* User Section: FIXED GROUPING */}
+  <S.UserContainer>
+    {user && 
+       <>
+        <S.UserAvatar src={user.picture} alt={user.name} width={40} height={40} />
+        <S.UserName>{user.name}</S.UserName>
+       </>
+   }
+    <S.AuthButton onClick={user ? handleLogout : handleLogin}>
+      {user ? "Logout" : "Login with Google"}
+    </S.AuthButton>
+  </S.UserContainer>
 
-      {/* Authentication & Menu Buttons */}
-      {user ? (
-        <>
-          <S.AuthButton onClick={handleLogout}>Logout</S.AuthButton>
-        </>
-      ) : (
-        <>
-          <S.AuthButton onClick={handleLogin}>Login with Google</S.AuthButton>
-        </>
-      )}
+  <S.MenuButton onClick={() => setMenuOpen(!menuOpen)}>
+    <FiMenu />
+  </S.MenuButton>
 
-      <S.MenuButton onClick={() => setMenuOpen(!menuOpen)}>
-        <FiMenu />
-      </S.MenuButton>
+  {/* Dropdown Menu */}
+  <S.MenuDropdown $isOpen={menuOpen}>
+    <S.MenuItem>
+      <FaSearch /> Search
+    </S.MenuItem>
+    <S.MenuItem>
+      <FaInfoCircle /> About Us
+    </S.MenuItem>
+  </S.MenuDropdown>
+</S.HeaderContainer>
 
-      {/* Dropdown Menu */}
-      <S.MenuDropdown $isOpen={menuOpen}>
-        <S.MenuItem>
-          <FaSearch /> Search
-        </S.MenuItem>
-        <S.MenuItem>
-          <FaInfoCircle /> About Us
-        </S.MenuItem>
-      </S.MenuDropdown>
-    </S.HeaderContainer>
   );
 }
