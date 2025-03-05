@@ -74,7 +74,7 @@ export const UserContainer = styled.div`
 export const UserAvatar = styled.img`
   width: 40px;
   height: 40px;
-  border-radius: 50%;
+  border-radius: 45%;
   border: 2px solid white;
 
   @media (max-width: 480px) {
@@ -140,22 +140,30 @@ export const MenuButton = styled.button`
 
 // FIXED: Menu Dropdown Positioning
 export const MenuDropdown = styled.div`
-  display: ${({ $isOpen }) => ($isOpen ? "flex" : "none")};
-  top: 60px;
-  right: 10px;
+  position: absolute;
+  top: 100%; /* Places it right below the button */
+  right: 0;
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   padding: 10px;
   z-index: 1000;
   min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+  
+  transform: scaleY(${({ $isOpen }) => ($isOpen ? 1 : 0)});
+  transform-origin: top;
+  opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
 
   @media (max-width: 480px) {
-    right: 5%;
-    width: 80%;
+    width: 90%;
     max-width: 250px;
   }
 `;
+
+
 
 // Menu Item
 export const MenuItem = styled.div`

@@ -61,11 +61,14 @@ export default function Header({ user, refreshUser }) {
     </S.AuthButton>
   </S.UserContainer>
 
-  <S.MenuButton onClick={() => setMenuOpen(!menuOpen)}>
+  <S.MenuButton
+    onClick={() => setMenuOpen(!menuOpen)}
+    aria-label="Toggle menu"
+    aria-expanded={menuOpen}
+  >
     <FiMenu />
   </S.MenuButton>
 
-  {/* Dropdown Menu */}
   <S.MenuDropdown $isOpen={menuOpen}>
     <S.MenuItem>
       <FaSearch /> Search

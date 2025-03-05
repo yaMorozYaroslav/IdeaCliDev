@@ -1,36 +1,14 @@
-import { cookies } from "next/headers";
-import StyledComponentsRegistry from "../lib/StyledComponentsRegistry";
-import Header from "../comps/Header";
+// app/layout.js (Server Component)
+import { getUser } from "/lib/getUser";
+import LayoutClient from "./layout-client"; // Import client component
 
-export default async function RootLayout({ children }) {
-  let user = null;
-
-  try {
-    const cookieStore = await cookies(); // Get cookies from the request
-    const cookieHeader = cookieStore.toString(); // Convert cookies to a string
-
-    const response = await fetch("http://localhost:5000/google/me", {
-      method: "GET",
-      headers: {
-        Cookie: cookieHeader, // Pass user cookies to API
-      },
-      cache: "no-store", // Ensure fresh data on every request
-    });
-
-    if (response.ok) {
-      user = await response.json();
-    }
-  } catch (error) {
-    console.log("User not authenticated on SSR", error);
-  }
+export default async function Layout({ children }) {
+  const user = await getUser(); // Fetch user data on the server
 
   return (
     <html lang="en">
       <body>
-        <StyledComponentsRegistry>
-          <Header user={user} />
-          {children}
-        </StyledComponentsRegistry>
+        <LayoutClient user={user}>{children}</LayoutClient>
       </body>
     </html>
   );

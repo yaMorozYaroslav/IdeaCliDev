@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+    ],
+  },
+  reactStrictMode: false,
   compiler: {
     styledComponents: {
       ssr: true,         // ✅ Ensures Styled Components work with SSR
