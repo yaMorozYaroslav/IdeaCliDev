@@ -77,7 +77,9 @@ export default function Header({ user, refreshUser }) {
       <FaInfoCircle /> About Us
     </S.MenuItem>
   </S.MenuDropdown>
+  
 </S.HeaderContainer>
+ 
 
   );
 }

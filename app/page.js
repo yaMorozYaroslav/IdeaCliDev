@@ -2,13 +2,13 @@
 
 import React from 'react';
 import styled from 'styled-components';
-
+import Questions from '/comps/quests/Quests'
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 200vh;
+  height: 60vh;
   background-color: #f9fafb;
 `;
 
@@ -25,6 +25,7 @@ export default function Home({ user }) {
       ) : (
         <WelcomeMessage>Welcome to Idea Sphere. Please log in.</WelcomeMessage>
       )}
+      <Questions/>
     </Container>
   );
 }
