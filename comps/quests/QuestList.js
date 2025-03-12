@@ -27,6 +27,7 @@ const QuestionList = ({ userId }) => {
   };
 
   const toggleQuestionDetail = async (questionId) => {
+    console.log("Clicked question ID:", questionId);
     if (expandedQuestionId === questionId) {
       setExpandedQuestionId(null);
       setQuestionDetails(null);
@@ -39,6 +40,7 @@ const QuestionList = ({ userId }) => {
       const response = await fetch(`http://localhost:5000/questions/${questionId}`);
       if (!response.ok) throw new Error("Failed to fetch question details");
       const data = await response.json();
+      console.log("Fetched details:", data);
       setQuestionDetails(data);
     } catch (error) {
       console.error("Error fetching question details:", error);
@@ -51,47 +53,39 @@ const QuestionList = ({ userId }) => {
 
   const handleLikeQuestion = async (questionId) => {
     try {
-        const requestBody = userId ? { userId } : {}; // Send userId if available
+      const requestBody = userId ? { userId } : {};
+      const response = await fetch(`http://localhost:5000/questions/${questionId}/like`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody),
+      });
 
-        const response = await fetch(`http://localhost:5000/questions/${questionId}/like`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(requestBody),
-        });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to like question");
+      }
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || "Failed to like question");
-        }
-
-        const updatedQuestion = await response.json();
-
-        // Update state
-        setQuestions((prevQuestions) =>
-            prevQuestions.map((q) => (q._id === questionId ? updatedQuestion : q))
-        );
-
-        if (expandedQuestionId === questionId) {
-            setQuestionDetails(updatedQuestion);
-        }
+      await fetchQuestions(); // Force refresh from backend to ensure updated likes
     } catch (error) {
-        console.error("Error liking question:", error.message);
-    }
-};
-
-  const handleNewAnswer = (updatedQuestion) => {
-    // Update question list without reload
-    setQuestions((prevQuestions) =>
-      prevQuestions.map((q) => (q._id === updatedQuestion._id ? updatedQuestion : q))
-    );
-
-    if (expandedQuestionId === updatedQuestion._id) {
-      setQuestionDetails(updatedQuestion);
+      console.error("Error liking question:", error.message);
     }
   };
 
-  if (loading) return <S.LoadingMessage>Loading questions...</S.LoadingMessage>;
-  if (!questions.length) return <S.NoQuestionsMessage>No questions available.</S.NoQuestionsMessage>;
+  const handleDeleteQuestion = async (questionId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/questions/${questionId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error("Failed to delete question");
+      setQuestions((prevQuestions) => prevQuestions.filter((q) => q._id !== questionId));
+      if (expandedQuestionId === questionId) {
+        setExpandedQuestionId(null);
+        setQuestionDetails(null);
+      }
+    } catch (error) {
+      console.error("Error deleting question:", error.message);
+    }
+  };
 
   return (
     <S.Container>
@@ -107,20 +101,21 @@ const QuestionList = ({ userId }) => {
             </S.QuestionTitle>
             <S.ActionButtons>
               <S.LikeButton onClick={() => handleLikeQuestion(question._id)}>
-                👍 {question.likes || 0}
+                  👍 {(question.likes?.length || 0) + (question.anonymousLikes?.length || 0)}
               </S.LikeButton>
+
               {question.author === userId && (
                 <S.DeleteButton onClick={() => handleDeleteQuestion(question._id)}>🗑️</S.DeleteButton>
               )}
             </S.ActionButtons>
           </S.QuestionHeader>
 
-          {expandedQuestionId === question._id && (
+          {expandedQuestionId === question._id && questionDetails && (
             <S.DetailWrapper>
               {detailsLoading ? (
                 <S.LoadingMessage>Loading question details...</S.LoadingMessage>
               ) : (
-                questionDetails && <QuestionDetail question={questionDetails} userId={userId} onNewAnswer={handleNewAnswer} />
+                <QuestionDetail question={questionDetails} userId={userId} onNewAnswer={fetchQuestions} />
               )}
             </S.DetailWrapper>
           )}
