@@ -26,30 +26,36 @@ const QuestionList = ({ userId }) => {
     }
   };
 
-  const toggleQuestionDetail = async (questionId) => {
-    console.log("Clicked question ID:", questionId);
+ const toggleQuestionDetail = async (questionId) => {
     if (expandedQuestionId === questionId) {
-      setExpandedQuestionId(null);
-      setQuestionDetails(null);
-      return;
+        setExpandedQuestionId(null);
+        setQuestionDetails(null);
+        return;
     }
 
     setExpandedQuestionId(questionId);
     setDetailsLoading(true);
+
     try {
-      const response = await fetch(`http://localhost:5000/questions/${questionId}`);
-      if (!response.ok) throw new Error("Failed to fetch question details");
-      const data = await response.json();
-      console.log("Fetched details:", data);
-      setQuestionDetails(data);
+        const response = await fetch(`http://localhost:5000/questions/${questionId}`);
+        if (!response.ok) throw new Error("Failed to fetch question details");
+        const data = await response.json();
+        setQuestionDetails(data);
+
+        // ✅ Ensure smooth scrolling without jumping under sticky header
+        setTimeout(() => {
+            document.getElementById(`question-${questionId}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 100);
     } catch (error) {
-      console.error("Error fetching question details:", error);
-      setExpandedQuestionId(null);
-      setQuestionDetails(null);
+        console.error("Error fetching question details:", error);
+        setExpandedQuestionId(null);
+        setQuestionDetails(null);
     } finally {
-      setDetailsLoading(false);
+        setDetailsLoading(false);
     }
-  };
+};
+
+
 
   const handleLikeQuestion = async (questionId) => {
     try {
@@ -111,13 +117,14 @@ const QuestionList = ({ userId }) => {
           </S.QuestionHeader>
 
           {expandedQuestionId === question._id && questionDetails && (
-            <S.DetailWrapper>
-              {detailsLoading ? (
-                <S.LoadingMessage>Loading question details...</S.LoadingMessage>
-              ) : (
-                <QuestionDetail question={questionDetails} userId={userId} onNewAnswer={fetchQuestions} />
-              )}
-            </S.DetailWrapper>
+            <S.DetailWrapper isVisible={expandedQuestionId === question._id}>
+  {detailsLoading ? (
+    <S.LoadingMessage>Loading question details...</S.LoadingMessage>
+  ) : (
+    questionDetails && <QuestionDetail question={questionDetails} userId={userId} onNewAnswer={fetchQuestions} />
+  )}
+</S.DetailWrapper>
+
           )}
         </S.QuestionItem>
       ))}

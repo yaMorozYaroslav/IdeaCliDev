@@ -7,7 +7,10 @@ import Header from '/comps/Header'
 import styled from "styled-components";
 
 export const ContentSpacer = styled.div`
-  height:800px; /* This should match the header height */
+  height:250px; /* This should match the header height */
+   @media (max-width: 500px) {
+  height: 300px;
+  }
 `;
 
 export default function LayoutClient({ children, user }) {

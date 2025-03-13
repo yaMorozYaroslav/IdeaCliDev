@@ -21,26 +21,33 @@ const QuestionDetail = ({ question, userId, onNewAnswer }) => {
     };
 
     const handleLikeAnswer = async (answerId) => {
-        try {
-            const requestBody = userId ? { userId } : {};
-            
-            const response = await fetch(`http://localhost:5000/answers/${answerId}/like`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(requestBody),
-            });
+    try {
+        console.log("Liking answer:", answerId, "for question:", question._id); // Debugging
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || "Failed to like answer");
-            }
+        const requestBody = JSON.stringify({ userId: userId || null });
 
-            const updatedAnswer = await response.json();
-            setAnswers((prevAnswers) => prevAnswers.map((a) => (a._id === answerId ? updatedAnswer : a)));
-        } catch (error) {
-            console.error("Error liking answer:", error.message);
+        const response = await fetch(`http://localhost:5000/questions/${question._id}/answers/${answerId}/like`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: requestBody,
+        });
+
+        const responseText = await response.text(); // Capture raw response
+        console.log("Raw Response:", responseText);
+
+        if (!response.ok) {
+            throw new Error(`Failed to like answer: ${responseText}`);
         }
-    };
+
+        const updatedAnswer = JSON.parse(responseText); // Only parse if it's valid JSON
+
+        setAnswers((prevAnswers) =>
+            prevAnswers.map((a) => (a._id === answerId ? updatedAnswer : a))
+        );
+    } catch (error) {
+        console.error("Error liking answer:", error.message);
+    }
+};
 
     const handleSubmitAnswer = async (e) => {
         e.preventDefault();
@@ -66,7 +73,8 @@ const QuestionDetail = ({ question, userId, onNewAnswer }) => {
             setPosting(false);
         }
     };
-console.log("Received question details:", question);
+
+    console.log("Received question details:", question);
 
     return (
         <S.Container>
@@ -79,7 +87,7 @@ console.log("Received question details:", question);
                         <S.AnswerContent>{answer.content}</S.AnswerContent>
                         <S.ActionButtons>
                             <S.LikeButton onClick={() => handleLikeAnswer(answer._id)}>
-                                👍 {answer.likes?.length || 0}
+                                👍 {(answer.likes || 0) + (answer.anonymousLikes || 0)}
                             </S.LikeButton>
                             {answer.author === userId && (
                                 <S.DeleteButton onClick={() => handleDeleteAnswer(answer._id)}>🗑️</S.DeleteButton>

@@ -1,13 +1,16 @@
 import styled from "styled-components";
 
 export const Container = styled.div`
-  width: 100%;
-  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 90%; /* ✅ Expands width while keeping margins */
+  max-width: 1200px; /* ✅ Allows full width on larger screens */
   margin: 0 auto;
-  padding: 20px;
-  background: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+  position: relative; /* ✅ Keeps normal scrolling behavior */
+  background: white;
+  overflow: visible; /* ✅ Prevents extra scrollbar inside */
+  min-height: calc(100vh - 80px); /* ✅ Prevents cutting off content */
 `;
 
 export const Title = styled.h2`

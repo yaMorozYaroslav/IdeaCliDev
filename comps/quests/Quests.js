@@ -56,7 +56,7 @@ export default function Questions() {
 
   return (
     <S.Container>
-      <h2>Ask a Question</h2>
+      <S.Title>Ask a Question</S.Title>
 
       {/* ✅ Prevent form refresh by using an inline function */}
       <form onSubmit={(e) => {

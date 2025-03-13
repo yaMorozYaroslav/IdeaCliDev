@@ -1,18 +1,26 @@
 import styled from "styled-components";
 
 export const Container = styled.div`
-    padding: 16px;
-    background: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 800px; /* ✅ Keeps layout consistent */
+  margin: 20px auto; /* ✅ Centers content */
+  position: relative; /* ✅ Prevents jumping */
+  min-height: 100vh; /* ✅ Ensures space is allocated */
 `;
 
-export const Title = styled.h1`
-    font-size: 22px;
-    font-weight: bold;
-    margin-bottom: 16px;
+
+export const Title = styled.h2`
+  font-size: 2rem;
+  text-align: center;
+  position: relative;
+  width: 100%;
+  margin-bottom: 20px; /* ✅ Ensures spacing */
+  z-index: 1; /* ✅ Keeps title above expanding content */
 `;
+
 
 export const QuestionItem = styled.div`
     padding: 12px;
@@ -73,10 +81,14 @@ export const DeleteButton = styled.button`
 `;
 
 export const DetailWrapper = styled.div`
-    margin-top: 10px;
-    padding: 10px;
-    background: #f1f1f1;
-    border-radius: 6px;
+  width: 100%;
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  max-height: ${({ isVisible }) => (isVisible ? "500px" : "0px")}; /* ✅ Expands smoothly */
+  opacity: ${({ isVisible }) => (isVisible ? "1" : "0")};
+  overflow: hidden; /* ✅ Removes internal scrolling */
+  background: white;
+  padding: ${({ isVisible }) => (isVisible ? "15px" : "0px")};
+  position: relative; /* ✅ Keeps content flow normal */
 `;
 
 export const LoadingMessage = styled.p`
