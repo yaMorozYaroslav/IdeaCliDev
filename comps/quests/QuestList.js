@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import * as S from "./quest-list.styled"; // Import styles
 import QuestionDetail from "./QuestDetail";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHeart, faTrash } from "@fortawesome/free-solid-svg-icons";
 
-const QuestionList = ({ userId }) => {
+const QuestionList = ({ userId, userStatus }) => {
+
   const [questions, setQuestions] = useState([]);
   const [expandedQuestionId, setExpandedQuestionId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -106,14 +109,21 @@ const QuestionList = ({ userId }) => {
               </S.AnswerCount>
             </S.QuestionTitle>
             <S.ActionButtons>
-              <S.LikeButton onClick={() => handleLikeQuestion(question._id)}>
-                  👍 {(question.likes?.length || 0) + (question.anonymousLikes?.length || 0)}
-              </S.LikeButton>
+    <S.LikeButton onClick={() => handleLikeQuestion(question._id)}>
+        <FontAwesomeIcon icon={faHeart} /> 
+        {(question.likes?.length || 0) + (question.anonymousLikes?.length || 0)}
+    </S.LikeButton>
 
-              {question.author === userId && (
-                <S.DeleteButton onClick={() => handleDeleteQuestion(question._id)}>🗑️</S.DeleteButton>
-              )}
-            </S.ActionButtons>
+   {(question.author === userId || userStatus === "admin") && ( 
+    <S.DeleteButton onClick={() => handleDeleteQuestion(question._id)}>
+        <FontAwesomeIcon icon={faTrash} />
+    </S.DeleteButton>
+)}
+
+
+</S.ActionButtons>
+
+
           </S.QuestionHeader>
 
           {expandedQuestionId === question._id && questionDetails && (

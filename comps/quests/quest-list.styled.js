@@ -63,7 +63,7 @@ export const LikeButton = styled.button`
     border: none;
     cursor: pointer;
     font-size: 14px;
-    color: #007aff;
+    color: #e63946;
     &:hover {
         text-decoration: underline;
     }

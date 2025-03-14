@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import * as S from "./quests.styled"; // Import styles
 import QuestionList from "./QuestList";
 
-export default function Questions() {
+export default function Questions(user) {
   const BASE_URL = "http://localhost:5000/questions";
   const [questions, setQuestions] = useState([]);
   const [newQuestion, setNewQuestion] = useState(""); // ✅ Track question input
@@ -76,7 +76,13 @@ export default function Questions() {
         <S.SubmitButton type="submit">Submit</S.SubmitButton>
       </form>
 
-      <QuestionList key={questions.length} questions={questions} setQuestions={setQuestions} />
-    </S.Container>
+      <QuestionList  key={questions.length} 
+                     questions={questions} 
+                     setQuestions={setQuestions} 
+                     userId={user?.id}  // ✅ Pass userId
+                     userStatus={user?.status}  // ✅ Pass userStatus
+                                                                     />
+  
+     </S.Container>
   );
 }

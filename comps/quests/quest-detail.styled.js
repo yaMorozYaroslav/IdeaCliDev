@@ -119,46 +119,42 @@ export const AnswerContent = styled.p`
   }
 `;
 
-// ✅ Action Buttons (Like/Delete)
+// ✅ Action Buttons Wrapper (For Like & Delete)
 export const ActionButtons = styled.div`
   display: flex;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
-
-  @media (max-width: 480px) {
-    gap: 8px;
-  }
 `;
 
-// ✅ Like Button (Increases Tap Target on Mobile)
+// ✅ Like Button (Smaller Version)
 export const LikeButton = styled.button`
   background: transparent;
   border: none;
-  font-size: 1.2rem;
+  font-size: 0.8rem; /* ✅ Smaller size */
   cursor: pointer;
-  color: #007bff;
+  color: #e63946;
   display: flex;
   align-items: center;
   gap: 5px;
 
   &:hover {
-    color: #0056b3;
+    color: #d62828;
   }
 
   @media (max-width: 768px) {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
   }
 
   @media (max-width: 480px) {
-    font-size: 1rem;
+    font-size: 0.8rem;
   }
 `;
 
-// ✅ Delete Button
+// ✅ Delete Button (Smaller Version)
 export const DeleteButton = styled.button`
   background: transparent;
   border: none;
-  font-size: 1.2rem;
+  font-size: 1rem; /* ✅ Smaller size */
   cursor: pointer;
   color: red;
   display: flex;
@@ -170,13 +166,14 @@ export const DeleteButton = styled.button`
   }
 
   @media (max-width: 768px) {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
   }
 
   @media (max-width: 480px) {
-    font-size: 1rem;
+    font-size: 0.8rem;
   }
 `;
+
 
 // ✅ Answer Form (Responsive Input Box)
 export const AnswerForm = styled.form`

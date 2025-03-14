@@ -3,6 +3,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import Questions from '/comps/quests/Quests'
+import { getUser } from "/lib/getUser";
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -18,6 +20,7 @@ const WelcomeMessage = styled.h1`
 `;
 
 export default function Home({ user }) {
+  
   return (
     <Container>
       {user ? (
@@ -25,7 +28,7 @@ export default function Home({ user }) {
       ) : (
         <WelcomeMessage>Welcome to Idea Sphere. Please log in.</WelcomeMessage>
       )}
-      <Questions/>
+      <Questions user={user}/>
     </Container>
   );
 }

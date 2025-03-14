@@ -1,5 +1,7 @@
 import { useState } from "react";
 import * as S from "./quest-detail.styled";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHeart } from "@fortawesome/free-solid-svg-icons";
 
 const QuestionDetail = ({ question, userId, onNewAnswer }) => {
     const [newAnswer, setNewAnswer] = useState("");
@@ -86,13 +88,18 @@ const QuestionDetail = ({ question, userId, onNewAnswer }) => {
                     <S.AnswerItem key={answer._id}>
                         <S.AnswerContent>{answer.content}</S.AnswerContent>
                         <S.ActionButtons>
-                            <S.LikeButton onClick={() => handleLikeAnswer(answer._id)}>
-                                👍 {(answer.likes || 0) + (answer.anonymousLikes || 0)}
-                            </S.LikeButton>
-                            {answer.author === userId && (
-                                <S.DeleteButton onClick={() => handleDeleteAnswer(answer._id)}>🗑️</S.DeleteButton>
-                            )}
-                        </S.ActionButtons>
+    <S.LikeButton onClick={() => handleLikeAnswer(answer._id)}>
+        <FontAwesomeIcon icon={faHeart} /> 
+        {(answer.likes?.length || 0) + (answer.anonymousLikes?.length || 0)}
+    </S.LikeButton>
+
+    {answer.author === userId && ( // ✅ Show delete button only for answer author
+        <S.DeleteButton onClick={() => handleDeleteAnswer(question._id, answer._id)}>
+            <FontAwesomeIcon icon={faTrash} />
+        </S.DeleteButton>
+    )}
+                         </S.ActionButtons>
+
                     </S.AnswerItem>
                 ))}
             </S.AnswersContainer>
