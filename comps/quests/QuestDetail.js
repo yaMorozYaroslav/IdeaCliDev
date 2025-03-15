@@ -1,55 +1,81 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import * as S from "./quest-detail.styled";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart } from "@fortawesome/free-solid-svg-icons";
+import { faHeart, faTrash } from "@fortawesome/free-solid-svg-icons";
 
-const QuestionDetail = ({ question, userId, onNewAnswer }) => {
+const QuestionDetail = ({ question, userId, userStatus, onNewAnswer }) => {
     const [newAnswer, setNewAnswer] = useState("");
     const [posting, setPosting] = useState(false);
     const [answers, setAnswers] = useState(question.answers || []);
+    
+    useEffect(() => {
+        console.log("Current User ID:", userId);
+        console.log("Current User Status:", userStatus);
+    }, [userId, userStatus]);
+    
+    const canDelete = (authorId) => {
+        return userStatus === "admin" || authorId === userId;
+    };
 
-    const handleDeleteAnswer = async (answerId) => {
+    const handleDelete = async (type, itemId, parentId = null) => {
         try {
-            const response = await fetch(`http://localhost:5000/answers/${answerId}`, {
+            const url = type === "question" 
+                ? `http://localhost:5000/questions/${itemId}` 
+                : `http://localhost:5000/questions/${parentId}/answers/${itemId}`;
+            
+            const response = await fetch(url, {
                 method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-user-id": userId,
+                    "x-user-status": userStatus
+                },
+                body: JSON.stringify({ userId }),
             });
 
-            if (!response.ok) throw new Error("Failed to delete answer");
+            if (!response.ok) throw new Error(`Failed to delete ${type}`);
 
-            setAnswers((prevAnswers) => prevAnswers.filter((a) => a._id !== answerId));
+            if (type === "question") {
+                console.log("✅ Question deleted successfully");
+            } else {
+                setAnswers((prevAnswers) => prevAnswers.filter((a) => a._id !== itemId));
+                console.log("✅ Answer deleted successfully");
+            }
         } catch (error) {
-            console.error("Error deleting answer:", error.message);
+            console.error(`❌ Error deleting ${type}:`, error.message);
         }
     };
 
     const handleLikeAnswer = async (answerId) => {
-    try {
-        console.log("Liking answer:", answerId, "for question:", question._id); // Debugging
+        try {
+            console.log("Liking answer:", answerId);
+            
+            const response = await fetch(`http://localhost:5000/questions/${question._id}/answers/${answerId}/like`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-user-id": userId,
+                },
+                body: JSON.stringify({ userId }),
+            });
 
-        const requestBody = JSON.stringify({ userId: userId || null });
+            const data = await response.json();
+            console.log("Server response (like):", data);
 
-        const response = await fetch(`http://localhost:5000/questions/${question._id}/answers/${answerId}/like`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: requestBody,
-        });
+            if (!response.ok) throw new Error(data.message || "Failed to like answer");
 
-        const responseText = await response.text(); // Capture raw response
-        console.log("Raw Response:", responseText);
-
-        if (!response.ok) {
-            throw new Error(`Failed to like answer: ${responseText}`);
+            setAnswers(prevAnswers => prevAnswers.map(a => 
+                a._id === answerId ? { 
+                    ...a, 
+                    likes: data.likes, 
+                    likedBy: data.likedBy,
+                    anonymousLikes: data.anonymousLikes
+                } : a
+            ));
+        } catch (error) {
+            console.error("❌ Error liking answer:", error.message);
         }
-
-        const updatedAnswer = JSON.parse(responseText); // Only parse if it's valid JSON
-
-        setAnswers((prevAnswers) =>
-            prevAnswers.map((a) => (a._id === answerId ? updatedAnswer : a))
-        );
-    } catch (error) {
-        console.error("Error liking answer:", error.message);
-    }
-};
+    };
 
     const handleSubmitAnswer = async (e) => {
         e.preventDefault();
@@ -65,10 +91,10 @@ const QuestionDetail = ({ question, userId, onNewAnswer }) => {
 
             if (!response.ok) throw new Error("Failed to submit answer");
 
-            const updatedQuestion = await response.json();
-            setAnswers(updatedQuestion.answers);
+            const updatedAnswer = await response.json();
+            setAnswers((prevAnswers) => [...prevAnswers, updatedAnswer]);
             setNewAnswer("");
-            onNewAnswer(updatedQuestion);
+            onNewAnswer(updatedAnswer);
         } catch (error) {
             console.error("Error submitting answer:", error.message);
         } finally {
@@ -76,32 +102,35 @@ const QuestionDetail = ({ question, userId, onNewAnswer }) => {
         }
     };
 
-    console.log("Received question details:", question);
-
     return (
         <S.Container>
             <S.QuestionTitle>{question.title}</S.QuestionTitle>
             <S.QuestionContent>{question.content}</S.QuestionContent>
+            {canDelete(question.authorId) && (
+                <S.DeleteButton onClick={() => handleDelete("question", question._id)}>
+                    <FontAwesomeIcon icon={faTrash} />
+                </S.DeleteButton>
+            )}
 
             <S.AnswersContainer>
-                {answers.map((answer) => (
-                    <S.AnswerItem key={answer._id}>
-                        <S.AnswerContent>{answer.content}</S.AnswerContent>
-                        <S.ActionButtons>
-    <S.LikeButton onClick={() => handleLikeAnswer(answer._id)}>
-        <FontAwesomeIcon icon={faHeart} /> 
-        {(answer.likes?.length || 0) + (answer.anonymousLikes?.length || 0)}
-    </S.LikeButton>
-
-    {answer.author === userId && ( // ✅ Show delete button only for answer author
-        <S.DeleteButton onClick={() => handleDeleteAnswer(question._id, answer._id)}>
-            <FontAwesomeIcon icon={faTrash} />
-        </S.DeleteButton>
-    )}
-                         </S.ActionButtons>
-
-                    </S.AnswerItem>
-                ))}
+                <S.AnswerList>
+                    {answers.map((answer) => (
+                        <S.AnswerItem key={answer._id}>
+                            <S.AnswerContent>{answer.content}</S.AnswerContent>
+                            <S.ActionButtons>
+                                <S.LikeButton onClick={() => handleLikeAnswer(answer._id)}>
+                                    <FontAwesomeIcon icon={faHeart} /> 
+                                    {(answer.likes || 0)} 
+                                </S.LikeButton>
+                                {canDelete(answer.authorId) && (
+                                    <S.DeleteButton onClick={() => handleDelete("answer", answer._id, question._id)}>
+                                        <FontAwesomeIcon icon={faTrash} />
+                                    </S.DeleteButton>
+                                )}
+                            </S.ActionButtons>
+                        </S.AnswerItem>
+                    ))}
+                </S.AnswerList>
             </S.AnswersContainer>
 
             <S.AnswerForm onSubmit={handleSubmitAnswer}>

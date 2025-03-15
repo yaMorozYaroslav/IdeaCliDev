@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import * as S from "./quests.styled"; // Import styles
 import QuestionList from "./QuestList";
 
-export default function Questions(user) {
+export default function Questions({user}) {
   const BASE_URL = "http://localhost:5000/questions";
   const [questions, setQuestions] = useState([]);
   const [newQuestion, setNewQuestion] = useState(""); // ✅ Track question input

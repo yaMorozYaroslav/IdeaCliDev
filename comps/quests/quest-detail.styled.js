@@ -1,249 +1,118 @@
 import styled from "styled-components";
 
-// ✅ Container for Question Detail (Responsive Layout)
 export const Container = styled.div`
-  width: 100%;
-  max-width: 900px; /* ✅ Limits width on larger screens */
-  margin: 0 auto;
-  padding: 20px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease-in-out;
-
-  @media (max-width: 1024px) {
-    max-width: 95%;
-    padding: 15px;
-  }
-
-  @media (max-width: 768px) {
-    padding: 10px;
-    border-radius: 6px;
-  }
-
-  @media (max-width: 480px) {
-    padding: 8px;
-    border-radius: 4px;
-  }
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    max-width: 800px;
+    margin: auto;
 `;
 
-// ✅ Question Title (Ensures readability on small screens)
 export const QuestionTitle = styled.h2`
-  font-size: 1.8rem;
-  font-weight: bold;
-  text-align: center;
-  color: #333;
-  margin-bottom: 15px;
-
-  @media (max-width: 768px) {
-    font-size: 1.5rem;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 1.3rem;
-  }
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 10px;
 `;
 
-// ✅ Question Content (Responsive Text)
 export const QuestionContent = styled.p`
-  font-size: 1.1rem;
-  color: #555;
-  line-height: 1.6;
-  text-align: left;
-  padding: 10px;
-  border-left: 4px solid #007bff;
-
-  @media (max-width: 768px) {
-    font-size: 1rem;
-    padding: 8px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 0.95rem;
-    padding: 6px;
-  }
+    font-size: 16px;
+    margin-bottom: 20px;
 `;
 
-// ✅ Answers Container (Handles Layout Responsively)
-export const AnswersContainer = styled.div`
-  margin-top: 20px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-
-  @media (max-width: 768px) {
-    margin-top: 15px;
-    gap: 10px;
-  }
-
-  @media (max-width: 480px) {
-    margin-top: 10px;
-    gap: 8px;
-  }
-`;
-
-// ✅ Individual Answer Item (Prevents Overflow)
-export const AnswerItem = styled.div`
-  background: #f9fafb;
-  padding: 12px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  @media (max-width: 768px) {
-    padding: 10px;
-    border-radius: 5px;
-  }
-
-  @media (max-width: 480px) {
-    padding: 8px;
-    border-radius: 4px;
-  }
-`;
-
-// ✅ Answer Content (Readable on Small Screens)
-export const AnswerContent = styled.p`
-  font-size: 1rem;
-  color: #444;
-  line-height: 1.5;
-
-  @media (max-width: 768px) {
-    font-size: 0.95rem;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 0.9rem;
-  }
-`;
-
-// ✅ Action Buttons Wrapper (For Like & Delete)
-export const ActionButtons = styled.div`
-  display: flex;
-  gap: 10px;
-  align-items: center;
-`;
-
-// ✅ Like Button (Smaller Version)
-export const LikeButton = styled.button`
-  background: transparent;
-  border: none;
-  font-size: 0.8rem; /* ✅ Smaller size */
-  cursor: pointer;
-  color: #e63946;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-
-  &:hover {
-    color: #d62828;
-  }
-
-  @media (max-width: 768px) {
-    font-size: 0.9rem;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 0.8rem;
-  }
-`;
-
-// ✅ Delete Button (Smaller Version)
 export const DeleteButton = styled.button`
-  background: transparent;
-  border: none;
-  font-size: 1rem; /* ✅ Smaller size */
-  cursor: pointer;
-  color: red;
-  display: flex;
-  align-items: center;
-  gap: 5px;
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+    margin-bottom: 10px;
 
-  &:hover {
-    color: darkred;
-  }
-
-  @media (max-width: 768px) {
-    font-size: 0.9rem;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 0.8rem;
-  }
+    &:hover {
+        background: #cc0000;
+    }
 `;
 
+export const AnswersContainer = styled.div`
+    margin-top: 20px;
+    max-height: 250px;
+    overflow-y: auto;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+`;
 
-// ✅ Answer Form (Responsive Input Box)
+export const AnswerList = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+`;
+
+export const AnswerItem = styled.div`
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+`;
+
+export const AnswerContent = styled.p`
+    font-size: 14px;
+    margin: 0;
+`;
+
+export const ActionButtons = styled.div`
+    display: flex;
+    gap: 10px;
+`;
+
+export const LikeButton = styled.button`
+    background: #ffcc00;
+    color: black;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+
+    &:hover {
+        background: #e6b800;
+    }
+`;
+
 export const AnswerForm = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 20px;
-  width: 100%;
-
-  @media (max-width: 768px) {
-    gap: 8px;
-  }
-
-  @media (max-width: 480px) {
-    gap: 6px;
-  }
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 `;
 
-// ✅ Input Box for Answer Submission
 export const AnswerInput = styled.input`
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 1rem;
-
-  &:focus {
-    border-color: #007bff;
-    outline: none;
-  }
-
-  @media (max-width: 768px) {
-    font-size: 0.95rem;
-    padding: 10px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 0.9rem;
     padding: 8px;
-  }
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
 `;
 
-// ✅ Submit Button
 export const SubmitButton = styled.button`
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: bold;
-  transition: background 0.2s ease-in-out;
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
 
-  &:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-  }
+    &:hover {
+        background: #0056b3;
+    }
+`;
 
-  &:hover:not(:disabled) {
-    background: #0056b3;
-  }
-
-  @media (max-width: 768px) {
-    font-size: 0.95rem;
-    padding: 10px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 0.9rem;
-    padding: 8px;
-  }
+export const ScrollMessage = styled.p`
+    font-size: 12px;
+    color: #777;
+    text-align: center;
+    margin-top: 10px;
 `;
