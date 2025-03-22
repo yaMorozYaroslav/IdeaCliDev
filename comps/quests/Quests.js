@@ -3,7 +3,7 @@ import * as S from "./quests.styled"; // Import styles
 import QuestionList from "./QuestList";
 
 export default function Questions({user}) {
-  const BASE_URL = "http://localhost:5000/questions";
+  const BASE_URL = "https://idea-sphere-50bb3c5bc07b.herokuapp.com/questions";
   const [questions, setQuestions] = useState([]);
   const [newQuestion, setNewQuestion] = useState(""); // ✅ Track question input
 
@@ -22,37 +22,44 @@ export default function Questions({user}) {
   };
 
   const handleQuestionSubmit = async (questionTitle) => {
-    if (typeof questionTitle !== "string" || !questionTitle.trim()) {
-        console.error("Error: questionTitle is invalid:", questionTitle);
-        return;
-    }
+  if (typeof questionTitle !== "string" || !questionTitle.trim()) {
+    console.error("Error: questionTitle is invalid:", questionTitle);
+    return;
+  }
 
-    const questionData = { title: questionTitle.trim() };
-
-    console.log("Submitting question:", JSON.stringify(questionData)); // ✅ Debugging log
-
-    try {
-        const response = await fetch(`${BASE_URL}/new`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(questionData), // ✅ Ensure JSON format
-        });
-
-        console.log("Response Status:", response.status);
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error("Error Response:", errorText);
-            throw new Error(errorText || "Failed to submit question");
-        }
-
-        const newQuestionData = await response.json();
-        setQuestions((prev) => [newQuestionData, ...prev]); // ✅ Update state with new question
-        setNewQuestion(""); // ✅ Clear input after successful submission
-    } catch (error) {
-        console.error("Error submitting question:", error.message);
-    }
+  // ✅ Create full payload with title and userId
+  const userIdentifier = user?.userId || null; // assuming user is passed via props
+  const questionData = {
+    title: questionTitle.trim(),
+    userId: userIdentifier,
   };
+ 
+  console.log("Submitting question:", JSON.stringify(questionData), user);
+
+  try {
+    const response = await fetch(`${BASE_URL}/new`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(questionData),
+    });
+
+    console.log("Response Status:", response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Error Response:", errorText);
+      throw new Error(errorText || "Failed to submit question");
+    }
+
+    const newQuestionData = await response.json();
+    setQuestions((prev) => [newQuestionData, ...prev]);
+    setNewQuestion("");
+  } catch (error) {
+    console.error("Error submitting question:", error.message);
+  }
+};
 
   return (
     <S.Container>
@@ -79,7 +86,7 @@ export default function Questions({user}) {
       <QuestionList  key={questions.length} 
                      questions={questions} 
                      setQuestions={setQuestions} 
-                     userId={user?.id}  // ✅ Pass userId
+                     userId={user?.userId}  // ✅ Pass userId
                      userStatus={user?.status}  // ✅ Pass userStatus
                                                                      />
   

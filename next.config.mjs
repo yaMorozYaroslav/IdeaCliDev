@@ -3,20 +3,23 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
       },
     ],
   },
   reactStrictMode: false,
+
   compiler: {
     styledComponents: {
-      ssr: true,         // ✅ Ensures Styled Components work with SSR
+      ssr: true, // ✅ Ensures Styled Components work with SSR
       displayName: true, // ✅ Helps debug class names
-      fileName: false,   // ✅ Prevents styles from breaking on hot reload
-      minify: false,     // ✅ Prevents class name mismatches on updates
+      fileName: false, // ✅ Prevents styles from breaking on hot reload
+      minify: false, // ✅ Prevents class name mismatches on updates
     },
   },
+
+
   webpack(config) {
     config.resolve.alias = {
       ...config.resolve.alias,

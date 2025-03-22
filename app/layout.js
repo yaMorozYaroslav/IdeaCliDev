@@ -4,7 +4,7 @@ import LayoutClient from "./layout-client"; // Import client component
 
 export default async function Layout({ children }) {
   const user = await getUser(); // Fetch user data on the server
-
+ console.log(user)
   return (
     <html lang="en">
       <body>

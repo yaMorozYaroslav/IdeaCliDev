@@ -3,64 +3,84 @@ import * as S from "./quest-detail.styled";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faTrash } from "@fortawesome/free-solid-svg-icons";
 
-const QuestionDetail = ({ question, userId, userStatus, onNewAnswer }) => {
+const QuestionDetail = ({ question, userId, userStatus, userIP, onNewAnswer }) => {
     const [newAnswer, setNewAnswer] = useState("");
     const [posting, setPosting] = useState(false);
     const [answers, setAnswers] = useState(question.answers || []);
-    
+    const [localUserIP, setLocalUserIP] = useState(userIP || ""); // Store user IP for anonymous users
+    console.log('answers :', answers)
+    // ✅ Fetch user IP if not already provided
+    useEffect(() => {
+        if (!userIP) {
+            fetch("https://api64.ipify.org?format=json")
+                .then(response => response.json())
+                .then(data => setLocalUserIP(`Anonymous_${data.ip}`)) // ✅ Store as "Anonymous_xxx.xxx.xxx.xxx"
+                .catch(error => console.error("Failed to get user IP:", error));
+        }
+    }, [userIP]);
+
     useEffect(() => {
         console.log("Current User ID:", userId);
         console.log("Current User Status:", userStatus);
-    }, [userId, userStatus]);
-    
-    const canDelete = (authorId) => {
-        return userStatus === "admin" || authorId === userId;
-    };
+        console.log("Current User IP (Anonymous):", localUserIP);
+    }, [userId, userStatus, localUserIP]);
 
-    const handleDelete = async (type, itemId, parentId = null) => {
-        try {
-            const url = type === "question" 
-                ? `http://localhost:5000/questions/${itemId}` 
-                : `http://localhost:5000/questions/${parentId}/answers/${itemId}`;
-            
-            const response = await fetch(url, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    "x-user-id": userId,
-                    "x-user-status": userStatus
-                },
-                body: JSON.stringify({ userId }),
-            });
+    // ✅ Check delete permissions
+   const canDelete = (authorId) =>
+  authorId === userId || userStatus === "admin";
 
-            if (!response.ok) throw new Error(`Failed to delete ${type}`);
 
-            if (type === "question") {
-                console.log("✅ Question deleted successfully");
-            } else {
-                setAnswers((prevAnswers) => prevAnswers.filter((a) => a._id !== itemId));
-                console.log("✅ Answer deleted successfully");
-            }
-        } catch (error) {
-            console.error(`❌ Error deleting ${type}:`, error.message);
-        }
-    };
+    // ✅ Handle question or answer deletion
+    const handleDelete = async (answerId, questionId) => {
+  const userIdentifier = userId || `Anonymous_${localUserIP}`;
+  const url = `https://idea-sphere-50bb3c5bc07b.herokuapp.com/questions/${questionId}/answers/${answerId}`;
 
+  try {
+    console.log(`🗑️ Deleting answer: ${answerId} (Question: ${questionId})`);
+    console.log("👤 User Identifier:", userIdentifier);
+    console.log("📡 DELETE Request to:", url);
+
+    const response = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId: userIdentifier }),
+    });
+
+    const result = await response.json();
+    console.log("🔁 Server response:", result);
+
+    if (!response.ok) {
+      throw new Error(result.message || "Failed to delete answer");
+    }
+
+    // ✅ Remove the deleted answer from UI
+    setAnswers((prev) => prev.filter((a) => a._id !== answerId));
+    console.log("✅ Answer deleted successfully");
+  } catch (error) {
+    console.error("❌ Error deleting answer:", error.message);
+  }
+};
+
+
+
+    // ✅ Handle answer like
     const handleLikeAnswer = async (answerId) => {
         try {
             console.log("Liking answer:", answerId);
             
-            const response = await fetch(`http://localhost:5000/questions/${question._id}/answers/${answerId}/like`, {
+            const response = await fetch(`https://idea-sphere-50bb3c5bc07b.herokuapp.com/questions/${question._id}/answers/${answerId}/like`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "x-user-id": userId,
+                    "x-user-id": userId || localUserIP, // ✅ Ensure anonymous users are tracked
                 },
-                body: JSON.stringify({ userId }),
+                body: JSON.stringify({ userId: userId || localUserIP }),
             });
 
             const data = await response.json();
-            console.log("Server response (like):", data);
+            console.log("🔍 Server response (like):", data);
 
             if (!response.ok) throw new Error(data.message || "Failed to like answer");
 
@@ -77,16 +97,17 @@ const QuestionDetail = ({ question, userId, userStatus, onNewAnswer }) => {
         }
     };
 
+    // ✅ Handle answer submission
     const handleSubmitAnswer = async (e) => {
         e.preventDefault();
         if (!newAnswer.trim()) return;
 
         setPosting(true);
         try {
-            const response = await fetch(`http://localhost:5000/questions/${question._id}/answers`, {
+            const response = await fetch(`https://idea-sphere-50bb3c5bc07b.herokuapp.com/questions/${question._id}/answers`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ content: newAnswer.trim(), userId }),
+                body: JSON.stringify({ content: newAnswer.trim(), userId: userId || localUserIP }), // ✅ Ensure anonymous users can post answers
             });
 
             if (!response.ok) throw new Error("Failed to submit answer");
@@ -106,11 +127,6 @@ const QuestionDetail = ({ question, userId, userStatus, onNewAnswer }) => {
         <S.Container>
             <S.QuestionTitle>{question.title}</S.QuestionTitle>
             <S.QuestionContent>{question.content}</S.QuestionContent>
-            {canDelete(question.authorId) && (
-                <S.DeleteButton onClick={() => handleDelete("question", question._id)}>
-                    <FontAwesomeIcon icon={faTrash} />
-                </S.DeleteButton>
-            )}
 
             <S.AnswersContainer>
                 <S.AnswerList>
@@ -123,7 +139,7 @@ const QuestionDetail = ({ question, userId, userStatus, onNewAnswer }) => {
                                     {(answer.likes || 0)} 
                                 </S.LikeButton>
                                 {canDelete(answer.authorId) && (
-                                    <S.DeleteButton onClick={() => handleDelete("answer", answer._id, question._id)}>
+                                    <S.DeleteButton onClick={() => handleDelete( answer._id, question._id)}>
                                         <FontAwesomeIcon icon={faTrash} />
                                     </S.DeleteButton>
                                 )}

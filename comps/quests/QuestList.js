@@ -10,14 +10,31 @@ const QuestionList = ({ userId, userStatus }) => {
     const [loading, setLoading] = useState(true);
     const [questionDetails, setQuestionDetails] = useState(null);
     const [detailsLoading, setDetailsLoading] = useState(false);
+    const [localUserId, setLocalUserId] = useState(userId);
+
   console.log(questions)
     useEffect(() => {
         fetchQuestions();
     }, []);
+  useEffect(() => {
+  const fetchIpIfAnonymous = async () => {
+    if (!userId) {
+      try {
+        const res = await fetch("https://api.ipify.org?format=json");
+        const data = await res.json();
+        setLocalUserId(`Anonymous_${data.ip}`);
+      } catch (err) {
+        console.error("❌ Failed to fetch IP for anonymous user:", err);
+        setLocalUserId("Anonymous_unknown");
+      }
+    }
+  };
+  fetchIpIfAnonymous();
+}, [userId]);
 
     const fetchQuestions = async () => {
         try {
-            const response = await fetch("http://localhost:5000/questions");
+            const response = await fetch("https://idea-sphere-50bb3c5bc07b.herokuapp.com/questions");
             if (!response.ok) throw new Error("Failed to fetch questions");
             const data = await response.json();
             setQuestions(data.reverse()); // Show newest first
@@ -39,7 +56,7 @@ const QuestionList = ({ userId, userStatus }) => {
         setDetailsLoading(true);
 
         try {
-            const response = await fetch(`http://localhost:5000/questions/${questionId}`);
+            const response = await fetch(`https://idea-sphere-50bb3c5bc07b.herokuapp.com/questions/${questionId}`);
             if (!response.ok) throw new Error("Failed to fetch question details");
             const data = await response.json();
             setQuestionDetails(data);
@@ -52,45 +69,59 @@ const QuestionList = ({ userId, userStatus }) => {
         }
     };
 
-    const handleDeleteQuestion = async (questionId) => {
+   const handleDeleteQuestion = async (questionId) => {
+  // Dynamically fetch user IP if no userId
+  const getLocalUserIP = async () => {
     try {
-        console.log(`🔍 Attempting to delete question: ${questionId}`);
-        console.log("Headers Sent:", {
-            "x-user-id": userId,
-            "x-user-status": userStatus
-        });
-
-        const response = await fetch(`http://localhost:5000/questions/${questionId}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                "x-user-id": userId || "",
-                "x-user-status": userStatus || ""
-            },
-            body: JSON.stringify({ userId }),
-        });
-
-        const data = await response.json();
-        console.log("🔍 Server response:", data);
-
-        if (!response.ok) throw new Error(data.message || "Failed to delete question");
-
-        setQuestions(prevQuestions => prevQuestions.filter(q => String(q._id) !== String(questionId)));
-        console.log("✅ Question deleted successfully");
-
-    } catch (error) {
-        console.error("❌ Error deleting question:", error.message);
+      const res = await fetch("https://api.ipify.org?format=json");
+      const data = await res.json();
+      return data.ip;
+    } catch (err) {
+      console.error("❌ Failed to fetch IP:", err);
+      return "unknown";
     }
+  };
+
+  // Get the correct user identifier
+  const ip = userId ? null : await getLocalUserIP();
+  const userIdentifier = userId || `Anonymous_${ip}`;
+  const url = `https://idea-sphere-50bb3c5bc07b.herokuapp.com/questions/${questionId}`;
+
+  try {
+    console.log(`🗑️ Deleting question: ${questionId}`);
+    console.log("👤 User Identifier:", userIdentifier);
+    console.log("📡 DELETE Request to:", url);
+
+    const response = await fetch(url, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId: userIdentifier }),
+    });
+
+    const result = await response.json();
+    console.log("🔁 Server response:", result);
+
+    if (!response.ok) {
+      throw new Error(result.message || "Failed to delete question");
+    }
+
+    setQuestions((prev) => prev.filter((q) => String(q._id) !== String(questionId)));
+    console.log("✅ Question deleted successfully");
+  } catch (error) {
+    console.error("❌ Error deleting question:", error.message);
+  }
 };
+
 
 
     const handleLikeQuestion = async (questionId) => {
         try {
-            const response = await fetch(`http://localhost:5000/questions/${questionId}/like`, {
+            const response = await fetch(`https://idea-sphere-50bb3c5bc07b.herokuapp.com/questions/${questionId}/like`, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
-                    "x-user-id": userId
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify({ userId }),
             });
@@ -124,11 +155,14 @@ const QuestionList = ({ userId, userStatus }) => {
                             <S.LikeButton onClick={() => handleLikeQuestion(question._id)}>
                                 <FontAwesomeIcon icon={faHeart} /> {question.likes || 0}
                             </S.LikeButton>
-                            {(question.author === userId || userStatus === "admin") && (
-                                <S.DeleteButton onClick={() => handleDeleteQuestion(question._id)}>
-                                    <FontAwesomeIcon icon={faTrash} />
-                                </S.DeleteButton>
-                            )}
+                            
+           {(question.authorId === localUserId || userStatus === "admin") && (
+
+                 <S.DeleteButton onClick={() => handleDeleteQuestion(question._id)}>
+                     <FontAwesomeIcon icon={faTrash} />
+                 </S.DeleteButton>
+            )}
+
                         </S.ActionButtons>
                     </S.QuestionHeader>
 
@@ -139,7 +173,7 @@ const QuestionList = ({ userId, userStatus }) => {
                             ) : (
                                 questionDetails && <QuestionDetail 
                                     question={questionDetails} 
-                                    userId={userId} 
+                                    userId={localUserId} 
                                     userStatus={userStatus} 
                                     onNewAnswer={fetchQuestions} 
                                 />
