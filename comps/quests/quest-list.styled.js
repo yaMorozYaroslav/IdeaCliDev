@@ -6,14 +6,14 @@ export const Container = styled.div`
   align-items: center;
   width: 100%;
   max-width: 800px; /* ✅ Keeps layout consistent */
-  margin: 20px auto; /* ✅ Centers content */
+  margin: -30px auto; /* ✅ Centers content */
   position: relative; /* ✅ Prevents jumping */
   min-height: 100vh; /* ✅ Ensures space is allocated */
 `;
 
 
 export const Title = styled.h2`
-  font-size: 2rem;
+  font-size: 1.8rem;
   text-align: center;
   position: relative;
   width: 100%;
@@ -25,6 +25,7 @@ export const Title = styled.h2`
 export const QuestionItem = styled.div`
     padding: 12px;
     background: #fff;
+    width:85%;
     border-radius: 6px;
     margin-bottom: 10px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -37,13 +38,18 @@ export const QuestionHeader = styled.div`
 `;
 
 export const QuestionTitle = styled.span`
-    font-size: 16px;
+    font-size: 24px;
     font-weight: bold;
     cursor: pointer;
     color: #007aff;
     &:hover {
         text-decoration: underline;
     }
+    @media (max-width: 750px) {
+   font-size:22px;
+  }@media (max-width: 480px) {
+   font-size:20px;
+  }
 `;
 
 export const AnswerCount = styled.span`

@@ -6,7 +6,10 @@ export const Container = styled.div`
     border-radius: 8px;
     background: #fff;
     max-width: 800px;
-    margin: auto;
+    margin-left: -5%;
+  @media (max-width: 480px) {
+    width:80%;
+  }
 `;
 
 export const QuestionTitle = styled.h2`
@@ -59,7 +62,7 @@ export const AnswerItem = styled.div`
 `;
 
 export const AnswerContent = styled.p`
-    font-size: 14px;
+    font-size: 18px;
     margin: 0;
 `;
 
@@ -93,7 +96,7 @@ export const AnswerInput = styled.input`
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    width: 100%;
+    width: 95%;
 `;
 
 export const SubmitButton = styled.button`
