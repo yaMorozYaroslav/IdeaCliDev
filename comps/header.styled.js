@@ -1,33 +1,50 @@
 import styled from "styled-components";
 
-// Header Container (FIXED: Proper Spacing & Wrapping)
+// Flexible layout wrapper inside header
 export const HeaderContainer = styled.header`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
-  background: #002244; /* Dark Blue */
+  background: #002244;
   color: white;
   position: fixed;
   width: 100%;
+  max-width: 100%;
   top: 0;
   left: 0;
   z-index: 1000;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+
   transition: transform 0.3s ease-in-out;
   transform: ${({ $isVisible }) => ($isVisible ? "translateY(0)" : "translateY(-100%)")};
 
   @media (max-width: 768px) {
-    padding: 12px;
-    flex-wrap: wrap; /* Allows elements to wrap on smaller screens */
-    gap: 12px; /* Adds spacing between elements */
+
+    padding: 12px 16px;
   }
 `;
 
-// Logo Section
+export const FlexWrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin-bottom:-10px;
+
+  @media (max-width: 750px) {
+    row-gap: 0px; // 👈 reduce vertical spacing between rows
+  }
+`;
+
+
+
 export const LogoContainer = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px; /* Ensures spacing between logo and text */
+  gap: 12px;
 
   h1 {
     font-size: 1.5rem;
@@ -42,35 +59,43 @@ export const LogoContainer = styled.div`
 `;
 
 export const LogoImage = styled.img`
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
 
+  width: 90px;
+  height: 90px;
+  border-radius: 0%;
+  
   @media (max-width: 480px) {
-    width: 40px;
-    height: 40px;
+    width: 60px;
+    height: 60px;
+    margin-bottom:-10px;
   }
 `;
 
-// NEW: User Container (FIXED: Properly Groups User Avatar, Name, and Login Button)
 export const UserContainer = styled.div`
-  margin-left: 20%;
   display: flex;
   align-items: center;
-  gap: 20px; /* Increased spacing between avatar, name, and button */
+  gap: 16px;
 
-  @media (max-width: 768px) {
-    gap: 15px;
+  // 👇 Push it to the right on larger screens
+  @media (min-width: 751px) {
+    margin-left: auto;
+  }
+
+  @media (max-width: 750px) {
+    flex: 1 1 100%;
+    justify-content: flex-end;
+    order: 2;
+    margin-top:-30px;
   }
 
   @media (max-width: 480px) {
-    width: 100%;
-    justify-content: space-between;
-    gap: 10px;
+    flex-wrap: wrap;
+    margin-top:-5px;
+    gap: 20px;
   }
 `;
 
-// User Avatar
+
 export const UserAvatar = styled.img`
   width: 40px;
   height: 40px;
@@ -83,28 +108,25 @@ export const UserAvatar = styled.img`
   }
 `;
 
-// User Name
+
 export const UserName = styled.p`
   font-size: 1rem;
   font-weight: bold;
-  margin-left: 8px;
-  white-space: nowrap; /* Prevents text from breaking */
+  white-space: nowrap;
 
   @media (max-width: 480px) {
     font-size: 0.85rem;
   }
 `;
 
-// Authentication Button (FIXED SPACING)
 export const AuthButton = styled.button`
-  background: #0057b7; /* Blue */
+  background: #0057b7;
   color: white;
   border: none;
   padding: 10px 14px;
   cursor: pointer;
   border-radius: 5px;
   transition: background 0.2s ease-in-out;
-  margin-left: 10px; /* Ensures spacing from avatar/name */
 
   &:hover {
     background: #0044a3;
@@ -114,19 +136,25 @@ export const AuthButton = styled.button`
     font-size: 0.9rem;
     padding: 8px 12px;
   }
+
+  @media (max-width: 350px) {
+    font-size: 0.7rem;
+    padding: 8px 12px;
+  }
 `;
 
-// FIXED: Menu Button (Hamburger)
 export const MenuButton = styled.button`
   background: transparent;
   border: none;
   font-size: 1.5rem;
   color: white;
-  margin-right:10%;
-  cursor: pointer;
-  margin-left: auto; /* Pushes button to the right */
 
-  @media (max-width: 768px) {
+  cursor: pointer;
+  margin-left: auto;
+  margin-top:20px;
+
+  @media (max-width: 750px) {
+  
     position: absolute;
     right: 15px;
     top: 15px;
@@ -138,49 +166,49 @@ export const MenuButton = styled.button`
   }
 `;
 
-// FIXED: Menu Dropdown Positioning
-export const MenuDropdown = styled.div`
-  position: absolute;
-  top: 100%; /* Places it right below the button */
-  right: 0;
+export const MenuItem = styled.div`
+  padding: 10px 15px;
+  font-size: 1rem;
+  color: #1e293b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #f1f5f9; // light hover effect
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.95rem;
+    padding: 10px 12px;
+  }
+`;
+
+export const MenuDropdownFixed = styled.div`
+  position: fixed;
+  top: 105px; // adjust based on your header height
+  right:0px;
+  
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   padding: 10px;
-  z-index: 1000;
+
+  z-index: 999;
   min-width: 180px;
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
-  
-  transform: scaleY(${({ $isOpen }) => ($isOpen ? 1 : 0)});
-  transform-origin: top;
-  opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
 
+  @media (max-width: 750px) {
+   top:130px;
+  }
   @media (max-width: 480px) {
     width: 90%;
+    right:-20%;
+    top:120px;
     max-width: 250px;
-  }
-`;
-
-
-
-// Menu Item
-export const MenuItem = styled.div`
-  padding: 10px 15px;
-  font-size: 1rem;
-  color: black;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  &:hover {
-    background: #ddd;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 0.9rem;
-    padding: 8px 12px;
   }
 `;
