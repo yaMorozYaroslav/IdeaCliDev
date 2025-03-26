@@ -25,8 +25,8 @@ const Container = styled.div`
 
 
 const WelcomeMessage = styled.h1`
-  font-size: 30px;
-  margin:4px;
+  margin-top: ${(props) => (props.$first ? "15px;" : "-20px;")};
+  font-size: 32px;
   color: white;
 @media (max-width: 750px) {
     
@@ -56,8 +56,8 @@ export default function HomeClient() {
   return (
     <Container>
 
-        <WelcomeMessage>Ask & Answer Questions</WelcomeMessage><br/>
-        <WelcomeMessage>Anonymously & Personally</WelcomeMessage>     
+        <WelcomeMessage $first={true}>Ask & Answer Questions</WelcomeMessage><br/>
+        <WelcomeMessage $first={false}>Anonymously & Personally</WelcomeMessage>     
 
       <Questions user={user} /> {/* ✅ Pass user to Questions */}
     </Container>
