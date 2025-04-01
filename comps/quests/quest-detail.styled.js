@@ -121,3 +121,9 @@ export const ScrollMessage = styled.p`
   text-align: center;
   margin-top: 10px;
 `;
+export const AuthorName = styled.div`
+  font-size: 14px;
+  color: #666;
+  margin: 4px 10px 4px 4px;
+  font-style: italic;
+`;

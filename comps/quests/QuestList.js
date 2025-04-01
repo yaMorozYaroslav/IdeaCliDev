@@ -140,50 +140,54 @@ const QuestionList = ({ userId, userStatus }) => {
     };
 
     return (
-        <S.Container>
-            <S.Title>Questions</S.Title>
-            {questions.map((question) => (
-                <S.QuestionItem key={question._id}>
-                    <S.QuestionHeader>
-                        <S.QuestionTitle onClick={() => toggleQuestionDetail(question._id)}>
-                            {question.title}
-                            <S.AnswerCount title={`Show ${question.answers?.length || 0} answers`}>
-                                ({question.answers?.length || 0} answers)
-                            </S.AnswerCount>
-                        </S.QuestionTitle>
-                        <S.ActionButtons>
-                            <S.LikeButton onClick={() => handleLikeQuestion(question._id)}>
-                                <FontAwesomeIcon icon={faHeart} /> {question.likes || 0}
-                            </S.LikeButton>
-                            
-           {(question.authorId === localUserId || userStatus === "admin") && (
+  <S.Container>
+    <S.Title>Questions</S.Title>
+    {questions.map((question) => (
+      <S.QuestionItem key={question._id}>
+        <S.QuestionHeader>
+          <div>
+            <S.QuestionTitle onClick={() => toggleQuestionDetail(question._id)}>
+              {question.title}
+              <S.AnswerCount title={`Show ${question.answers?.length || 0} answers`}>
+                ({question.answers?.length || 0} answers)
+              </S.AnswerCount>
+            </S.QuestionTitle>
+            <S.AuthorName>
+              Asked by: {question.authorName || "Anonymous"}
+            </S.AuthorName>
+          </div>
 
-                 <S.DeleteButton onClick={() => handleDeleteQuestion(question._id)}>
-                     <FontAwesomeIcon icon={faTrash} />
-                 </S.DeleteButton>
+          <S.ActionButtons>
+            <S.LikeButton onClick={() => handleLikeQuestion(question._id)}>
+              <FontAwesomeIcon icon={faHeart} /> {question.likes || 0}
+            </S.LikeButton>
+
+            {(question.authorId === localUserId || userStatus === "admin") && (
+              <S.DeleteButton onClick={() => handleDeleteQuestion(question._id)}>
+                <FontAwesomeIcon icon={faTrash} />
+              </S.DeleteButton>
             )}
+          </S.ActionButtons>
+        </S.QuestionHeader>
 
-                        </S.ActionButtons>
-                    </S.QuestionHeader>
-
-                    {expandedQuestionId === question._id && questionDetails && (
-                        <S.DetailWrapper isVisible={expandedQuestionId === question._id}>
-                            {detailsLoading ? (
-                                <S.LoadingMessage>Loading question details...</S.LoadingMessage>
-                            ) : (
-                                questionDetails && <QuestionDetail 
-                                    question={questionDetails} 
-                                    userId={localUserId} 
-                                    userStatus={userStatus} 
-                                    onNewAnswer={fetchQuestions} 
-                                />
-                            )}
-                        </S.DetailWrapper>
-                    )}
-                </S.QuestionItem>
-            ))}
-        </S.Container>
-    );
-};
+        {expandedQuestionId === question._id && questionDetails && (
+          <S.DetailWrapper isVisible={expandedQuestionId === question._id}>
+            {detailsLoading ? (
+              <S.LoadingMessage>Loading question details...</S.LoadingMessage>
+            ) : (
+              <QuestionDetail 
+                question={questionDetails} 
+                userId={localUserId} 
+                userStatus={userStatus} 
+                onNewAnswer={fetchQuestions} 
+              />
+            )}
+          </S.DetailWrapper>
+        )}
+      </S.QuestionItem>
+    ))}
+  </S.Container>
+);
+}
 
 export default QuestionList;

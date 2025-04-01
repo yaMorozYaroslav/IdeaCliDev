@@ -105,3 +105,14 @@ export const LoadingMessage = styled.p`
   font-size: 14px;
   color: #666;
 `;
+export const AuthorName = styled.div`
+  font-size: 14px;
+  color: #444;
+  margin-top: 4px;
+  font-style: italic;
+
+  @media (max-width: 480px) {
+    font-size: 13px;
+  }
+`;
+

@@ -30,43 +30,47 @@ export default function Questions({ user }) {
   };
 
   const handleQuestionSubmit = async (questionTitle) => {
-    if (typeof questionTitle !== "string" || !questionTitle.trim()) {
-      console.error("Error: questionTitle is invalid:", questionTitle);
-      return;
-    }
+  if (typeof questionTitle !== "string" || !questionTitle.trim()) {
+    console.error("Error: questionTitle is invalid:", questionTitle);
+    return;
+  }
 
-    const userIdentifier = user?.userId || null;
-    const questionData = {
-      title: questionTitle.trim(),
-      userId: userIdentifier,
-    };
+  const userIdentifier = user?.userId || null;
+  const userName = user?.name || "Anonymous"; // 👈 Add this line
 
-    console.log("Submitting question:", JSON.stringify(questionData), user);
-
-    try {
-      const response = await fetch(`${BASE_URL}/new`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(questionData),
-      });
-
-      console.log("Response Status:", response.status);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Error Response:", errorText);
-        throw new Error(errorText || "Failed to submit question");
-      }
-
-      const newQuestionData = await response.json();
-      setQuestions((prev) => [newQuestionData, ...prev]);
-      setNewQuestion("");
-    } catch (error) {
-      console.error("Error submitting question:", error.message);
-    }
+  const questionData = {
+    title: questionTitle.trim(),
+    userId: userIdentifier,
+    name: userName, // 👈 Add name to request body
   };
+
+  console.log("Submitting question:", JSON.stringify(questionData), user);
+
+  try {
+    const response = await fetch(`${BASE_URL}/new`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(questionData),
+    });
+
+    console.log("Response Status:", response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Error Response:", errorText);
+      throw new Error(errorText || "Failed to submit question");
+    }
+
+    const newQuestionData = await response.json();
+    setQuestions((prev) => [newQuestionData, ...prev]);
+    setNewQuestion("");
+  } catch (error) {
+    console.error("Error submitting question:", error.message);
+  }
+};
+
 
   return (
     <S.Container>
