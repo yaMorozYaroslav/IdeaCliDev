@@ -13,6 +13,7 @@ export default function LayoutClient({ user, children }) {
   useEffect(() => {
     setMounted(true);
     startRefreshCycle();
+    console.log("⏰ Refresh scheduled at:", new Date().toLocaleTimeString());
 
     return () => {
       if (refreshTimeoutRef.current) {
