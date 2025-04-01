@@ -3,15 +3,23 @@ import { NextResponse } from "next/server";
 export async function POST(request) {
   const cookieHeader = request.headers.get("cookie");
 
-  // 🔍 Extract tokens from cookies manually
+  // 🔍 Extract refresh token only
   const cookieMap = new Map(
     (cookieHeader || "")
       .split(";")
       .map((c) => c.trim().split("="))
   );
 
-  const accessToken = cookieMap.get("access_token") || null;
   const refreshToken = cookieMap.get("refresh_token") || null;
+
+  if (!refreshToken) {
+    console.error("❌ No refresh token found in cookies.");
+    const failRes = NextResponse.json({ message: "No refresh token" }, { status: 401 });
+    failRes.cookies.delete("access_token");
+    failRes.cookies.delete("refresh_token");
+    failRes.cookies.delete("user_data");
+    return failRes;
+  }
 
   try {
     const res = await fetch("https://idea-sphere-50bb3c5bc07b.herokuapp.com/google/refresh", {
@@ -19,7 +27,7 @@ export async function POST(request) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ accessToken, refreshToken }), // ✅ clearly send both
+      body: JSON.stringify({ refreshToken }), // ✅ only send refresh token
     });
 
     const data = await res.json();
