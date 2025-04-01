@@ -16,20 +16,21 @@ export default function Header({ user }) {
   const [currentUser, setCurrentUser] = useState(user || null);
 
   useEffect(() => {
-    if (!currentUser) {
-      const cookies = document.cookie.split("; ");
-      const userCookie = cookies.find((row) => row.startsWith("user_data="));
-      if (userCookie) {
-        try {
-          const userData = JSON.parse(decodeURIComponent(userCookie.split("=")[1]));
-          setCurrentUser(userData);
-        } catch (e) {
-          console.error("❌ Failed to parse user_data cookie:", e);
-          setCurrentUser(null);
-        }
-      }
+  const checkUserCookie = () => {
+    const cookies = document.cookie.split("; ");
+    const userCookie = cookies.find((row) => row.startsWith("user_data="));
+
+    if (!userCookie && currentUser) {
+      console.log("⚠️ user_data cookie missing — logging out...");
+      setCurrentUser(null);
     }
-  }, []);
+  };
+
+  const interval = setInterval(checkUserCookie, 5000); // check every 5s
+
+  return () => clearInterval(interval);
+}, [currentUser]);
+
 
   useEffect(() => {
     const handleScroll = () => {

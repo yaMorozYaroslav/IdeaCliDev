@@ -45,6 +45,7 @@ export const LogoContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-bottom:4px;
 
   h1 {
     font-size: 1.5rem;
@@ -63,11 +64,12 @@ export const LogoImage = styled.img`
   width: 90px;
   height: 90px;
   border-radius: 0%;
+  margin:0px 0px 3px 0px;
   
   @media (max-width: 480px) {
     width: 60px;
     height: 60px;
-    margin-bottom:-10px;
+    
   }
 `;
 
@@ -151,7 +153,7 @@ export const MenuButton = styled.button`
 
   cursor: pointer;
   margin-left: auto;
-  margin-top:20px;
+  margin-top:10px;
 
   @media (max-width: 750px) {
   
