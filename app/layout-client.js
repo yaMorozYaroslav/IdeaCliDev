@@ -23,15 +23,16 @@ export default function LayoutClient({ user, children }) {
   }, []);
 
   const startRefreshCycle = () => {
-    refreshTimeoutRef.current = setTimeout(() => {
-      refreshToken();
-    }, REFRESH_INTERVAL);
-  };
+  refreshTimeoutRef.current = setTimeout(() => {
+    console.log("🚀 Timer fired at:", new Date().toLocaleTimeString()); // ✅ add this
+    refreshToken();
+  }, REFRESH_INTERVAL);
+};
 
   const refreshToken = async () => {
     try {
       console.log("🔁 Refreshing access token...");
-      await fetch("/api/refresh-token", { method: "POST" });
+      await fetch("/api/refresh", { method: "POST" });
       startRefreshCycle(); // Schedule next refresh after successful one
     } catch (err) {
       console.error("❌ Token refresh failed:", err);
