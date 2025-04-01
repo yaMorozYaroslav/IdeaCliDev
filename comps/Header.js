@@ -15,22 +15,30 @@ export default function Header({ user }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(user || null);
 
-  useEffect(() => {
-  const checkUserCookie = () => {
+useEffect(() => {
+  const loadUserFromCookie = () => {
     const cookies = document.cookie.split("; ");
     const userCookie = cookies.find((row) => row.startsWith("user_data="));
-
-    if (!userCookie && currentUser) {
-      console.log("⚠️ user_data cookie missing — logging out...");
+    if (userCookie) {
+      try {
+        const userData = JSON.parse(decodeURIComponent(userCookie.split("=")[1]));
+        setCurrentUser(userData);
+      } catch (e) {
+        console.error("❌ Failed to parse user_data cookie:", e);
+        setCurrentUser(null);
+      }
+    } else {
       setCurrentUser(null);
     }
   };
 
-  const interval = setInterval(checkUserCookie, 5000); // check every 5s
+  loadUserFromCookie(); // Run immediately
 
-  return () => clearInterval(interval);
-}, [currentUser]);
+  // ⏱️ Run again shortly after to catch post-login/refresh cookie
+  const timeout = setTimeout(loadUserFromCookie, 500); // or 1000ms
 
+  return () => clearTimeout(timeout);
+}, []);
 
   useEffect(() => {
     const handleScroll = () => {
