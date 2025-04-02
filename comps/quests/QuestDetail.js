@@ -3,7 +3,8 @@ import * as S from "./quest-detail.styled";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faTrash } from "@fortawesome/free-solid-svg-icons";
 
-const QuestionDetail = ({ question, userId, userStatus, userIP, onNewAnswer, user }) => {
+const QuestionDetail = ({ question, userId, userStatus, userName
+	                      userIP, onNewAnswer, user }) => {
   const [newAnswer, setNewAnswer] = useState("");
   const [posting, setPosting] = useState(false);
   const [answers, setAnswers] = useState(question.answers || []);
@@ -90,7 +91,7 @@ const QuestionDetail = ({ question, userId, userStatus, userIP, onNewAnswer, use
           body: JSON.stringify({
             content: newAnswer.trim(),
             userId: userId || localUserIP,
-            name: user?.name || "Anonymous", // ✅ Include author name
+            name: userName || "Anonymous", // ✅ Include author name
           }),
         }
       );

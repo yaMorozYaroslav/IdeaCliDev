@@ -4,7 +4,7 @@ import QuestionDetail from "./QuestDetail";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faTrash } from "@fortawesome/free-solid-svg-icons";
 
-const QuestionList = ({ userId, userStatus }) => {
+const QuestionList = ({ userId, userStatus, userName }) => {
     const [questions, setQuestions] = useState([]);
     const [expandedQuestionId, setExpandedQuestionId] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -179,7 +179,8 @@ const QuestionList = ({ userId, userStatus }) => {
                 question={questionDetails} 
                 userId={localUserId} 
                 userStatus={userStatus} 
-                onNewAnswer={fetchQuestions} 
+                onNewAnswer={fetchQuestions}
+                userName={userName} 
               />
             )}
           </S.DetailWrapper>

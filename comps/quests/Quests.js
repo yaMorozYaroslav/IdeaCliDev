@@ -106,6 +106,7 @@ export default function Questions({ user }) {
           setQuestions={setQuestions}
           userId={user?.userId}
           userStatus={user?.status}
+          userName={user?.name}
         />
       )}
     </S.Container>
