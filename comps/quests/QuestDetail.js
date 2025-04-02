@@ -3,7 +3,7 @@ import * as S from "./quest-detail.styled";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faTrash } from "@fortawesome/free-solid-svg-icons";
 
-const QuestionDetail = ({ question, userId, userStatus, userName
+const QuestionDetail = ({ question, userId, userStatus, userName,
 	                      userIP, onNewAnswer, user }) => {
   const [newAnswer, setNewAnswer] = useState("");
   const [posting, setPosting] = useState(false);
