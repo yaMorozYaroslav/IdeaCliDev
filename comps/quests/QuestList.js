@@ -3,6 +3,7 @@ import * as S from "./quest-list.styled";
 import QuestionDetail from "./QuestDetail";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faTrash } from "@fortawesome/free-solid-svg-icons";
+import getBaseUrl from '/lib/getBaseUrl'
 
 const QuestionList = ({ userId, userStatus, userName }) => {
     const [questions, setQuestions] = useState([]);
@@ -11,7 +12,7 @@ const QuestionList = ({ userId, userStatus, userName }) => {
     const [questionDetails, setQuestionDetails] = useState(null);
     const [detailsLoading, setDetailsLoading] = useState(false);
     const [localUserId, setLocalUserId] = useState(userId);
-
+    const baseUrl = getBaseUrl()
   console.log(questions)
     useEffect(() => {
         fetchQuestions();
@@ -34,7 +35,7 @@ const QuestionList = ({ userId, userStatus, userName }) => {
 
     const fetchQuestions = async () => {
         try {
-            const response = await fetch("https://idea-sphere-50bb3c5bc07b.herokuapp.com/questions");
+            const response = await fetch(`${baseUrl}/questions`);
             if (!response.ok) throw new Error("Failed to fetch questions");
             const data = await response.json();
             setQuestions(data.reverse()); // Show newest first
@@ -56,7 +57,7 @@ const QuestionList = ({ userId, userStatus, userName }) => {
         setDetailsLoading(true);
 
         try {
-            const response = await fetch(`https://idea-sphere-50bb3c5bc07b.herokuapp.com/questions/${questionId}`);
+            const response = await fetch(`${baseUrl}/questions/${questionId}`);
             if (!response.ok) throw new Error("Failed to fetch question details");
             const data = await response.json();
             setQuestionDetails(data);
@@ -85,7 +86,7 @@ const QuestionList = ({ userId, userStatus, userName }) => {
   // Get the correct user identifier
   const ip = userId ? null : await getLocalUserIP();
   const userIdentifier = userId || `Anonymous_${ip}`;
-  const url = `https://idea-sphere-50bb3c5bc07b.herokuapp.com/questions/${questionId}`;
+  const url = `${baseUrl}/questions/${questionId}`;
 
   try {
     console.log(`🗑️ Deleting question: ${questionId}`);
@@ -118,7 +119,7 @@ const QuestionList = ({ userId, userStatus, userName }) => {
 
     const handleLikeQuestion = async (questionId) => {
         try {
-            const response = await fetch(`https://idea-sphere-50bb3c5bc07b.herokuapp.com/questions/${questionId}/like`, {
+            const response = await fetch(`${baseUrl}/questions/${questionId}/like`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

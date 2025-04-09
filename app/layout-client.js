@@ -30,15 +30,25 @@ export default function LayoutClient({ user, children }) {
 };
 
   const refreshToken = async () => {
-    try {
-      console.log("🔁 Refreshing access token...");
-      await fetch("/api/refresh", { method: "POST" });
-      startRefreshCycle(); // Schedule next refresh after successful one
-    } catch (err) {
-      console.error("❌ Token refresh failed:", err);
-      // Optionally redirect or clear UI here
+  try {
+    const res = await fetch("/api/refresh", { method: "POST" });
+    const data = await res.json();
+
+    if (data.message === "No refresh token present") {
+      console.log("🟡 No refresh token. Not restarting refresh cycle.");
+      return;
     }
-  };
+
+    if (!res.ok) {
+      throw new Error(data.message || "Refresh failed");
+    }
+
+    startRefreshCycle();
+  } catch (err) {
+    console.error("❌ Error during token refresh:", err);
+  }
+};
+
 
   if (!mounted) return null;
 

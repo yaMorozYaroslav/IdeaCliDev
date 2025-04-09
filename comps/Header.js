@@ -5,16 +5,14 @@ import React, { useState, useEffect } from "react";
 import { FiMenu } from "react-icons/fi";
 import { FaSearch, FaInfoCircle } from "react-icons/fa";
 import * as S from "./header.styled";
-
-
-const API_URL = "https://idea-sphere-50bb3c5bc07b.herokuapp.com";
+import getBaseUrl from '/lib/getBaseUrl'
 
 export default function Header({ user }) {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(user || null);
-
+  console.log(currentUser)
 useEffect(() => {
   const loadUserFromCookie = () => {
     const cookies = document.cookie.split("; ");
@@ -53,8 +51,9 @@ useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
-
+ 
   const handleLogin = () => {
+    const API_URL = getBaseUrl()
     window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}&redirect_uri=${API_URL}/google/oauth/callback&response_type=code&scope=openid%20email%20profile`;
   };
 

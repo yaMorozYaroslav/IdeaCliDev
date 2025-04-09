@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import * as S from "./quests.styled"; // Import styles
 import QuestionList from "./QuestList";
+import getBaseUrl from '/lib/getBaseUrl'
 
 export default function Questions({ user }) {
-  const BASE_URL = "https://idea-sphere-50bb3c5bc07b.herokuapp.com/questions";
+  const url = getBaseUrl()
+  const BASE_URL = `${url}/questions`;
+  //~ console.log('url', BASE_URL)
   const [questions, setQuestions] = useState([]);
   const [newQuestion, setNewQuestion] = useState("");
   const [loading, setLoading] = useState(true); // ✅ Loading state
