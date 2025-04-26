@@ -31,6 +31,18 @@ export default function Header({ user }) {
 
   useEffect(() => {
     loadUserFromCookie();
+
+    // 🔥 Listen for token refresh events
+    const handleTokenRefreshed = () => {
+      console.log("🔄 Token refreshed - reloading user data...");
+      loadUserFromCookie();
+    };
+
+    window.addEventListener("tokenRefreshed", handleTokenRefreshed);
+
+    return () => {
+      window.removeEventListener("tokenRefreshed", handleTokenRefreshed);
+    };
   }, []);
 
   useEffect(() => {
@@ -47,30 +59,29 @@ export default function Header({ user }) {
   }, [lastScrollY]);
 
   const handleLogin = () => {
-  const baseUrl = getBaseUrl();
-  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}&redirect_uri=${baseUrl}/google/oauth/callback&response_type=code&scope=openid%20email%20profile`;
+    const baseUrl = getBaseUrl();
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}&redirect_uri=${baseUrl}/google/oauth/callback&response_type=code&scope=openid%20email%20profile`;
 
-  setIsLoggingIn(true); // Show loading state
+    setIsLoggingIn(true);
 
-  const popup = window.open(authUrl, "oauthPopup", "width=500,height=600");
+    const popup = window.open(authUrl, "oauthPopup", "width=500,height=600");
 
-  if (popup) {
-    const handleMessage = (event) => {
-      if (event.data?.loginDone) {
-        console.log("✅ Received loginDone message - refreshing user info...");
-        loadUserFromCookie();
-        setIsLoggingIn(false);
-        window.removeEventListener("message", handleMessage);
-      }
-    };
+    if (popup) {
+      const handleMessage = (event) => {
+        if (event.data?.loginDone) {
+          console.log("✅ Received loginDone - refreshing user info...");
+          loadUserFromCookie();
+          setIsLoggingIn(false);
+          window.removeEventListener("message", handleMessage);
+        }
+      };
 
-    window.addEventListener("message", handleMessage);
-  } else {
-    console.error("❌ Failed to open login popup");
-    setIsLoggingIn(false);
-  }
-};
-
+      window.addEventListener("message", handleMessage);
+    } else {
+      console.error("❌ Failed to open login popup");
+      setIsLoggingIn(false);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -86,13 +97,11 @@ export default function Header({ user }) {
     <>
       <S.HeaderContainer $isVisible={isVisible}>
         <S.FlexWrapper>
-          {/* Logo */}
           <S.LogoContainer>
             <S.LogoImage src="/IconIdea.png" alt="Idea Sphere Logo" width={80} height={80} />
             <h1>Idea Sphere</h1>
           </S.LogoContainer>
 
-          {/* User Info */}
           <S.UserContainer>
             {currentUser ? (
               <>
@@ -114,7 +123,6 @@ export default function Header({ user }) {
             </S.AuthButton>
           </S.UserContainer>
 
-          {/* Menu Button */}
           <S.MenuButton
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
@@ -125,7 +133,6 @@ export default function Header({ user }) {
         </S.FlexWrapper>
       </S.HeaderContainer>
 
-      {/* Floating dropdown below header */}
       {menuOpen && isVisible && (
         <S.MenuDropdownFixed>
           <S.MenuItem>
