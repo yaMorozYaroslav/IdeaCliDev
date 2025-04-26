@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
-import getBaseUrl from "/lib/getBaseUrl"; // ✅ fixed path
+import { cookies } from "next/headers"; // ✅ Correct import for accessing cookies
+import getBaseUrl from "/lib/getBaseUrl"; // ✅ Your helper
 
 export async function POST(request) {
   try {
-    const refreshToken = request.cookies.get("refresh_token")?.value;
+    const cookieStore = cookies();
+    const refreshToken = cookieStore.get("refresh_token")?.value; // ✅ Get from cookie storage
 
-    // ✅ If no refresh token, no point trying
     if (!refreshToken) {
       console.warn("⚠️ No refresh token found in cookies. Skipping refresh.");
       return NextResponse.json({ message: "No refresh token present" }, { status: 200 });
@@ -40,12 +41,13 @@ export async function POST(request) {
     });
 
     return response;
+
   } catch (error) {
     console.error("❌ Error during token refresh:", error.message);
 
-    // ❌ Clean up cookies if refresh failed
     const response = NextResponse.json({ message: "Refresh failed" }, { status: 401 });
 
+    // ❌ Clean up cookies if refresh failed
     response.cookies.delete("access_token");
     response.cookies.delete("refresh_token");
     response.cookies.delete("user_data");
