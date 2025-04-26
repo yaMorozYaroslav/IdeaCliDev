@@ -4,14 +4,14 @@ import { useEffect } from "react";
 
 export default function Popup() {
   useEffect(() => {
-    // Notify the parent window (your app) that login is done
-    if (window.opener) {
-      window.opener.postMessage({ success: true }, "*");
-    }
-
-    // Close the popup
-    window.close();
+    console.log("✅ Popup loaded — no action needed anymore.");
+    // Nothing else to do. The popup should already be closed.
   }, []);
 
-  return <p>Logging you in... You can close this window if it doesn't close automatically.</p>;
+  return (
+    <div style={{ padding: "2rem", textAlign: "center" }}>
+      <h2>Login successful!</h2>
+      <p>You can close this window.</p>
+    </div>
+  );
 }

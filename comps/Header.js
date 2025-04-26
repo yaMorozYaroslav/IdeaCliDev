@@ -11,6 +11,7 @@ export default function Header({ user }) {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(user || null);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const loadUserFromCookie = () => {
     const cookies = document.cookie.split("; ");
@@ -30,19 +31,6 @@ export default function Header({ user }) {
 
   useEffect(() => {
     loadUserFromCookie();
-
-    // Listen for successful login from popup
-    const handleMessage = (event) => {
-      if (event.data?.success) {
-        loadUserFromCookie(); // refresh user data
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-
-    return () => {
-      window.removeEventListener("message", handleMessage);
-    };
   }, []);
 
   useEffect(() => {
@@ -59,19 +47,30 @@ export default function Header({ user }) {
   }, [lastScrollY]);
 
   const handleLogin = () => {
-    const baseUrl = getBaseUrl();
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}&redirect_uri=${baseUrl}/google/oauth/callback&response_type=code&scope=openid%20email%20profile`;
+  const baseUrl = getBaseUrl();
+  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}&redirect_uri=${baseUrl}/google/oauth/callback&response_type=code&scope=openid%20email%20profile`;
 
-    const popup = window.open(authUrl, "oauthPopup", "width=500,height=600");
+  setIsLoggingIn(true); // Show loading state
 
-    // Optional: Poll if popup closed manually (backup)
-    const pollTimer = setInterval(() => {
-      if (popup.closed) {
-        clearInterval(pollTimer);
-        loadUserFromCookie(); // in case postMessage missed
+  const popup = window.open(authUrl, "oauthPopup", "width=500,height=600");
+
+  if (popup) {
+    const handleMessage = (event) => {
+      if (event.data?.loginDone) {
+        console.log("✅ Received loginDone message - refreshing user info...");
+        loadUserFromCookie();
+        setIsLoggingIn(false);
+        window.removeEventListener("message", handleMessage);
       }
-    }, 1000);
-  };
+    };
+
+    window.addEventListener("message", handleMessage);
+  } else {
+    console.error("❌ Failed to open login popup");
+    setIsLoggingIn(false);
+  }
+};
+
 
   const handleLogout = async () => {
     try {
@@ -89,7 +88,7 @@ export default function Header({ user }) {
         <S.FlexWrapper>
           {/* Logo */}
           <S.LogoContainer>
-            <S.LogoImage src="IconIdea.png" alt="Idea Sphere Logo" width={80} height={80} />
+            <S.LogoImage src="/IconIdea.png" alt="Idea Sphere Logo" width={80} height={80} />
             <h1>Idea Sphere</h1>
           </S.LogoContainer>
 
@@ -106,8 +105,12 @@ export default function Header({ user }) {
               <S.UserName>Anonymous</S.UserName>
             )}
 
-            <S.AuthButton onClick={currentUser ? handleLogout : handleLogin}>
-              {currentUser ? "Logout" : "Login with Google"}
+            <S.AuthButton onClick={currentUser ? handleLogout : handleLogin} disabled={isLoggingIn}>
+              {currentUser
+                ? "Logout"
+                : isLoggingIn
+                ? "Logging in..."
+                : "Login with Google"}
             </S.AuthButton>
           </S.UserContainer>
 
