@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 
 export async function GET(request) {
@@ -23,34 +22,14 @@ export async function GET(request) {
       userId: decoded.userId,
     };
 
-    // ⛔ Now manually set cookies BEFORE returning the response
-    const cookieStore = cookies();
+    // 🔥 Manually build Set-Cookie headers
+    const setCookieHeaders = [
+      `access_token=${accessToken}; HttpOnly; Secure; Path=/; SameSite=Strict; Max-Age=${15 * 60}`,
+      `refresh_token=${refreshToken}; HttpOnly; Secure; Path=/; SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}`,
+      `user_data=${encodeURIComponent(JSON.stringify(userData))}; Secure; Path=/; SameSite=Lax; Max-Age=${15 * 60}`,
+    ];
 
-    cookieStore.set("access_token", accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "Strict",
-      path: "/",
-      maxAge: 15 * 60, // 15 minutes
-    });
-
-    cookieStore.set("refresh_token", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "Strict",
-      path: "/",
-      maxAge: 7 * 24 * 60 * 60, // 7 days
-    });
-
-    cookieStore.set("user_data", JSON.stringify(userData), {
-      httpOnly: false,
-      secure: true,
-      sameSite: "Lax",
-      path: "/",
-      maxAge: 15 * 60,
-    });
-
-    // ✅ Then return the HTML
+    // ✅ Return custom HTML and manually attach cookies
     return new Response(`
       <html>
         <body>
@@ -60,11 +39,15 @@ export async function GET(request) {
             }
             window.close();
           </script>
-          <p>Login complete. You can close this window.</p>
+          <p>Login complete! You can close this window.</p>
         </body>
       </html>
     `, {
-      headers: { "Content-Type": "text/html" },
+      status: 200,
+      headers: {
+        "Content-Type": "text/html",
+        "Set-Cookie": setCookieHeaders,
+      },
     });
 
   } catch (error) {
