@@ -7,7 +7,7 @@ export async function GET(request) {
   const accessToken = searchParams.get("access_token");
   const refreshToken = searchParams.get("refresh_token");
 
-  const response = NextResponse.redirect(new URL("/", request.url));
+  const response = NextResponse.redirect(new URL("/popup", request.url));
 
   // ❌ No tokens = delete everything
   if (!accessToken || !refreshToken) {

@@ -1,19 +1,17 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-
 import { FiMenu } from "react-icons/fi";
 import { FaSearch, FaInfoCircle } from "react-icons/fa";
 import * as S from "./header.styled";
-import getBaseUrl from '/lib/getBaseUrl'
+import getBaseUrl from "/lib/getBaseUrl";
 
 export default function Header({ user }) {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(user || null);
-  console.log(currentUser)
-useEffect(() => {
+
   const loadUserFromCookie = () => {
     const cookies = document.cookie.split("; ");
     const userCookie = cookies.find((row) => row.startsWith("user_data="));
@@ -30,13 +28,22 @@ useEffect(() => {
     }
   };
 
-  loadUserFromCookie(); // Run immediately
+  useEffect(() => {
+    loadUserFromCookie();
 
-  // ⏱️ Run again shortly after to catch post-login/refresh cookie
-  const timeout = setTimeout(loadUserFromCookie, 500); // or 1000ms
+    // Listen for successful login from popup
+    const handleMessage = (event) => {
+      if (event.data?.success) {
+        loadUserFromCookie(); // refresh user data
+      }
+    };
 
-  return () => clearTimeout(timeout);
-}, []);
+    window.addEventListener("message", handleMessage);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,17 +51,26 @@ useEffect(() => {
       setLastScrollY(window.scrollY);
 
       if (window.scrollY <= lastScrollY) return;
-      setMenuOpen(false); // Close menu on scroll down
-
+      setMenuOpen(false);
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
- 
+
   const handleLogin = () => {
-    const API_URL = getBaseUrl()
-    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}&redirect_uri=${API_URL}/google/oauth/callback&response_type=code&scope=openid%20email%20profile`;
+    const baseUrl = getBaseUrl();
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}&redirect_uri=${baseUrl}/google/oauth/callback&response_type=code&scope=openid%20email%20profile`;
+
+    const popup = window.open(authUrl, "oauthPopup", "width=500,height=600");
+
+    // Optional: Poll if popup closed manually (backup)
+    const pollTimer = setInterval(() => {
+      if (popup.closed) {
+        clearInterval(pollTimer);
+        loadUserFromCookie(); // in case postMessage missed
+      }
+    }, 1000);
   };
 
   const handleLogout = async () => {
@@ -73,7 +89,7 @@ useEffect(() => {
         <S.FlexWrapper>
           {/* Logo */}
           <S.LogoContainer>
-            <S.LogoImage src="/IconIdea.png" alt="Idea Sphere Logo" width={80} height={80} />
+            <S.LogoImage src="IconIdea.png" alt="Idea Sphere Logo" width={80} height={80} />
             <h1>Idea Sphere</h1>
           </S.LogoContainer>
 
