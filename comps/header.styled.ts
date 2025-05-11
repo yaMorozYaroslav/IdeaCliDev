@@ -1,7 +1,11 @@
 import styled from "styled-components";
 
-// Flexible layout wrapper inside header
-export const HeaderContainer = styled.header`
+// 💡 Type for custom prop
+interface HeaderContainerProps {
+  $isVisible: boolean;
+}
+
+export const HeaderContainer = styled.header<HeaderContainerProps>`
   background: #002244;
   color: white;
   position: fixed;
@@ -18,7 +22,6 @@ export const HeaderContainer = styled.header`
   transform: ${({ $isVisible }) => ($isVisible ? "translateY(0)" : "translateY(-100%)")};
 
   @media (max-width: 768px) {
-
     padding: 12px 16px;
   }
 `;
@@ -32,20 +35,18 @@ export const FlexWrapper = styled.div`
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-  margin-bottom:-10px;
+  margin-bottom: -10px;
 
   @media (max-width: 750px) {
-    row-gap: 0px; // 👈 reduce vertical spacing between rows
+    row-gap: 0px;
   }
 `;
-
-
 
 export const LogoContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom:4px;
+  margin-bottom: 4px;
 
   h1 {
     font-size: 1.5rem;
@@ -60,16 +61,14 @@ export const LogoContainer = styled.div`
 `;
 
 export const LogoImage = styled.img`
-
   width: 90px;
   height: 90px;
   border-radius: 0%;
-  margin:0px 0px 3px 0px;
-  
+  margin: 0 0 3px 0;
+
   @media (max-width: 480px) {
     width: 60px;
     height: 60px;
-    
   }
 `;
 
@@ -78,7 +77,6 @@ export const UserContainer = styled.div`
   align-items: center;
   gap: 16px;
 
-  // 👇 Push it to the right on larger screens
   @media (min-width: 751px) {
     margin-left: auto;
   }
@@ -87,16 +85,15 @@ export const UserContainer = styled.div`
     flex: 1 1 100%;
     justify-content: flex-end;
     order: 2;
-    margin-top:-30px;
+    margin-top: -30px;
   }
 
   @media (max-width: 480px) {
     flex-wrap: wrap;
-    margin-top:-5px;
+    margin-top: -5px;
     gap: 20px;
   }
 `;
-
 
 export const UserAvatar = styled.img`
   width: 40px;
@@ -109,7 +106,6 @@ export const UserAvatar = styled.img`
     height: 35px;
   }
 `;
-
 
 export const UserName = styled.p`
   font-size: 1rem;
@@ -150,13 +146,11 @@ export const MenuButton = styled.button`
   border: none;
   font-size: 1.5rem;
   color: white;
-
   cursor: pointer;
   margin-left: auto;
-  margin-top:10px;
+  margin-top: 10px;
 
   @media (max-width: 750px) {
-  
     position: absolute;
     right: 15px;
     top: 15px;
@@ -180,7 +174,7 @@ export const MenuItem = styled.div`
   transition: background 0.2s ease;
 
   &:hover {
-    background: #f1f5f9; // light hover effect
+    background: #f1f5f9;
   }
 
   @media (max-width: 480px) {
@@ -191,26 +185,25 @@ export const MenuItem = styled.div`
 
 export const MenuDropdownFixed = styled.div`
   position: fixed;
-  top: 105px; // adjust based on your header height
-  right:0px;
-  
+  top: 105px;
+  right: 0;
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   padding: 10px;
-
   z-index: 999;
   min-width: 180px;
   display: flex;
   flex-direction: column;
 
   @media (max-width: 750px) {
-   top:130px;
+    top: 130px;
   }
+
   @media (max-width: 480px) {
     width: 90%;
-    right:-20%;
-    top:120px;
+    right: -20%;
+    top: 120px;
     max-width: 250px;
   }
 `;
