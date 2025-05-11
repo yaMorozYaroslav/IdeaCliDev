@@ -6,11 +6,21 @@ import { FaSearch, FaInfoCircle } from "react-icons/fa";
 import * as S from "./header.styled";
 import getBaseUrl from "/lib/getBaseUrl";
 
-export default function Header({ user }) {
+interface User {
+  name: string;
+  picture?: string;
+  [key: string]: any;
+}
+
+interface HeaderProps {
+  user?: User | null;
+}
+
+const Header: React.FC<HeaderProps> = ({ user }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState(user || null);
+  const [currentUser, setCurrentUser] = useState<User | null>(user ?? null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const loadUserFromCookie = () => {
@@ -30,28 +40,26 @@ export default function Header({ user }) {
   };
 
   useEffect(() => {
-    loadUserFromCookie();
+    if (!user) {
+      loadUserFromCookie();
+    }
 
-    // 🔥 Listen for token refresh events
     const handleTokenRefreshed = () => {
       console.log("🔄 Token refreshed - reloading user data...");
       loadUserFromCookie();
     };
 
     window.addEventListener("tokenRefreshed", handleTokenRefreshed);
-
     return () => {
       window.removeEventListener("tokenRefreshed", handleTokenRefreshed);
     };
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsVisible(window.scrollY <= lastScrollY);
       setLastScrollY(window.scrollY);
-
-      if (window.scrollY <= lastScrollY) return;
-      setMenuOpen(false);
+      if (window.scrollY > lastScrollY) setMenuOpen(false);
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -63,11 +71,10 @@ export default function Header({ user }) {
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}&redirect_uri=${baseUrl}/google/oauth/callback&response_type=code&scope=openid%20email%20profile`;
 
     setIsLoggingIn(true);
-
     const popup = window.open(authUrl, "oauthPopup", "width=500,height=600");
 
     if (popup) {
-      const handleMessage = (event) => {
+      const handleMessage = (event: MessageEvent) => {
         if (event.data?.loginDone) {
           console.log("✅ Received loginDone - refreshing user info...");
           loadUserFromCookie();
@@ -145,4 +152,6 @@ export default function Header({ user }) {
       )}
     </>
   );
-}
+};
+
+export default Header;
