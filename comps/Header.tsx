@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { FiMenu } from "react-icons/fi";
 import { FaSearch, FaInfoCircle } from "react-icons/fa";
 import * as S from "./header.styled";
-import getBaseUrl from "/lib/getBaseUrl.ts";
+import getBaseUrl from "../../lib/getBaseUrl.ts";
 
 interface User {
   name: string;
