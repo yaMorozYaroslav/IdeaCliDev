@@ -9,6 +9,7 @@ import getBaseUrl from "../lib/getBaseUrl";
 interface User {
   name: string;
   picture?: string;
+  username?: string;
   [key: string]: any;
 }
 
@@ -17,6 +18,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ user }) => {
+	//~ console.log(user)
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -99,7 +101,7 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
       console.error("❌ Logout failed:", error);
     }
   };
-
+  console.log(currentUser)
   return (
     <>
       <S.HeaderContainer $isVisible={isVisible}>
@@ -115,7 +117,15 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
                 {currentUser.picture && (
                   <S.UserAvatar src={currentUser.picture} alt={currentUser.name} width={40} height={40} />
                 )}
-                <S.UserName>{currentUser.name}</S.UserName>
+                <S.UserNameLink href={`/${currentUser.slug}`}>
+                  {currentUser.name}
+                  {Array.isArray(currentUser.unanswered) && (
+                <> ({currentUser.unanswered.length||'*'})</>
+              )}
+              
+                </S.UserNameLink>
+                
+
               </>
             ) : (
               <S.UserName>Anonymous</S.UserName>

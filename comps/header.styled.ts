@@ -1,209 +1,105 @@
 import styled from "styled-components";
+import Link from "next/link";
 
-// 💡 Type for custom prop
-interface HeaderContainerProps {
-  $isVisible: boolean;
-}
-
-export const HeaderContainer = styled.header<HeaderContainerProps>`
-  background: #002244;
-  color: white;
+export const HeaderContainer = styled.header<{ $isVisible: boolean }>`
   position: fixed;
-  width: 100%;
-  max-width: 100%;
   top: 0;
-  left: 0;
-  z-index: 1000;
-  padding: 12px 20px;
-  box-sizing: border-box;
-  overflow-x: hidden;
-
-  transition: transform 0.3s ease-in-out;
+  width: 100%;
+  background: white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   transform: ${({ $isVisible }) => ($isVisible ? "translateY(0)" : "translateY(-100%)")};
-
-  @media (max-width: 768px) {
-    padding: 12px 16px;
-  }
+  transition: transform 0.3s ease;
+  z-index: 1000;
 `;
 
 export const FlexWrapper = styled.div`
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  margin-bottom: -10px;
-
-  @media (max-width: 750px) {
-    row-gap: 0px;
-  }
+  align-items: center;
+  padding: 1rem 2rem;
 `;
 
 export const LogoContainer = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 4px;
-
-  h1 {
-    font-size: 1.5rem;
-    margin-left: 10px;
-  }
-
-  @media (max-width: 480px) {
-    h1 {
-      font-size: 1.2rem;
-    }
-  }
+  gap: 1rem;
 `;
 
 export const LogoImage = styled.img`
-  width: 90px;
-  height: 90px;
-  border-radius: 0%;
-  margin: 0 0 3px 0;
-
-  @media (max-width: 480px) {
-    width: 60px;
-    height: 60px;
-  }
+  height: 60px;
+  width: auto;
 `;
 
 export const UserContainer = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 1rem;
+`;
 
-  @media (min-width: 751px) {
-    margin-left: auto;
-  }
+export const UserName = styled.span`
+  font-weight: 600;
+`;
 
-  @media (max-width: 750px) {
-    flex: 1 1 100%;
-    justify-content: flex-end;
-    order: 2;
-    margin-top: -30px;
-  }
+export const UserNameLink = styled(Link)`
+  font-weight: 600;
+  color: #0070f3;
+  text-decoration: none;
 
-  @media (max-width: 480px) {
-    flex-wrap: wrap;
-    margin-top: -5px;
-    gap: 20px;
+  &:hover {
+    text-decoration: underline;
   }
 `;
 
 export const UserAvatar = styled.img`
   width: 40px;
   height: 40px;
-  border-radius: 45%;
-  border: 2px solid white;
-
-  @media (max-width: 480px) {
-    width: 35px;
-    height: 35px;
-  }
-`;
-
-export const UserName = styled.p`
-  font-size: 1rem;
-  font-weight: bold;
-  white-space: nowrap;
-
-  @media (max-width: 480px) {
-    font-size: 0.85rem;
-  }
+  border-radius: 50%;
 `;
 
 export const AuthButton = styled.button`
-  background: #0057b7;
+  background: #0070f3;
   color: white;
+  padding: 0.5rem 1rem;
   border: none;
-  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: 600;
   cursor: pointer;
-  border-radius: 5px;
-  transition: background 0.2s ease-in-out;
 
   &:hover {
-    background: #0044a3;
+    background: #005ad1;
   }
 
-  @media (max-width: 480px) {
-    font-size: 0.9rem;
-    padding: 8px 12px;
-  }
-
-  @media (max-width: 350px) {
-    font-size: 0.7rem;
-    padding: 8px 12px;
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
   }
 `;
 
 export const MenuButton = styled.button`
-  background: transparent;
+  background: none;
   border: none;
   font-size: 1.5rem;
-  color: white;
   cursor: pointer;
-  margin-left: auto;
-  margin-top: 10px;
-
-  @media (max-width: 750px) {
-    position: absolute;
-    right: 15px;
-    top: 15px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 1.2rem;
-    right: 10px;
-  }
-`;
-
-export const MenuItem = styled.div`
-  padding: 10px 15px;
-  font-size: 1rem;
-  color: #1e293b;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-radius: 6px;
-  transition: background 0.2s ease;
-
-  &:hover {
-    background: #f1f5f9;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 0.95rem;
-    padding: 10px 12px;
-  }
 `;
 
 export const MenuDropdownFixed = styled.div`
-  position: fixed;
-  top: 105px;
-  right: 0;
+  position: absolute;
+  top: 100%;
+  right: 2rem;
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  padding: 10px;
-  z-index: 999;
-  min-width: 180px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-radius: 0.5rem;
+  overflow: hidden;
+`;
+
+export const MenuItem = styled.div`
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
 
-  @media (max-width: 750px) {
-    top: 130px;
-  }
-
-  @media (max-width: 480px) {
-    width: 90%;
-    right: -20%;
-    top: 120px;
-    max-width: 250px;
+  &:hover {
+    background: #f0f0f0;
   }
 `;
