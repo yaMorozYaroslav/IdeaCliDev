@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import getBaseUrl from "@/lib/getBaseUrl"; // or fix if not using @
+import getBaseUrl from "/lib/getBaseUrl"; // or fix if not using @
 import jwt from "jsonwebtoken";
 
 export async function POST(request: Request) {
