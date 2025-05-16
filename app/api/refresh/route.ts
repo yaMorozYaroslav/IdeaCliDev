@@ -1,9 +1,7 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { cookies } from "next/headers";
+import getBaseUrl from "@/lib/getBaseUrl"; // adjust path if needed
 import jwt from "jsonwebtoken";
-
-// If you're not using aliasing like @ or /lib, fix this import:
-import getBaseUrl from "../../../lib/getBaseUrl"; // or use relative path if needed
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,11 +9,10 @@ export async function POST(request: NextRequest) {
     const refreshToken = cookieStore.get("refresh_token")?.value;
 
     if (!refreshToken) {
-      console.warn("⚠️ No refresh token found in cookies");
       return NextResponse.json({ message: "No refresh token" }, { status: 401 });
     }
 
-    const baseUrl = getBaseUrl(request);
+    const baseUrl = getBaseUrl(request); // ✅ now passes correctly
 
     const backendRes = await fetch(`${baseUrl}/google/refresh`, {
       method: "POST",
@@ -23,16 +20,9 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({ refreshToken }),
     });
 
-    if (!backendRes.ok) {
-      console.error("❌ Backend refresh endpoint failed with status", backendRes.status);
-      throw new Error("Failed to refresh token from backend");
-    }
+    if (!backendRes.ok) throw new Error("Backend refresh failed");
 
     const { accessToken, userData } = await backendRes.json();
-
-    if (!accessToken || !userData) {
-      throw new Error("Missing accessToken or userData in backend response");
-    }
 
     const response = NextResponse.json({ accessToken });
 
@@ -41,7 +31,7 @@ export async function POST(request: NextRequest) {
       secure: true,
       sameSite: "Strict",
       path: "/",
-      maxAge: 15 * 60, // 15 minutes
+      maxAge: 15 * 60,
     });
 
     response.cookies.set("user_data", encodeURIComponent(JSON.stringify(userData)), {
@@ -49,19 +39,14 @@ export async function POST(request: NextRequest) {
       secure: true,
       sameSite: "Lax",
       path: "/",
-      maxAge: 15 * 60, // 15 minutes
+      maxAge: 15 * 60,
     });
 
     return response;
   } catch (err) {
-    console.error("❌ Refresh token error:", err);
+    console.error("❌ Refresh error:", err);
 
-    const response = NextResponse.json(
-      { message: "Refresh failed", error: err instanceof Error ? err.message : String(err) },
-      { status: 401 }
-    );
-
-    // Clean up cookies on failure
+    const response = NextResponse.json({ message: "Refresh failed" }, { status: 401 });
     response.cookies.delete("access_token");
     response.cookies.delete("refresh_token");
     response.cookies.delete("user_data");
