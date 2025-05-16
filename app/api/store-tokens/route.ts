@@ -25,7 +25,12 @@ export async function GET(request: Request) {
       unanswered: decoded.unanswered || [],
     };
 
-    // Manually create the response with script to close popup and redirect opener
+    // ✅ Optional: Read existing cookie if needed
+    const cookieStore = await cookies(); // await is required in route handlers
+    const existingUserData = cookieStore.get("user_data");
+    console.log("🔍 Existing user_data cookie:", existingUserData?.value);
+
+    // ✅ HTML that closes popup and redirects parent
     const html = `
       <!DOCTYPE html>
       <html>
@@ -48,6 +53,7 @@ export async function GET(request: Request) {
       },
     });
 
+    // ✅ Set cookies
     response.cookies.set("access_token", accessToken, {
       httpOnly: true,
       secure: true,
@@ -68,7 +74,7 @@ export async function GET(request: Request) {
       httpOnly: false,
       secure: true,
       sameSite: "Lax",
-      maxAge: 15 * 60,
+      maxAge: 15 * 60, // 15 minutes
       path: "/",
     });
 
