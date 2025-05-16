@@ -2,20 +2,7 @@ import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
-interface Question {
-  _id: string;
-  title: string;
-  answers?: string[];
-  answeredAt?: string;
-}
-
-interface UserProfile {
-  name: string;
-  picture?: string;
-  answered?: Question[];
-}
-
-async function getUserData(username: string): Promise<UserProfile | null> {
+async function getUserData(username) {
   try {
     const res = await fetch(`http://localhost:5000/google/public/${username}`, {
       cache: "no-store",
@@ -28,19 +15,13 @@ async function getUserData(username: string): Promise<UserProfile | null> {
   }
 }
 
-interface PageProps {
-  params: {
-    username: string;
-  };
-}
-
-export default async function UserProfilePage({ params }: PageProps) {
+export default async function UserProfilePage({ params }) {
   const usernameParam = params.username.toLowerCase();
   const cookieStore = cookies();
   const cookie = cookieStore.get("user_data");
 
   let isOwner = false;
-  let unanswered: Question[] = [];
+  let unanswered = [];
 
   if (cookie) {
     try {
