@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { cookies } from "next/headers";
-import getBaseUrl from "@/lib/getBaseUrl"; // adjust path if needed
+import getBaseUrl from "../../../lib/getBaseUrl"; // adjust path if needed
 import jwt from "jsonwebtoken";
 
 export async function POST(request: NextRequest) {
