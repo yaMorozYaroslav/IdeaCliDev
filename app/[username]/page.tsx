@@ -28,29 +28,31 @@ async function getUserData(username: string): Promise<UserProfile | null> {
   }
 }
 
-export default async function UserProfilePage({
-  params,
-}: {
-  params: { username: string };
-}) {
-  const cookieStore = cookies(); // ✅ do not await this
-  const cookie = cookieStore.get("user_data");
+// ✅ FIX: Do NOT make your props type async/promise
+type PageProps = {
+  params: {
+    username: string;
+  };
+};
+
+export default async function UserProfilePage({ params }: PageProps) {
   const usernameParam = params.username.toLowerCase();
+
+  const cookieStore = cookies(); // ✅ don't await this
+  const cookie = cookieStore.get("user_data");
 
   let isOwner = false;
   let unanswered: Question[] = [];
 
   if (cookie) {
     try {
-      const decoded = decodeURIComponent(cookie.value);
-      const parsed = JSON.parse(decoded);
-      const cookieSlug = parsed.slug?.toLowerCase();
-      if (cookieSlug === usernameParam) {
+      const parsed = JSON.parse(decodeURIComponent(decodeURIComponent(cookie.value)));
+      if (parsed.slug?.toLowerCase() === usernameParam) {
         isOwner = true;
         unanswered = parsed.unanswered || [];
       }
     } catch (err) {
-      console.error("❌ Failed to parse user_data cookie:", err);
+      console.error("❌ Failed to parse cookie:", err);
     }
   }
 
@@ -65,50 +67,40 @@ export default async function UserProfilePage({
   }
 
   return (
-    <main
-      style={{
-        padding: "2rem",
-        maxWidth: "600px",
-        margin: "0 auto",
-        marginTop: "100px",
-      }}
-    >
-      <h1 style={{ background: "yellow" }}>{user.name ?? "Unnamed"}'s Profile</h1>
-
+    <main style={{ padding: "2rem", maxWidth: "600px", margin: "100px auto 0" }}>
+      <h1>{user.name}'s Profile</h1>
       {user.picture && (
         <img
           src={user.picture}
-          alt={`${user.name ?? "User"}'s avatar`}
+          alt="User avatar"
           style={{ width: "100px", height: "100px", borderRadius: "50%" }}
         />
       )}
 
       {isOwner && (
-        <section style={{ marginTop: "2rem" }}>
-          <h2>Unanswered Questions (Private)</h2>
+        <section>
+          <h2>Unanswered Questions</h2>
           {unanswered.length > 0 ? (
             <ul>
               {unanswered.map((q) => (
-                <li key={q._id} style={{ marginBottom: "1rem" }}>
-                  <strong>Q:</strong> {q.title}
-                </li>
+                <li key={q._id}>{q.title}</li>
               ))}
             </ul>
           ) : (
-            <p>No unanswered questions.</p>
+            <p>No unanswered questions</p>
           )}
         </section>
       )}
 
-      <section style={{ marginTop: "2rem" }}>
+      <section>
         <h2>Answered Questions</h2>
-        {user.answered && user.answered.length > 0 ? (
+        {user.answered?.length ? (
           <ul>
             {user.answered.map((q) => (
-              <li key={q._id} style={{ marginBottom: "1.5rem" }}>
+              <li key={q._id}>
                 <strong>Q:</strong> {q.title}
                 <br />
-                <strong>A:</strong> {q.answers?.join(", ") || "No answer"}
+                <strong>A:</strong> {q.answers?.join(", ")}
               </li>
             ))}
           </ul>
