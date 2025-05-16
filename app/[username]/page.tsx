@@ -17,7 +17,7 @@ async function getUserData(username) {
 
 export default async function UserProfilePage({ params }) {
   const usernameParam = params.username.toLowerCase();
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const cookie = cookieStore.get("user_data");
 
   let isOwner = false;
