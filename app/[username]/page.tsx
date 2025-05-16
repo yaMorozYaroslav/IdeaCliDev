@@ -28,17 +28,22 @@ async function getUserData(username: string): Promise<UserProfile | null> {
   }
 }
 
-export default async function UserProfilePage({ params }: { params: { username: string } }) {
-  const cookieStore = await cookies(); // ✅ must await
+export default async function UserProfilePage({
+  params,
+}: {
+  params: { username: string };
+}) {
+  const cookieStore = cookies(); // ✅ do not await this
   const cookie = cookieStore.get("user_data");
-  const usernameParam = params.username.toLowerCase(); // ✅ no need to optional-chain
+  const usernameParam = params.username.toLowerCase();
 
   let isOwner = false;
   let unanswered: Question[] = [];
 
   if (cookie) {
     try {
-      const parsed = JSON.parse(decodeURIComponent(cookie.value));
+      const decoded = decodeURIComponent(cookie.value);
+      const parsed = JSON.parse(decoded);
       const cookieSlug = parsed.slug?.toLowerCase();
       if (cookieSlug === usernameParam) {
         isOwner = true;
@@ -51,11 +56,6 @@ export default async function UserProfilePage({ params }: { params: { username: 
 
   const user = await getUserData(usernameParam);
 
-  console.log("📦 usernameParam:", usernameParam);
-  console.log("🍪 cookie:", cookie);
-  console.log("👤 user:", user);
-  console.log("🧑 isOwner:", isOwner);
-
   if (!user) {
     return (
       <main style={{ padding: "2rem" }}>
@@ -65,7 +65,14 @@ export default async function UserProfilePage({ params }: { params: { username: 
   }
 
   return (
-    <main style={{ padding: "2rem", maxWidth: "600px", margin: "0 auto", marginTop: "100px" }}>
+    <main
+      style={{
+        padding: "2rem",
+        maxWidth: "600px",
+        margin: "0 auto",
+        marginTop: "100px",
+      }}
+    >
       <h1 style={{ background: "yellow" }}>{user.name ?? "Unnamed"}'s Profile</h1>
 
       {user.picture && (
