@@ -29,13 +29,15 @@ async function getUserData(username: string): Promise<UserProfile | null> {
 }
 
 // ✅ FIX: Do NOT make your props type async/promise
-type PageProps = {
-  params: {
-    username: string;
-  };
-};
+//~ type PageProps = {
+  //~ params: {
+    //~ username: string;
+  //~ };
+//~ };
 
-export default async function UserProfilePage({ params }: PageProps) {
+export default async function UserProfilePage({ params }: {
+                                       params: { username: string };
+                                                                   }){
   const usernameParam = params.username.toLowerCase();
 
   const cookieStore = cookies(); // ✅ don't await this
