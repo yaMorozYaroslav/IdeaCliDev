@@ -35,8 +35,8 @@ interface PageProps {
 }
 
 export default async function UserProfilePage({ params }: PageProps) {
-  const username = params.username.toLowerCase();
-  const cookieStore = cookies(); // do NOT await
+  const usernameParam = params.username.toLowerCase();
+  const cookieStore = cookies();
   const cookie = cookieStore.get("user_data");
 
   let isOwner = false;
@@ -50,7 +50,7 @@ export default async function UserProfilePage({ params }: PageProps) {
         unanswered = parsed.unanswered || [];
       }
     } catch (err) {
-      console.error("❌ Failed to parse cookie:", err);
+      console.error("❌ Failed to parse user_data cookie:", err);
     }
   }
 
@@ -67,38 +67,41 @@ export default async function UserProfilePage({ params }: PageProps) {
   return (
     <main style={{ padding: "2rem", maxWidth: "600px", margin: "100px auto 0" }}>
       <h1>{user.name}'s Profile</h1>
+
       {user.picture && (
         <img
           src={user.picture}
-          alt="User avatar"
+          alt={`${user.name}'s avatar`}
           style={{ width: "100px", height: "100px", borderRadius: "50%" }}
         />
       )}
 
       {isOwner && (
-        <section>
-          <h2>Unanswered Questions</h2>
+        <section style={{ marginTop: "2rem" }}>
+          <h2>Unanswered Questions (Private)</h2>
           {unanswered.length > 0 ? (
             <ul>
               {unanswered.map((q) => (
-                <li key={q._id}>{q.title}</li>
+                <li key={q._id} style={{ marginBottom: "1rem" }}>
+                  <strong>Q:</strong> {q.title}
+                </li>
               ))}
             </ul>
           ) : (
-            <p>No unanswered questions</p>
+            <p>No unanswered questions.</p>
           )}
         </section>
       )}
 
-      <section>
+      <section style={{ marginTop: "2rem" }}>
         <h2>Answered Questions</h2>
         {user.answered?.length ? (
           <ul>
             {user.answered.map((q) => (
-              <li key={q._id}>
+              <li key={q._id} style={{ marginBottom: "1.5rem" }}>
                 <strong>Q:</strong> {q.title}
                 <br />
-                <strong>A:</strong> {q.answers?.join(", ")}
+                <strong>A:</strong> {q.answers?.join(", ") || "No answer"}
               </li>
             ))}
           </ul>
