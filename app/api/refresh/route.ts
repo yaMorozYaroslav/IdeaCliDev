@@ -26,21 +26,22 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json({ accessToken });
 
-    response.cookies.set("access_token", accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "Strict",
-      path: "/",
-      maxAge: 15 * 60,
-    });
-
-    response.cookies.set("user_data", encodeURIComponent(JSON.stringify(userData)), {
-      httpOnly: false,
-      secure: true,
-      sameSite: "Lax",
-      path: "/",
-      maxAge: 15 * 60,
-    });
+   response.cookies.set("access_token", accessToken, {
+  httpOnly: true,
+  secure: true,
+  sameSite: "strict", // ✅ lowercase
+  path: "/",
+  maxAge: 15 * 60,
+   });
+   
+   response.cookies.set("user_data", encodeURIComponent(JSON.stringify(userData)), {
+     httpOnly: false,
+     secure: true,
+     sameSite: "lax", // ✅ lowercase
+     path: "/",
+     maxAge: 15 * 60,
+   });
+   
 
     return response;
   } catch (err) {
