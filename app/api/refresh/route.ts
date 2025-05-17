@@ -1,9 +1,9 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import getBaseUrl from "../../../lib/getBaseUrl"; // adjust path if needed
+import getBaseUrl from "../../../lib/getBaseUrl";
 import jwt from "jsonwebtoken";
 
-export async function POST(request: NextRequest) {
+export async function POST(request) {
   try {
     const cookieStore = await cookies();
     const refreshToken = cookieStore.get("refresh_token")?.value;
@@ -26,22 +26,20 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json({ accessToken });
 
-    // ✅ Set access_token cookie with forced correct type
     response.cookies.set("access_token", accessToken, {
       httpOnly: true,
       secure: true,
-      sameSite: "strict" as "strict", // ✅ type-cast to fix TS error
+      sameSite: "strict",
       path: "/",
-      maxAge: 15 * 60, // 15 minutes
+      maxAge: 15 * 60,
     });
 
-    // ✅ Set user_data cookie
     response.cookies.set("user_data", encodeURIComponent(JSON.stringify(userData)), {
       httpOnly: false,
       secure: true,
-      sameSite: "lax" as "lax", // ✅ type-cast to fix TS error
+      sameSite: "lax",
       path: "/",
-      maxAge: 15 * 60, // 15 minutes
+      maxAge: 15 * 60,
     });
 
     return response;
