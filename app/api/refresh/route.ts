@@ -26,6 +26,7 @@ export async function POST(request) {
 
     const response = NextResponse.json({ accessToken });
 
+    // ✅ FIXED: lowercase "strict"
     response.cookies.set("access_token", accessToken, {
       httpOnly: true,
       secure: true,
@@ -34,6 +35,7 @@ export async function POST(request) {
       maxAge: 15 * 60,
     });
 
+    // ✅ FIXED: lowercase "lax"
     response.cookies.set("user_data", encodeURIComponent(JSON.stringify(userData)), {
       httpOnly: false,
       secure: true,

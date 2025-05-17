@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 
-export async function GET(request: Request) {
+export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const accessToken = searchParams.get("access_token");
   const refreshToken = searchParams.get("refresh_token");
@@ -25,12 +25,10 @@ export async function GET(request: Request) {
       unanswered: decoded.unanswered || [],
     };
 
-    // ✅ Optional: Read existing cookie if needed
-    const cookieStore = await cookies(); // await is required in route handlers
+    const cookieStore = await cookies();
     const existingUserData = cookieStore.get("user_data");
     console.log("🔍 Existing user_data cookie:", existingUserData?.value);
 
-    // ✅ HTML that closes popup and redirects parent
     const html = `
       <!DOCTYPE html>
       <html>
@@ -53,28 +51,27 @@ export async function GET(request: Request) {
       },
     });
 
-    // ✅ Set cookies
     response.cookies.set("access_token", accessToken, {
       httpOnly: true,
       secure: true,
-      sameSite: "Strict",
-      maxAge: 15 * 60, // 15 minutes
+      sameSite: "strict", // ✅ FIXED
+      maxAge: 15 * 60,
       path: "/",
     });
 
     response.cookies.set("refresh_token", refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: "Strict",
-      maxAge: 7 * 24 * 60 * 60, // 7 days
+      sameSite: "strict", // ✅ FIXED
+      maxAge: 7 * 24 * 60 * 60,
       path: "/",
     });
 
     response.cookies.set("user_data", encodeURIComponent(JSON.stringify(userData)), {
       httpOnly: false,
       secure: true,
-      sameSite: "Lax",
-      maxAge: 15 * 60, // 15 minutes
+      sameSite: "lax", // ✅ FIXED
+      maxAge: 15 * 60,
       path: "/",
     });
 
