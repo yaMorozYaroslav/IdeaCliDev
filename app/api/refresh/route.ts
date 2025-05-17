@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "No refresh token" }, { status: 401 });
     }
 
-    const baseUrl = getBaseUrl(request); // ✅ now passes correctly
+    const baseUrl = getBaseUrl(request);
 
     const backendRes = await fetch(`${baseUrl}/google/refresh`, {
       method: "POST",
@@ -26,22 +26,23 @@ export async function POST(request: NextRequest) {
 
     const response = NextResponse.json({ accessToken });
 
-   response.cookies.set("access_token", accessToken, {
-  httpOnly: true,
-  secure: true,
-  sameSite: "strict", // ✅ lowercase
-  path: "/",
-  maxAge: 15 * 60,
-   });
-   
-   response.cookies.set("user_data", encodeURIComponent(JSON.stringify(userData)), {
-     httpOnly: false,
-     secure: true,
-     sameSite: "lax", // ✅ lowercase
-     path: "/",
-     maxAge: 15 * 60,
-   });
-   
+    // ✅ Set access_token cookie with forced correct type
+    response.cookies.set("access_token", accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict" as "strict", // ✅ type-cast to fix TS error
+      path: "/",
+      maxAge: 15 * 60, // 15 minutes
+    });
+
+    // ✅ Set user_data cookie
+    response.cookies.set("user_data", encodeURIComponent(JSON.stringify(userData)), {
+      httpOnly: false,
+      secure: true,
+      sameSite: "lax" as "lax", // ✅ type-cast to fix TS error
+      path: "/",
+      maxAge: 15 * 60, // 15 minutes
+    });
 
     return response;
   } catch (err) {
