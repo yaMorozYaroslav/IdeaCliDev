@@ -8,7 +8,7 @@ import isPropValid from "@emotion/is-prop-valid";
 export default function LayoutClient({ user, children }) {
   const [mounted, setMounted] = useState(false);
   const refreshTimeoutRef = useRef(null);
-  const REFRESH_INTERVAL = 13 * 60 * 1000; // 13 minutes
+  const REFRESH_INTERVAL = 1 * 60 * 1000; // 13 minutes
 
   useEffect(() => {
   setMounted(true);
@@ -26,7 +26,7 @@ export default function LayoutClient({ user, children }) {
       clearTimeout(refreshTimeoutRef.current);
     }
   };
-}, []);
+}, [user]);
 
 
   const startRefreshCycle = () => {

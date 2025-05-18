@@ -27,35 +27,35 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
   const [screenWidth, setScreenWidth] = useState<number | null>(null);
 
   const loadUserFromCookie = () => {
-  const cookies = document.cookie.split("; ");
-  const userCookie = cookies.find((row) => row.startsWith("user_data="));
-  if (userCookie) {
-    try {
-      const encodedValue = userCookie.split("=")[1];
-      const decodedValue = decodeURIComponent(encodedValue); // ✅ this decodes %7B%22user...
-      const userData = JSON.parse(decodedValue);             // ✅ now safe to parse
-      setCurrentUser(userData);
-    } catch (e) {
-      console.error("❌ Failed to parse user_data cookie:", e);
+    const cookies = document.cookie.split("; ");
+    const userCookie = cookies.find((row) => row.startsWith("user_data="));
+    if (userCookie) {
+      try {
+        const encodedValue = userCookie.split("=")[1];
+        const decodedValue = decodeURIComponent(encodedValue);
+        const userData = JSON.parse(decodedValue);
+        //~ console.log("🍪 Loaded current user from cookie:", userData);
+        setCurrentUser(userData);
+      } catch (e) {
+        console.error("❌ Failed to parse user_data cookie:", e);
+        setCurrentUser(null);
+      }
+    } else {
       setCurrentUser(null);
     }
-  } else {
-    setCurrentUser(null);
-  }
-};
+  };
 
   useEffect(() => {
-  loadUserFromCookie(); // always try to load the latest user on mount
+    loadUserFromCookie();
+    const handleTokenRefreshed = () => loadUserFromCookie();
+    window.addEventListener("tokenRefreshed", handleTokenRefreshed);
+    return () => window.removeEventListener("tokenRefreshed", handleTokenRefreshed);
+  }, []);
 
-  const handleTokenRefreshed = () => loadUserFromCookie();
-  window.addEventListener("tokenRefreshed", handleTokenRefreshed);
-  return () => window.removeEventListener("tokenRefreshed", handleTokenRefreshed);
-}, []);
   useEffect(() => {
-  const interval = setInterval(() => loadUserFromCookie(), 15000); // every 15s
-  return () => clearInterval(interval);
-}, []);
-
+    const interval = setInterval(() => loadUserFromCookie(), 15000); // every 15s
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -63,14 +63,13 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
       setLastScrollY(window.scrollY);
       if (window.scrollY > lastScrollY) setMenuOpen(false);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
   useEffect(() => {
     const updateWidth = () => setScreenWidth(window.innerWidth);
-    updateWidth(); // Set on mount
+    updateWidth();
     window.addEventListener("resize", updateWidth);
     return () => window.removeEventListener("resize", updateWidth);
   }, []);
@@ -97,35 +96,33 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
   };
 
   const handleLogout = async () => {
-  try {
-    await fetch("/api/logout", { method: "POST" });
-    setCurrentUser(null);
-    document.cookie = "user_data=; path=/; max-age=0"; // just in case
-    window.dispatchEvent(new Event("tokenRefreshed")); // manually trigger UI update
-  } catch (error) {
-    console.error("❌ Logout failed:", error);
-  }
-};
+    try {
+      await fetch("/api/logout", { method: "POST" });
+      setCurrentUser(null);
+      document.cookie = "user_data=; path=/; max-age=0";
+      window.dispatchEvent(new Event("tokenRefreshed"));
+    } catch (error) {
+      console.error("❌ Logout failed:", error);
+    }
+  };
 
-
-  const authLabel =
-    isLoggingIn
-      ? "Logging in..."
-      : screenWidth !== null && screenWidth <= 400
-      ? "Login"
-      : "Login with Google";
+  const authLabel = isLoggingIn
+    ? "Logging in..."
+    : currentUser
+    ? "Logout"
+    : screenWidth !== null && screenWidth <= 400
+    ? "Login"
+    : "Login with Google";
 
   return (
     <S.HeaderContainer $isVisible={isVisible}>
       <S.FlexWrapper>
-        {/* Top row: logo + burger */}
         <S.TopRow>
           <S.LogoContainer>
             <S.LogoImage src="/IconIdea.png" alt="Idea Sphere Logo" />
             <h1>Idea Sphere</h1>
           </S.LogoContainer>
 
-          {/* Mobile burger beside logo (only visible on small screens) */}
           <S.BurgerMobile>
             <S.MenuButton
               onClick={() => setMenuOpen(!menuOpen)}
@@ -137,7 +134,6 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
           </S.BurgerMobile>
         </S.TopRow>
 
-        {/* Bottom row: user info + auth */}
         <S.BottomRow>
           <S.UserContainer>
             {currentUser ? (
@@ -146,14 +142,13 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
                   <S.UserAvatar src={currentUser.picture} alt={currentUser.name} />
                 )}
                 <S.UserNameLink href={`/${currentUser.userId}`}>
-  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "inline-block", maxWidth: 120, verticalAlign: "middle" }}>
-    {currentUser.name}
-  </span>
-</S.UserNameLink>
-{Array.isArray(currentUser.unanswered) && (
-  <span> ({currentUser.unanswered.length || "*"})</span>
-)}
-
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "inline-block", maxWidth: 120, verticalAlign: "middle" }}>
+                    {currentUser.name}
+                  </span>
+                </S.UserNameLink>
+                {Array.isArray(currentUser.unanswered) && (
+                  <span> ({currentUser.unanswered.length || "*"})</span>
+                )}
               </>
             ) : (
               <S.UserName>Anonymous</S.UserName>
@@ -168,7 +163,6 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
             </S.AuthButton>
           </S.UserContainer>
 
-          {/* Desktop burger */}
           <S.BurgerDesktop>
             <S.MenuButton
               onClick={() => setMenuOpen(!menuOpen)}
@@ -180,7 +174,6 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
           </S.BurgerDesktop>
         </S.BottomRow>
 
-        {/* Dropdown menu if open */}
         {menuOpen && (
           <S.MenuDropdownFixed>
             <S.MenuItem>

@@ -1,5 +1,5 @@
 import ClientUserProfile from "./ClientUserProfile";
 
-export default function Page({ params }) {
+export default async function Page({ params }) {
   return <ClientUserProfile userId={params.userId} />;
 }
