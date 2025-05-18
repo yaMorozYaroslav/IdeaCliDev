@@ -4,10 +4,23 @@ import { useEffect, useState } from "react";
 import AskPersonalButton from "./AskPersonalButton";
 import getBaseUrl from "../../lib/getBaseUrl";
 
+interface Question {
+  _id: string;
+  title: string;
+  answers?: string[];
+}
+
+interface UserData {
+  googleId: string;
+  name: string;
+  picture?: string;
+  answered?: Question[];
+}
+
 export default function ClientUserProfile({ userId }: { userId: string }) {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<UserData | null>(null);
   const [isOwner, setIsOwner] = useState(false);
-  const [unanswered, setUnanswered] = useState<any[]>([]);
+  const [unanswered, setUnanswered] = useState<Question[]>([]);
 
   useEffect(() => {
     async function load() {
@@ -30,15 +43,16 @@ export default function ClientUserProfile({ userId }: { userId: string }) {
         console.error("❌ User fetch failed:", err);
       }
 
-      const cookie = document.cookie.split("; ").find((c) =>
-        c.startsWith("user_data=")
-      );
+      const cookieString = document.cookie
+        .split("; ")
+        .find((c) => c.startsWith("user_data="));
 
-      if (cookie) {
+      if (cookieString) {
         try {
-          const raw = cookie.split("=")[1];
+          const raw = cookieString.split("=")[1];
           const decodedValue = decodeURIComponent(raw);
           const parsed = JSON.parse(decodedValue);
+
           console.log("📦 Parsed user_data cookie:", parsed);
 
           if (parsed.userId === userId) {
