@@ -41,20 +41,21 @@ export async function POST(request) {
     const response = NextResponse.json({ accessToken, userData: cleanedUserData });
 
     response.cookies.set("access_token", accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "Lax",
-      path: "/",
-      maxAge: 15 * 60,
-    });
+  httpOnly: true,
+  secure: true,
+  sameSite: "lax", // ✅ lowercase
+  path: "/",
+  maxAge: 15 * 60,
+});
 
-    response.cookies.set("user_data", JSON.stringify(cleanedUserData), {
-      httpOnly: false,
-      secure: true,
-      sameSite: "Lax",
-      path: "/",
-      maxAge: 15 * 60,
-    });
+response.cookies.set("user_data", JSON.stringify(cleanedUserData), {
+  httpOnly: false,
+  secure: true,
+  sameSite: "lax", // ✅ lowercase
+  path: "/",
+  maxAge: 15 * 60,
+});
+
 
     console.log("🍪 Cookies updated successfully");
     return response;
