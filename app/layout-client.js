@@ -11,16 +11,23 @@ export default function LayoutClient({ user, children }) {
   const REFRESH_INTERVAL = 13 * 60 * 1000; // 13 minutes
 
   useEffect(() => {
-    setMounted(true);
-    startRefreshCycle();
-    console.log("⏰ First refresh scheduled at:", new Date().toLocaleTimeString());
+  setMounted(true);
 
-    return () => {
-      if (refreshTimeoutRef.current) {
-        clearTimeout(refreshTimeoutRef.current);
-      }
-    };
-  }, []);
+  // 🔄 Trigger refresh immediately on mount
+  console.log("🚀 Checking for access token on mount...");
+  refreshToken(); // Will attempt refresh even if access_token is missing
+
+  // 🔁 Start scheduled refresh cycle
+  startRefreshCycle();
+  console.log("⏰ First scheduled refresh set at:", new Date().toLocaleTimeString());
+
+  return () => {
+    if (refreshTimeoutRef.current) {
+      clearTimeout(refreshTimeoutRef.current);
+    }
+  };
+}, []);
+
 
   const startRefreshCycle = () => {
     refreshTimeoutRef.current = setTimeout(() => {

@@ -1,20 +1,17 @@
-// utils/getUserFromCookies.js
-"use server";
-
-import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
-
-export const getUserFromCookies = async() => {
-  const cookieStore = await cookies(); // Correct way to get cookies on the server
-  const accessToken = cookieStore.get("access_token")?.value;
-
-  if (!accessToken) return null;
-
-  try {
-    const user = jwt.verify(accessToken, "test"); // Replace 'test' with your secret
-    return user;
-  } catch (err) {
-    console.error("Invalid token:", err);
-    return null;
+const loadUserFromCookie = () => {
+  const cookies = document.cookie.split("; ");
+  const userCookie = cookies.find((row) => row.startsWith("user_data="));
+  if (userCookie) {
+    try {
+      const encodedValue = userCookie.split("=")[1];
+      const decodedValue = decodeURIComponent(encodedValue); // ✅ this decodes %7B%22user...
+      const userData = JSON.parse(decodedValue);             // ✅ now safe to parse
+      setCurrentUser(userData);
+    } catch (e) {
+      console.error("❌ Failed to parse user_data cookie:", e);
+      setCurrentUser(null);
+    }
+  } else {
+    setCurrentUser(null);
   }
 };

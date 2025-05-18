@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import getBaseUrl from "../../../lib/getBaseUrl";
-import jwt from "jsonwebtoken";
 
 export async function POST(request) {
   try {
-    const cookieStore = await cookies();
+    const cookieStore = cookies();
     const refreshToken = cookieStore.get("refresh_token")?.value;
 
     if (!refreshToken) {
@@ -20,13 +19,25 @@ export async function POST(request) {
       body: JSON.stringify({ refreshToken }),
     });
 
-    if (!backendRes.ok) throw new Error("Backend refresh failed");
+    if (!backendRes.ok) {
+      throw new Error("Backend refresh failed");
+    }
 
     const { accessToken, userData } = await backendRes.json();
 
-    const response = NextResponse.json({ accessToken });
+    // 🧼 Clean version of user data
+    const cleanedUserData = {
+      userId: userData.userId,
+      email: userData.email,
+      name: userData.name,
+      picture: userData.picture,
+      status: userData.status,
+      unanswered: userData.unanswered || [],
+    };
 
-    // ✅ FIXED: lowercase "strict"
+    // ✅ Create response with new access_token
+    const response = NextResponse.json({ success: true });
+
     response.cookies.set("access_token", accessToken, {
       httpOnly: true,
       secure: true,
@@ -35,8 +46,8 @@ export async function POST(request) {
       maxAge: 15 * 60,
     });
 
-    // ✅ FIXED: lowercase "lax"
-    response.cookies.set("user_data", encodeURIComponent(JSON.stringify(userData)), {
+    // ✅ DO NOT encode again — let Next.js encode the JSON string
+    response.cookies.set("user_data", JSON.stringify(cleanedUserData), {
       httpOnly: false,
       secure: true,
       sameSite: "lax",
@@ -49,6 +60,7 @@ export async function POST(request) {
     console.error("❌ Refresh error:", err);
 
     const response = NextResponse.json({ message: "Refresh failed" }, { status: 401 });
+
     response.cookies.delete("access_token");
     response.cookies.delete("refresh_token");
     response.cookies.delete("user_data");
