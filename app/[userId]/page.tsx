@@ -1,9 +1,5 @@
 import ClientUserProfile from "./ClientUserProfile";
 
-interface Props {
-  params: { userId: string };
-}
-
-export default function Page({ params }: Props) {
+export default function Page({ params }) {
   return <ClientUserProfile userId={params.userId} />;
 }
