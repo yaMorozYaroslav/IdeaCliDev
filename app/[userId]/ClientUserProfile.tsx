@@ -189,7 +189,7 @@ export default function ClientUserProfile({ userId: profileUserId }) {
 {q.answer && (
   <div style={{ marginTop: "1rem", paddingLeft: "1rem", borderLeft: "3px solid #333" }}>
     <p>💬 {q.answer}</p>
-    <p style={{ fontSize: "0.8em", color: "#999" }}>— by {user?.name || "Anonymous"}</p>
+    <p style={{ fontSize: "0.8em", color: "#999" }}>— {user?.name || "Anonymous"}</p>
   </div>
 )}
 

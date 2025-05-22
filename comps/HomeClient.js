@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Questions from "/comps/quests/Quests";
+import { getUserFromCookies } from "../utils/getUserFromCookies";
 
 const Container = styled.div`
   display: flex;
@@ -25,7 +26,7 @@ const Container = styled.div`
 `;
 
 const WelcomeMessage = styled.h1`
-  margin-top: ${(props) => (props.$first ? "15px;" : "-20px;")};
+  margin-top: ${(props) => (props.$first ? "15px" : "-20px")};
   font-size: 32px;
   color: white;
 
@@ -37,29 +38,9 @@ const WelcomeMessage = styled.h1`
 export default function HomeClient() {
   const [user, setUser] = useState(null);
 
-  // ✅ useEffect goes directly inside the component body
   useEffect(() => {
-    try {
-      const cookies = document.cookie;
-      console.log("🍪 Raw cookies:", cookies);
-
-      const match = cookies.match(/(?:^|;\s*)user_data=([^;]*)/);
-      if (!match) {
-        console.warn("⚠️ user_data cookie not found.");
-        return;
-      }
-
-      const once = decodeURIComponent(match[1]);
-      const twice = decodeURIComponent(once);
-      console.log("🔁 Decoded twice:", twice);
-
-      const user = JSON.parse(twice);
-      console.log("✅ Parsed user:", user);
-
-      setUser(user);
-    } catch (err) {
-      console.error("🔥 Failed to decode and parse user_data:", err);
-    }
+    const userFromCookie = getUserFromCookies();
+    setUser(userFromCookie);
   }, []);
 
   return (
