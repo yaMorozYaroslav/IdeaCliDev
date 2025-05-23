@@ -11,7 +11,6 @@ export default function ClientUserProfile({ userId: profileUserId }) {
   const [isOwner, setIsOwner] = useState(false);
   const [currentUserId, setCurrentUserId] = useState("pending");
 
-  // 🍪 Load user_data cookie
   const getCurrentUserIdFromCookie = () => {
     try {
       const cookie = document.cookie
@@ -27,7 +26,6 @@ export default function ClientUserProfile({ userId: profileUserId }) {
     }
   };
 
-  // 🔄 Re-check user cookie every 2 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       const newId = getCurrentUserIdFromCookie();
@@ -36,7 +34,6 @@ export default function ClientUserProfile({ userId: profileUserId }) {
     return () => clearInterval(interval);
   }, []);
 
-  // 📦 Re-fetch profile if current user or profile changes
   useEffect(() => {
     if (currentUserId !== "pending") {
       fetchProfileData();
@@ -45,18 +42,25 @@ export default function ClientUserProfile({ userId: profileUserId }) {
 
   const fetchProfileData = async () => {
     try {
-      const res = await fetch(`${getBaseUrl}/google/public/${profileUserId}`, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({ requesterId: currentUserId }), // <-- From cookie or state
-});
+      const res = await fetch(`${getBaseUrl()}/google/public/${profileUserId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ requesterId: currentUserId }),
+      });
 
+      const text = await res.text();
+      let data;
 
-      if (!res.ok) throw new Error("Failed to load user profile");
+      try {
+        data = JSON.parse(text);
+      } catch {
+        console.error("❌ Not JSON:", text);
+        return;
+      }
 
-      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to load user profile");
 
       setUser({
         name: data.name,
@@ -80,11 +84,7 @@ export default function ClientUserProfile({ userId: profileUserId }) {
     const res = await fetch(`${getBaseUrl()}/personal/answer/${questionId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        content,
-        userId: user?.googleId,
-      }),
-      credentials: "include",
+      body: JSON.stringify({ content, userId: user?.googleId }),
     });
 
     if (res.ok) {
@@ -98,7 +98,6 @@ export default function ClientUserProfile({ userId: profileUserId }) {
   const handleDeleteQuestion = async (questionId) => {
     const res = await fetch(`${getBaseUrl()}/personal/${questionId}`, {
       method: "DELETE",
-      credentials: "include",
     });
 
     if (res.ok) {
@@ -116,7 +115,6 @@ export default function ClientUserProfile({ userId: profileUserId }) {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId: user?.googleId }),
-      credentials: "include",
     });
 
     if (res.ok) {
@@ -142,14 +140,12 @@ export default function ClientUserProfile({ userId: profileUserId }) {
 
   return (
     <div style={{ padding: "2rem", marginTop: "100px" }}>
-      {/* 🔘 Ask button visible to non-owner */}
       {!isOwner && profileUserId && (
         <div style={{ marginBottom: "2rem" }}>
           <AskPersonalButton recipientUserId={profileUserId} />
         </div>
       )}
 
-      {/* 👤 Profile Info */}
       {user && (
         <div style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "1rem" }}>
           {user.picture && (
@@ -159,7 +155,6 @@ export default function ClientUserProfile({ userId: profileUserId }) {
         </div>
       )}
 
-      {/* ❓ Unanswered questions — only for profile owner */}
       {isOwner && (
         <>
           <h2>Unanswered Questions</h2>
@@ -181,7 +176,6 @@ export default function ClientUserProfile({ userId: profileUserId }) {
         </>
       )}
 
-      {/* ✅ Answered questions */}
       <h2>Answered Questions</h2>
       {answered.length === 0 && <p>No answered questions</p>}
       {answered.map((q) =>
@@ -190,13 +184,12 @@ export default function ClientUserProfile({ userId: profileUserId }) {
             <p><strong>{q.title}</strong></p>
             <p style={{ fontSize: "0.9em", color: "#666" }}>by {q.authorName}</p>
 
-{q.answer && (
-  <div style={{ marginTop: "1rem", paddingLeft: "1rem", borderLeft: "3px solid #333" }}>
-    <p>💬 {q.answer}</p>
-    <p style={{ fontSize: "0.8em", color: "#999" }}>— {user?.name || "Anonymous"}</p>
-  </div>
-)}
-
+            {q.answer && (
+              <div style={{ marginTop: "1rem", paddingLeft: "1rem", borderLeft: "3px solid #333" }}>
+                <p>💬 {q.answer}</p>
+                <p style={{ fontSize: "0.8em", color: "#999" }}>— {user?.name || "Anonymous"}</p>
+              </div>
+            )}
 
             {canDeleteQuestion(q) && (
               <button onClick={() => handleDeleteQuestion(q._id)}>Delete Question</button>
