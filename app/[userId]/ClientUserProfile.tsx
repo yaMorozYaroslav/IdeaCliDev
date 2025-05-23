@@ -45,10 +45,14 @@ export default function ClientUserProfile({ userId: profileUserId }) {
 
   const fetchProfileData = async () => {
     try {
-      const res = await fetch(`${getBaseUrl()}/google/public/${profileUserId}`, {
-        cache: "no-store",
-        credentials: "include",
-      });
+      const res = await fetch(`${baseUrl}/google/public/${profileUserId}`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ requesterId: currentUserId }), // <-- From cookie or state
+});
+
 
       if (!res.ok) throw new Error("Failed to load user profile");
 
