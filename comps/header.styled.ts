@@ -3,26 +3,28 @@ import Link from "next/link";
 
 export const HeaderContainer = styled.header<{ $isVisible: boolean }>`
   position: fixed;
-  top: 0;
-  width: 100%;
-  background: white;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transform: ${({ $isVisible }) => ($isVisible ? "translateY(0)" : "translateY(-100%)")};
-  transition: transform 0.3s ease;
+  top: ${({ $isVisible }) => ($isVisible ? "0" : "-100px")};
+  width: 102%;
+  background-color: #001f3f; /* ✅ Dark navy background */
+  color: white;
+  margin-left:-2%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
+  transition: top 0.3s ease-in-out;
+  @media (max-width: 400px) {margin-left:-3%;}
 `;
 
 export const FlexWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 0.5rem 1rem; /* smaller padding for small screens */
+  padding: 0.5rem 1rem;
   gap: 1rem;
 
   @media (min-width: 768px) {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem 2rem; /* normal spacing on larger screens */
+    padding: 1rem 2rem;
   }
 `;
 
@@ -33,14 +35,16 @@ export const TopRow = styled.div`
   width: 40%;
   flex-shrink: 0;
   overflow: hidden;
+
   @media (max-width: 768px) {
-    width:100%;
+    width: 100%;
   }
 `;
+
 export const BottomRow = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between; /* split left (user) and right (burger) */
+  justify-content: space-between;
   width: 100%;
   gap: 0.75rem;
   flex-wrap: nowrap;
@@ -51,26 +55,27 @@ export const BottomRow = styled.div`
 export const LogoContainer = styled.div`
   display: flex;
   align-items: center;
-  gap: 0.4rem; /* closer spacing between icon and title */
+  gap: 0.4rem;
   flex-shrink: 0;
 
   h1 {
     margin: 0;
     font-size: 1.2rem;
     white-space: nowrap;
+    color: white;
   }
 
   @media (min-width: 768px) {
-    gap: 0.75rem; /* restore normal gap on desktop */
+    gap: 0.75rem;
   }
 `;
-
 
 export const LogoImage = styled.img`
   height: 50px;
   width: auto;
   flex-shrink: 0;
 `;
+
 export const BurgerMobile = styled.div`
   display: flex;
   align-items: center;
@@ -79,18 +84,17 @@ export const BurgerMobile = styled.div`
     display: none;
   }
 `;
+
 export const BurgerDesktop = styled.div`
   display: none;
 
   @media (min-width: 768px) {
-    margin-right:45%;
+    margin-right: 45%;
     display: flex;
     align-items: center;
     flex-shrink: 0;
-    
   }
 `;
-
 
 export const MenuButton = styled.button`
   background: none;
@@ -98,7 +102,7 @@ export const MenuButton = styled.button`
   font-size: 1.5rem;
   cursor: pointer;
   z-index: 1001;
-  color: inherit;
+  color: white;
   display: flex;
   align-items: center;
 
@@ -106,6 +110,7 @@ export const MenuButton = styled.button`
     opacity: 0.8;
   }
 `;
+
 export const UserContainer = styled.div`
   display: flex;
   align-items: center;
@@ -116,22 +121,26 @@ export const UserContainer = styled.div`
   white-space: nowrap;
 `;
 
-
 export const UserName = styled.span`
   font-weight: 600;
   white-space: nowrap;
-  margin-right:5%;
+  margin-right: 5%;
+  color: white;
 `;
+
 export const UserNameLink = styled.a`
-  max-width: 120px; // or whatever width fits your layout
+  max-width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   display: inline-block;
   vertical-align: middle;
+  color: white;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
-
-
 
 export const UserAvatar = styled.img`
   width: 36px;
@@ -141,7 +150,7 @@ export const UserAvatar = styled.img`
 `;
 
 export const AuthButton = styled.button`
-  background: #0070f3;
+  background: #0052cc;
   color: white;
   padding: 0.4rem 0.75rem;
   border: none;
@@ -153,7 +162,7 @@ export const AuthButton = styled.button`
   position: relative;
 
   &:hover {
-    background: #005ad1;
+    background: #0066ff;
   }
 
   &:disabled {
@@ -175,7 +184,6 @@ export const AuthButton = styled.button`
     }
   }
 `;
-
 
 export const MenuDropdownFixed = styled.div`
   position: absolute;
