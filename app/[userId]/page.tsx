@@ -1,7 +1,12 @@
-import ClientUserProfile from "./ClientUserProfile";
+import ClientUserProfile from './ClientUserProfile';
 
-export default async function Page({ params }: { params: { userId: string } }) {
-  const userId = params.userId.toString(); // safe access
+type Props = {
+  params: {
+    userId: string;
+  };
+};
 
+export default async function Page({ params }: Props) {
+  const userId = params.userId;
   return <ClientUserProfile userId={userId} />;
 }
