@@ -1,12 +1,5 @@
-import ClientUserProfile from './ClientUserProfile';
+import ClientUserProfile from "./ClientUserProfile";
 
-type Props = {
-  params: {
-    userId: string;
-  };
-};
-
-export default async function Page({ params }: Props) {
-  const userId = params.userId;
-  return <ClientUserProfile userId={userId} />;
+export default function Page({ params }: { params: any }) {
+  return <ClientUserProfile userId={params.userId} />;
 }
