@@ -96,8 +96,13 @@ export default function ClientUserProfile({ userId: profileUserId }) {
   };
 
   const handleDeleteQuestion = async (questionId) => {
+  try {
     const res = await fetch(`${getBaseUrl()}/personal/${questionId}`, {
       method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId: user?.googleId }), // ✅ Send userId explicitly
     });
 
     if (res.ok) {
@@ -108,7 +113,11 @@ export default function ClientUserProfile({ userId: profileUserId }) {
       console.error(`❌ Failed to delete question (${res.status}):`, error);
       alert(`Failed to delete question: ${res.status}\n${error}`);
     }
-  };
+  } catch (err) {
+    console.error("❌ Delete request failed:", err);
+  }
+};
+
 
   const handleDeleteAnswer = async (questionId, answerId) => {
     const res = await fetch(`${getBaseUrl()}/questions/${questionId}/answers/${answerId}`, {
