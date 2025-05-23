@@ -45,7 +45,7 @@ export default function ClientUserProfile({ userId: profileUserId }) {
 
   const fetchProfileData = async () => {
     try {
-      const res = await fetch(`${baseUrl}/google/public/${profileUserId}`, {
+      const res = await fetch(`${getBaseUrl}/google/public/${profileUserId}`, {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
