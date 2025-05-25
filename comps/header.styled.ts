@@ -4,14 +4,16 @@ import Link from "next/link";
 export const HeaderContainer = styled.header<{ $isVisible: boolean }>`
   position: fixed;
   top: ${({ $isVisible }) => ($isVisible ? "0" : "-100px")};
-  width: 102%;
-  background-color: #001f3f; /* ✅ Dark navy background */
+  left: 0;
+  right: 0;
+  width: 100%;
+  background-color: #001f3f;
   color: white;
-  margin-left:-2%;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   transition: top 0.3s ease-in-out;
-  @media (max-width: 400px) {margin-left:-3%;}
+  overflow-x: hidden;        /* ✅ prevent pushing content */
+  max-width: 100vw;          /* ✅ hard limit width */
 `;
 
 export const FlexWrapper = styled.div`
@@ -19,6 +21,9 @@ export const FlexWrapper = styled.div`
   flex-direction: column;
   padding: 0.5rem 1rem;
   gap: 1rem;
+  margin: 0;
+  max-width: 100%;
+  overflow-x: hidden;
 
   @media (min-width: 768px) {
     flex-direction: row;
@@ -44,12 +49,10 @@ export const TopRow = styled.div`
 export const BottomRow = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   width: 100%;
-  gap: 0.75rem;
-  flex-wrap: nowrap;
-  flex-shrink: 0;
-  min-width: 0;
+  gap: 1rem;
+  overflow: hidden;
 `;
 
 export const LogoContainer = styled.div`
@@ -60,18 +63,32 @@ export const LogoContainer = styled.div`
 
   h1 {
     margin: 0;
-    font-size: 1.2rem;
+    font-size: 1.8rem;
     white-space: nowrap;
     color: white;
   }
 
-  @media (min-width: 768px) {
+  @media (max-width: 768px) {
     gap: 0.75rem;
+
+    h1 {
+      font-size: 2rem;
+    }
+  }
+
+  @media (max-width: 400px) {
+    gap: 0.3rem;
+    padding-right:2%;
+
+    h1 {
+      font-size: 1.3rem;
+    }
   }
 `;
 
+
 export const LogoImage = styled.img`
-  height: 50px;
+  height: 85px;
   width: auto;
   flex-shrink: 0;
 `;
@@ -89,10 +106,11 @@ export const BurgerDesktop = styled.div`
   display: none;
 
   @media (min-width: 768px) {
-    margin-right: 45%;
     display: flex;
     align-items: center;
-    flex-shrink: 0;
+    justify-content: flex-end;
+    position: relative;
+    margin-left: auto;  // ✅ Push to far right inside flex container
   }
 `;
 
@@ -186,14 +204,23 @@ export const AuthButton = styled.button`
 `;
 
 export const MenuDropdownFixed = styled.div`
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 2rem;
+  position: fixed;
+  top: 90px; /* Adjust depending on header height */
+  right: 16px;
   background: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-radius: 0.5rem;
+  color: black;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
   overflow: hidden;
-  z-index: 2000;
+  z-index: 9999;
+  min-width: 160px;
+  max-width: 90vw;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    top: 80px;
+    right: 24px;
+  }
 `;
 
 export const MenuItem = styled.div`

@@ -148,7 +148,12 @@ export default function ClientUserProfile({ userId: profileUserId }) {
   };
 
   return (
-    <div style={{ padding: "2rem", marginTop: "100px" }}>
+    <div
+  style={{
+    padding: "2rem",
+    marginTop: window.innerWidth < 800 ? "140px" : "100px", // 📱 dynamic top margin
+  }}
+>
       {!isOwner && profileUserId && (
         <div style={{ marginBottom: "2rem" }}>
           <AskPersonalButton recipientUserId={profileUserId} />
