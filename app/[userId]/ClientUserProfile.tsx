@@ -2,215 +2,99 @@
 
 import { useEffect, useState } from "react";
 import getBaseUrl from "../../lib/getBaseUrl";
-import AskPersonalButton from "./AskPersonalButton";
+import AskPersonalWrapper from "./AskPersonalWrapper";
+import ProfileHeader from "./ProfileHeader";
+import UnansweredList from "./UnansweredList";
+import AnsweredList from "./AnsweredList";
 
-export default function ClientUserProfile({ userId: profileUserId }) {
-  const [user, setUser] = useState(null);
-  const [unanswered, setUnanswered] = useState([]);
+export default function ClientUserProfile({
+  userId: profileUserId,
+  user,
+  initialUnanswered = [],
+}: {
+  userId: string;
+  user: any;
+  initialUnanswered?: any[];
+}) {
   const [answered, setAnswered] = useState([]);
+  const [unanswered, setUnanswered] = useState(initialUnanswered);
+  const [loadingAnswers, setLoadingAnswers] = useState(true);
   const [isOwner, setIsOwner] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState("pending");
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  const getCurrentUserIdFromCookie = () => {
-    try {
-      const cookie = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("user_data="));
-      if (!cookie) return null;
-
-      const raw = decodeURIComponent(cookie.split("=")[1]);
-      const parsed = JSON.parse(raw);
-      return parsed?.userId || null;
-    } catch {
-      return null;
-    }
-  };
-
+  // 🍪 Check cookie to detect viewer identity
   useEffect(() => {
-    const interval = setInterval(() => {
-      const newId = getCurrentUserIdFromCookie();
-      setCurrentUserId((prev) => (prev !== newId ? newId : prev));
-    }, 2000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    if (currentUserId !== "pending") {
-      fetchProfileData();
-    }
-  }, [currentUserId, profileUserId]);
-
-  const fetchProfileData = async () => {
-    try {
-      const res = await fetch(`${getBaseUrl()}/google/public/${profileUserId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ requesterId: currentUserId }),
-      });
-
-      const text = await res.text();
-      let data;
-
+    const cookie = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("user_data="));
+    if (cookie) {
       try {
-        data = JSON.parse(text);
+        const raw = decodeURIComponent(cookie.split("=")[1]);
+        const parsed = JSON.parse(raw);
+        const id = parsed?.userId || null;
+        setCurrentUserId(id);
+        setIsOwner(id === profileUserId);
       } catch {
-        console.error("❌ Not JSON:", text);
-        return;
+        setCurrentUserId(null);
       }
-
-      if (!res.ok) throw new Error(data.message || "Failed to load user profile");
-
-      setUser({
-        name: data.name,
-        picture: data.picture,
-        googleId: data.googleId,
-        status: data.status,
-      });
-
-      setAnswered((data.answered || []).filter((q) => q?.title));
-      setUnanswered((data.unanswered || []).filter((q) => q?.title));
-      setIsOwner(currentUserId === profileUserId);
-    } catch (err) {
-      console.error("❌ Error loading profile:", err);
     }
-  };
+  }, [profileUserId]);
 
-  const handleAnswer = async (questionId) => {
-    const content = prompt("Your answer:");
-    if (!content) return;
+  // 🎯 Fetch answered on mount
+  useEffect(() => {
+    const fetchAnswered = async () => {
+      setLoadingAnswers(true);
+      try {
+        const res = await fetch(`${getBaseUrl()}/google/public/${profileUserId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ requesterId: currentUserId }),
+        });
 
-    const res = await fetch(`${getBaseUrl()}/personal/answer/${questionId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content, userId: user?.googleId }),
-    });
+        const text = await res.text();
+        const data = JSON.parse(text);
 
-    if (res.ok) {
-      await fetchProfileData();
-    } else {
-      const err = await res.json();
-      alert(`❌ Failed to answer: ${err.message}`);
-    }
-  };
+        if (res.ok) {
+          setAnswered((data.answered || []).filter((q: any) => q?.title));
+        }
+      } catch (err) {
+        console.error("❌ Failed to load answered:", err);
+      } finally {
+        setLoadingAnswers(false);
+      }
+    };
 
-  const handleDeleteQuestion = async (questionId) => {
-  try {
-    const res = await fetch(`${getBaseUrl()}/personal/${questionId}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ userId: user?.googleId }), // ✅ Send userId explicitly
-    });
-
-    if (res.ok) {
-      setUnanswered((prev) => prev.filter((q) => q._id !== questionId));
-      setAnswered((prev) => prev.filter((q) => q._id !== questionId));
-    } else {
-      const error = await res.text();
-      console.error(`❌ Failed to delete question (${res.status}):`, error);
-      alert(`Failed to delete question: ${res.status}\n${error}`);
-    }
-  } catch (err) {
-    console.error("❌ Delete request failed:", err);
-  }
-};
-
-
-  const handleDeleteAnswer = async (questionId, answerId) => {
-    const res = await fetch(`${getBaseUrl()}/questions/${questionId}/answers/${answerId}`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: user?.googleId }),
-    });
-
-    if (res.ok) {
-      await fetchProfileData();
-    }
-  };
-
-  const canDeleteQuestion = (q) => {
-    return (
-      q?.authorId === user?.googleId ||
-      isOwner ||
-      user?.status === "admin"
-    );
-  };
-
-  const canDeleteAnswer = (a) => {
-    return (
-      a?.authorId === user?.googleId ||
-      isOwner ||
-      user?.status === "admin"
-    );
-  };
+    if (currentUserId !== null) fetchAnswered();
+  }, [profileUserId, currentUserId]);
 
   return (
     <div
-  style={{
-    padding: "2rem",
-    marginTop: window.innerWidth < 800 ? "140px" : "100px", // 📱 dynamic top margin
-  }}
->
-      {!isOwner && profileUserId && (
-        <div style={{ marginBottom: "2rem" }}>
-          <AskPersonalButton recipientUserId={profileUserId} />
-        </div>
+      style={{
+        padding: "2rem",
+        marginTop: typeof window !== "undefined" && window.innerWidth < 800 ? "140px" : "100px",
+      }}
+    >
+      {currentUserId && currentUserId !== profileUserId && (
+        <AskPersonalWrapper recipientUserId={profileUserId} />
       )}
 
-      {user && (
-        <div style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "1rem" }}>
-          {user.picture && (
-            <img src={user.picture} alt={user.name} style={{ width: 48, height: 48, borderRadius: "50%" }} />
-          )}
-          <strong>{user.name}</strong>
-        </div>
-      )}
+      {user && <ProfileHeader user={user} />}
 
-      {isOwner && (
-        <>
-          <h2>Unanswered Questions</h2>
-          {unanswered.length === 0 && <p>No unanswered questions</p>}
-          {unanswered.map((q) =>
-            q?.title ? (
-              <div key={q._id} style={{ border: "1px solid #ccc", padding: "1rem", marginBottom: "1rem" }}>
-                <p><strong>{q.title}</strong></p>
-                <p style={{ fontSize: "0.9em", color: "#666" }}>by {q.authorName}</p>
+      <UnansweredList
+        unanswered={unanswered}
+        user={user}
+        isOwner={isOwner}
+        onDelete={() => {}}
+        onAnswered={() => {}}
+      />
 
-                <button onClick={() => handleAnswer(q._id)}>Answer</button>
-
-                {canDeleteQuestion(q) && (
-                  <button onClick={() => handleDeleteQuestion(q._id)}>Delete Question</button>
-                )}
-              </div>
-            ) : null
-          )}
-        </>
-      )}
-
-      <h2>Answered Questions</h2>
-      {answered.length === 0 && <p>No answered questions</p>}
-      {answered.map((q) =>
-        q?.title ? (
-          <div key={q._id} style={{ border: "1px solid #ccc", padding: "1rem", marginBottom: "1rem" }}>
-            <p><strong>{q.title}</strong></p>
-            <p style={{ fontSize: "0.9em", color: "#666" }}>by {q.authorName}</p>
-
-            {q.answer && (
-              <div style={{ marginTop: "1rem", paddingLeft: "1rem", borderLeft: "3px solid #333" }}>
-                <p>💬 {q.answer}</p>
-                <p style={{ fontSize: "0.8em", color: "#999" }}>— {user?.name || "Anonymous"}</p>
-              </div>
-            )}
-
-            {canDeleteQuestion(q) && (
-              <button onClick={() => handleDeleteQuestion(q._id)}>Delete Question</button>
-            )}
-          </div>
-        ) : null
-      )}
+      <AnsweredList
+        answered={answered}
+        user={user}
+        isOwner={isOwner}
+        loading={loadingAnswers}
+        onDelete={() => {}}
+      />
     </div>
   );
 }
