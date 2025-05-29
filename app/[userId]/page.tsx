@@ -1,8 +1,8 @@
 // ✅ app/[userId]/page.tsx
 import ClientUserProfile from "./ClientUserProfile";
 import { cookies } from "next/headers";
-import getUser from "/lib/getUser";
-import getBaseUrl from "/lib/getBaseUrl";
+import getUser from "../../lib/getUser";
+import getBaseUrl from "../../lib/getBaseUrl";
 
 export default async function Page(props: { params: { userId: string } }) {
   const { userId } = await props.params;
