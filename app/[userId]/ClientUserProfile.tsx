@@ -6,6 +6,7 @@ import AskPersonalWrapper from "./AskPersonalWrapper";
 import ProfileHeader from "./ProfileHeader";
 import UnansweredList from "./UnansweredList";
 import AnsweredList from "./AnsweredList";
+import styled from "styled-components";
 
 export default function ClientUserProfile({
   userId: profileUserId,
@@ -27,74 +28,95 @@ export default function ClientUserProfile({
     const cookie = document.cookie
       .split("; ")
       .find((row) => row.startsWith("user_data="));
+
     if (cookie) {
       try {
         const raw = decodeURIComponent(cookie.split("=")[1]);
         const parsed = JSON.parse(raw);
-        const id = parsed?.userId || null;
-        setCurrentUserId(id);
-        setIsOwner(id === profileUserId);
+        const userIdFromCookie = parsed?.userId;
+
+        setCurrentUserId(userIdFromCookie);
+        setIsOwner(userIdFromCookie === profileUserId);
       } catch {
+        setIsOwner(false);
         setCurrentUserId(null);
       }
+    } else {
+      setIsOwner(false);
+      setCurrentUserId(null);
     }
-  }, [profileUserId]);
+  }, []);
 
-  // 🎯 Fetch answered on mount
+  // 🧠 Fetch answered questions after short delay
   useEffect(() => {
     const fetchAnswered = async () => {
       setLoadingAnswers(true);
+      await new Promise((res) => setTimeout(res, 300)); // ⏱️ delay before fetch
+
       try {
         const res = await fetch(`${getBaseUrl()}/google/public/${profileUserId}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ requesterId: currentUserId }),
+          method: "POST", // ✅ line 55: fixed method
         });
-
-        const text = await res.text();
-        const data = JSON.parse(text);
-
-        if (res.ok) {
-          setAnswered((data.answered || []).filter((q: any) => q?.title));
-        }
+        const data = await res.json();
+        setAnswered(data?.answered || []);
       } catch (err) {
-        console.error("❌ Failed to load answered:", err);
+        console.error("❌ Failed to load answered questions:", err);
+        setAnswered([]);
       } finally {
         setLoadingAnswers(false);
       }
     };
 
-    if (currentUserId !== null) fetchAnswered();
-  }, [profileUserId, currentUserId]);
+    fetchAnswered();
+  }, [profileUserId]);
 
-  return (
-    <div
-      style={{
-        padding: "2rem",
-        marginTop: typeof window !== "undefined" && window.innerWidth < 800 ? "140px" : "100px",
-      }}
-    >
-      {currentUserId && currentUserId !== profileUserId && (
-        <AskPersonalWrapper recipientUserId={profileUserId} />
-      )}
+  // 🔄 Watch for logout and clear unanswered list
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const hasCookie = document.cookie
+        .split("; ")
+        .some((c) => c.startsWith("user_data="));
+      if (!hasCookie) {
+        setIsOwner(false);
+        setUnanswered([]); // Clear personal data
+      }
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
-      {user && <ProfileHeader user={user} />}
+    return (
+  <ContentWrapper>
+    <ProfileHeader user={user} isOwner={isOwner} />
+    <AskPersonalWrapper
+      profileUserId={profileUserId}
+      currentUserId={currentUserId}
+      isOwner={isOwner}
+    />
+    <UnansweredList
+      unanswered={unanswered}
+      user={user}
+      isOwner={isOwner}
+      onDelete={() => setUnanswered((prev) => [...prev])}
+      onAnswered={() =>
+        setUnanswered((prev) => prev.filter((q) => q.status !== "answered"))
+      }
+    />
+    {loadingAnswers ? (
+      <Spinner>Loading answered...</Spinner>
+    ) : (
+      <AnsweredList answered={answered} user={user} />
+    )}
+  </ContentWrapper>
+);
 
-      <UnansweredList
-        unanswered={unanswered}
-        user={user}
-        isOwner={isOwner}
-        onDelete={() => {}}
-        onAnswered={() => {}}
-      />
-
-      <AnsweredList
-        answered={answered}
-        user={user}
-        isOwner={isOwner}
-        loading={loadingAnswers}
-        onDelete={() => {}}
-      />
-    </div>
-  );
 }
+
+const Spinner = styled.div`
+  margin-top: 2rem;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+`;
+const ContentWrapper = styled.div`
+  margin-top: 180px; // Adjust if your header is taller
+`;
