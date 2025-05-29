@@ -5,7 +5,7 @@ import getUser from "/lib/getUser";
 import getBaseUrl from "/lib/getBaseUrl";
 
 export default async function Page(props: { params: { userId: string } }) {
-  const { userId } = props.params;
+  const { userId } = await props.params;
 
   const cookieStore = cookies();
   const cookie = cookieStore.get("user_data");
