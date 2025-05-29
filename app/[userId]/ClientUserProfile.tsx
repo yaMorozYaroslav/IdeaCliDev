@@ -47,7 +47,7 @@ export default function ClientUserProfile({
   useEffect(() => {
     const fetchAnswered = async () => {
       setLoadingAnswers(true);
-      await new Promise((res) => setTimeout(res, 300)); // ⏱️ delay before fetch
+      await new Promise((res) => setTimeout(res, 300));
 
       try {
         const res = await fetch(`${getBaseUrl()}/google/public/${profileUserId}`, {
@@ -74,7 +74,7 @@ export default function ClientUserProfile({
         .some((c) => c.startsWith("user_data="));
       if (!hasCookie) {
         setIsOwner(false);
-        setUnanswered([]); // Clear personal data
+        setUnanswered([]);
       }
     }, 3000);
     return () => clearInterval(interval);
@@ -100,7 +100,13 @@ export default function ClientUserProfile({
       {loadingAnswers ? (
         <Spinner>Loading answered...</Spinner>
       ) : (
-        <AnsweredList answered={answered} user={user} />
+        <AnsweredList
+          answered={answered}
+          user={user}
+          isOwner={isOwner}
+          loading={loadingAnswers}
+          onDelete={() => setAnswered((prev) => [...prev])}
+        />
       )}
     </ContentWrapper>
   );
