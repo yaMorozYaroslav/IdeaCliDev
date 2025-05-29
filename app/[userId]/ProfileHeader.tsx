@@ -3,11 +3,19 @@ interface ProfileHeaderProps {
     name: string;
     picture?: string;
   };
+  isOwner: boolean;
 }
 
-export default function ProfileHeader({ user }: ProfileHeaderProps) {
+export default function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
   return (
-    <div style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+    <div
+      style={{
+        marginBottom: "1rem",
+        display: "flex",
+        alignItems: "center",
+        gap: "1rem",
+      }}
+    >
       {user.picture && (
         <img
           src={user.picture}
@@ -16,6 +24,9 @@ export default function ProfileHeader({ user }: ProfileHeaderProps) {
         />
       )}
       <strong>{user.name}</strong>
+      {isOwner && (
+        <span style={{ fontSize: "0.8rem", color: "#888" }}>(You)</span>
+      )}
     </div>
   );
 }

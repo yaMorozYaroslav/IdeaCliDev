@@ -12,16 +12,12 @@ export default function ClientUserProfile({
   userId: profileUserId,
   user,
   initialUnanswered = [],
-}: {
-  userId: string;
-  user: any;
-  initialUnanswered?: any[];
 }) {
   const [answered, setAnswered] = useState([]);
   const [unanswered, setUnanswered] = useState(initialUnanswered);
   const [loadingAnswers, setLoadingAnswers] = useState(true);
   const [isOwner, setIsOwner] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   // 🍪 Check cookie to detect viewer identity
   useEffect(() => {
