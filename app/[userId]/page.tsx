@@ -3,7 +3,7 @@ import getBaseUrl from "../../lib/getBaseUrl";
 import { getUser } from "../../lib/getUser";
 
 export default async function Page({ params }: { params: { userId: string } }) {
-  const userId = params.userId;
+  const usernameParam = params.userId; // ✅ no await
 
   const requester = await getUser(); // ✅ SSR user (merged from access_token + user_data)
   const requesterId = requester?.userId;
