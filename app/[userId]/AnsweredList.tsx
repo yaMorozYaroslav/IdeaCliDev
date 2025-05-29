@@ -1,4 +1,7 @@
+"use client";
+
 import styled from "styled-components";
+import getBaseUrl from "../../lib/getBaseUrl";
 
 const Spinner = styled.div`
   border: 4px solid #f3f3f3;
@@ -34,7 +37,7 @@ export default function AnsweredList({
     q?.authorId === user?.googleId || isOwner || user?.status === "admin";
 
   const handleDelete = async (questionId: string) => {
-    const res = await fetch(`/personal/${questionId}`, {
+    const res = await fetch(`${getBaseUrl()}/personal/${questionId}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId: user?.googleId }),
