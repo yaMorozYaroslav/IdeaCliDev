@@ -1,15 +1,21 @@
 import AskPersonalButton from "./AskPersonalButton";
 
 interface AskPersonalWrapperProps {
-  recipientUserId: string;
+  profileUserId: string;
+  currentUserId: string | null;
+  isOwner: boolean;
 }
 
-export default function AskPersonalWrapper({ recipientUserId }: AskPersonalWrapperProps) {
-  if (!recipientUserId) return null;
+export default function AskPersonalWrapper({
+  profileUserId,
+  currentUserId,
+  isOwner,
+}: AskPersonalWrapperProps) {
+  if (isOwner || !profileUserId || profileUserId === currentUserId) return null;
 
   return (
     <div style={{ marginBottom: "2rem" }}>
-      <AskPersonalButton recipientUserId={recipientUserId} />
+      <AskPersonalButton recipientUserId={profileUserId} />
     </div>
   );
 }
