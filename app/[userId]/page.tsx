@@ -3,8 +3,8 @@ import { cookies } from "next/headers";
 import { getUser } from "../../lib/getUser";
 import getBaseUrl from "../../lib/getBaseUrl";
 
-export default async function Page({ params }: { params: { userId: string } }) {
-  const { userId } = params;
+export default async function Page({ params }) {
+  const userId = params.userId;
 
   const cookieStore = cookies();
   const cookie = cookieStore.get("user_data");
