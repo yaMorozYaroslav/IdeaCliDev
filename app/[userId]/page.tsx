@@ -6,7 +6,7 @@ import getBaseUrl from "../../lib/getBaseUrl";
 export default async function Page({ params }) {
   const userId = params.userId;
 
-  const cookieStore = cookies();
+  const cookieStore = await cookies(); // ✅ await here
   const cookie = cookieStore.get("user_data");
   let initialUnanswered = [];
 
