@@ -1,22 +1,18 @@
-// ✅ app/[userId]/page.tsx
 import ClientUserProfile from "./ClientUserProfile";
 import { cookies } from "next/headers";
-import getUser from "../../lib/getUser";
+import { getUser } from "../../lib/getUser";
 import getBaseUrl from "../../lib/getBaseUrl";
 
-export default async function Page(props: { params: { userId: string } }) {
-  const { userId } = await props.params;
+export default async function Page({ params }: { params: { userId: string } }) {
+  const { userId } = params;
 
   const cookieStore = cookies();
   const cookie = cookieStore.get("user_data");
   let initialUnanswered = [];
 
-  // ✅ SSR fetch of logged-in user (if available)
   const viewer = await getUser();
-
   const isOwner = viewer?.userId === userId;
 
-  // If viewing own profile, try to fetch unanswered from backend
   if (isOwner) {
     try {
       const baseUrl = getBaseUrl();

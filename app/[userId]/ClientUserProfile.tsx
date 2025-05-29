@@ -55,7 +55,7 @@ export default function ClientUserProfile({
 
       try {
         const res = await fetch(`${getBaseUrl()}/google/public/${profileUserId}`, {
-          method: "POST", // ✅ line 55: fixed method
+          method: "POST",
         });
         const data = await res.json();
         setAnswered(data?.answered || []);
@@ -84,31 +84,30 @@ export default function ClientUserProfile({
     return () => clearInterval(interval);
   }, []);
 
-    return (
-  <ContentWrapper>
-    <ProfileHeader user={user} isOwner={isOwner} />
-    <AskPersonalWrapper
-      profileUserId={profileUserId}
-      currentUserId={currentUserId}
-      isOwner={isOwner}
-    />
-    <UnansweredList
-      unanswered={unanswered}
-      user={user}
-      isOwner={isOwner}
-      onDelete={() => setUnanswered((prev) => [...prev])}
-      onAnswered={() =>
-        setUnanswered((prev) => prev.filter((q) => q.status !== "answered"))
-      }
-    />
-    {loadingAnswers ? (
-      <Spinner>Loading answered...</Spinner>
-    ) : (
-      <AnsweredList answered={answered} user={user} />
-    )}
-  </ContentWrapper>
-);
-
+  return (
+    <ContentWrapper>
+      <ProfileHeader user={user} isOwner={isOwner} />
+      <AskPersonalWrapper
+        profileUserId={profileUserId}
+        currentUserId={currentUserId}
+        isOwner={isOwner}
+      />
+      <UnansweredList
+        unanswered={unanswered}
+        user={user}
+        isOwner={isOwner}
+        onDelete={() => setUnanswered((prev) => [...prev])}
+        onAnswered={() =>
+          setUnanswered((prev) => prev.filter((q) => q.status !== "answered"))
+        }
+      />
+      {loadingAnswers ? (
+        <Spinner>Loading answered...</Spinner>
+      ) : (
+        <AnsweredList answered={answered} user={user} />
+      )}
+    </ContentWrapper>
+  );
 }
 
 const Spinner = styled.div`
@@ -117,6 +116,7 @@ const Spinner = styled.div`
   font-weight: bold;
   font-size: 1.2rem;
 `;
+
 const ContentWrapper = styled.div`
-  margin-top: 180px; // Adjust if your header is taller
+  margin-top: 180px; /* Adjust if your header is taller */
 `;
