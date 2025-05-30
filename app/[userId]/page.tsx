@@ -7,14 +7,14 @@ export default async function Page({ params }) {
   const profileUserId = params.userId;
   const baseUrl = getBaseUrl();
 
-  const cookieStore = cookies();
-  const cookie = cookieStore.get("user_data");
+  const cookieStore = await cookies(); // ✅ await here
+  const rawCookie = cookieStore.get("user_data");
   let viewerUserId = null;
   let viewer = null;
 
-  if (cookie) {
+  if (rawCookie) {
     try {
-      const decoded = jwt.decode(cookie.value);
+      const decoded = jwt.decode(rawCookie.value);
       viewerUserId = decoded?.userId;
       viewer = decoded;
     } catch {}
@@ -25,7 +25,7 @@ export default async function Page({ params }) {
   try {
     const res = await fetch(`${baseUrl}/google/public/${profileUserId}`, {
       method: "POST",
-      headers: { Cookie: cookie?.value ? `user_data=${cookie.value}` : "" },
+      headers: { Cookie: rawCookie?.value ? `user_data=${rawCookie.value}` : "" },
       cache: "no-store",
     });
     if (res.ok) {
@@ -35,7 +35,6 @@ export default async function Page({ params }) {
     console.error("❌ Failed to fetch public profile:", err);
   }
 
-  // 🧠 If viewer is the profile owner, allow viewing unanswered too
   const isOwner = viewerUserId === profileUserId;
   const initialUnanswered = isOwner ? profileUser?.unanswered || [] : [];
 
