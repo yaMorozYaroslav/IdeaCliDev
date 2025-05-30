@@ -23,7 +23,7 @@ export default function ClientUserProfile({
   const [isOwner, setIsOwner] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  // 🍪 Check cookie to detect viewer identity
+  // 🍪 Check user_data cookie only if it exists
   useEffect(() => {
     const cookie = document.cookie
       .split("; ")
@@ -35,28 +35,37 @@ export default function ClientUserProfile({
         const parsed = JSON.parse(raw);
         const userIdFromCookie = parsed?.userId;
 
-        setCurrentUserId(userIdFromCookie);
-        setIsOwner(userIdFromCookie === profileUserId);
+        if (userIdFromCookie) {
+          setCurrentUserId(userIdFromCookie);
+          setIsOwner(userIdFromCookie === profileUserId);
+          return;
+        }
       } catch {
-        setIsOwner(false);
-        setCurrentUserId(null);
+        // fail silently and fall through to anonymous
       }
-    } else {
-      setIsOwner(false);
-      setCurrentUserId(null);
     }
+
+    // fallback if no cookie or parse failed
+    setCurrentUserId(null);
+    setIsOwner(false);
   }, [profileUserId]);
 
-  // 🧠 Fetch answered questions after short delay
+  // 🧠 Fetch answered questions from backend
   useEffect(() => {
     const fetchAnswered = async () => {
       setLoadingAnswers(true);
       await new Promise((res) => setTimeout(res, 300));
 
       try {
-        const res = await fetch(`${getBaseUrl()}/google/public/${profileUserId}`, {
-          method: "POST",
-        });
+        const res = await fetch(
+          `${getBaseUrl()}/google/public/${profileUserId}?requesterId=${currentUserId ?? ""}`,
+          { cache: "no-store" }
+        );
+
+        if (!res.ok) {
+          throw new Error(`Status ${res.status}`);
+        }
+
         const data = await res.json();
         setAnswered(data?.answered || []);
       } catch (err) {
@@ -68,9 +77,9 @@ export default function ClientUserProfile({
     };
 
     fetchAnswered();
-  }, [profileUserId]);
+  }, [profileUserId, currentUserId]);
 
-  // 🔄 Watch for logout and clear unanswered list
+  // 🔄 Watch for logout to clear personal data
   useEffect(() => {
     const interval = setInterval(() => {
       const hasCookie = document.cookie
@@ -79,8 +88,10 @@ export default function ClientUserProfile({
       if (!hasCookie) {
         setIsOwner(false);
         setUnanswered([]);
+        setCurrentUserId(null);
       }
     }, 3000);
+
     return () => clearInterval(interval);
   }, []);
 
@@ -131,5 +142,5 @@ const Spinner = styled.div`
 `;
 
 const ContentWrapper = styled.div`
-  margin-top: 180px; /* Adjust if your header is taller */
+  margin-top: 180px;
 `;
