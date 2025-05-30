@@ -28,7 +28,7 @@ interface AnsweredListProps {
   user: any;
   isOwner: boolean;
   loading: boolean;
-  onDelete: () => void;
+  onDelete: (id: string) => void;
 }
 
 export default function AnsweredList({
@@ -68,8 +68,8 @@ export default function AnsweredList({
       body: JSON.stringify({ userId: currentUserId }),
     });
 
-    if (res.ok) {
-      onDelete();
+    if (res.ok) if (res.ok) {
+      onDelete(questionId);
     } else {
       const error = await res.text();
       alert(`Failed to delete question: ${res.status}\n${error}`);

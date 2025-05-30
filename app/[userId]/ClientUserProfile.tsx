@@ -101,12 +101,14 @@ export default function ClientUserProfile({
         <Spinner>Loading answered...</Spinner>
       ) : (
         <AnsweredList
-          answered={answered}
-          user={user}
-          isOwner={isOwner}
-          loading={loadingAnswers}
-          onDelete={() => setAnswered((prev) => [...prev])}
-        />
+              answered={answered}
+              user={user}
+              isOwner={isOwner}
+              loading={loadingAnswers}
+              onDelete={(id) => setAnswered((prev) =>
+				                       prev.filter((q) => q._id !== id))}
+            />
+            
       )}
     </ContentWrapper>
   );
