@@ -1,41 +1,48 @@
 import ClientUserProfile from "./ClientUserProfile";
 import { cookies } from "next/headers";
-import { getUser } from "../../lib/getUser";
 import getBaseUrl from "../../lib/getBaseUrl";
+import jwt from "jsonwebtoken";
 
 export default async function Page({ params }) {
-  const userId = params.userId;
+  const profileUserId = params.userId;
+  const baseUrl = getBaseUrl();
 
-  const cookieStore = await cookies(); // ✅ await here
+  const cookieStore = cookies();
   const cookie = cookieStore.get("user_data");
-  let initialUnanswered = [];
+  let viewerUserId = null;
+  let viewer = null;
 
-  const viewer = await getUser();
-  const isOwner = viewer?.userId === userId;
-
-  if (isOwner) {
+  if (cookie) {
     try {
-      const baseUrl = getBaseUrl();
-      const res = await fetch(`${baseUrl}/personal/unanswered/${userId}`, {
-        headers: {
-          Cookie: `user_data=${cookie?.value ?? ""}`,
-        },
-        cache: "no-store",
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        initialUnanswered = data || [];
-      }
-    } catch (err) {
-      console.error("⚠️ Failed to fetch SSR unanswered:", err);
-    }
+      const decoded = jwt.decode(cookie.value);
+      viewerUserId = decoded?.userId;
+      viewer = decoded;
+    } catch {}
   }
+
+  // 📥 Fetch public user profile (name, picture, answered)
+  let profileUser = null;
+  try {
+    const res = await fetch(`${baseUrl}/google/public/${profileUserId}`, {
+      method: "POST",
+      headers: { Cookie: cookie?.value ? `user_data=${cookie.value}` : "" },
+      cache: "no-store",
+    });
+    if (res.ok) {
+      profileUser = await res.json();
+    }
+  } catch (err) {
+    console.error("❌ Failed to fetch public profile:", err);
+  }
+
+  // 🧠 If viewer is the profile owner, allow viewing unanswered too
+  const isOwner = viewerUserId === profileUserId;
+  const initialUnanswered = isOwner ? profileUser?.unanswered || [] : [];
 
   return (
     <ClientUserProfile
-      userId={userId}
-      user={viewer}
+      userId={profileUserId}
+      user={profileUser}
       initialUnanswered={initialUnanswered}
     />
   );
