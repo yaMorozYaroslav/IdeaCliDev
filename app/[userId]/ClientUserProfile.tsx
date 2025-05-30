@@ -12,12 +12,16 @@ export default function ClientUserProfile({
   userId: profileUserId,
   user,
   initialUnanswered = [],
+}: {
+  userId: string;
+  user: any;
+  initialUnanswered?: any[];
 }) {
   const [answered, setAnswered] = useState([]);
   const [unanswered, setUnanswered] = useState(initialUnanswered);
   const [loadingAnswers, setLoadingAnswers] = useState(true);
   const [isOwner, setIsOwner] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   // 🍪 Check cookie to detect viewer identity
   useEffect(() => {
@@ -41,7 +45,7 @@ export default function ClientUserProfile({
       setIsOwner(false);
       setCurrentUserId(null);
     }
-  }, []);
+  }, [profileUserId]);
 
   // 🧠 Fetch answered questions after short delay
   useEffect(() => {
@@ -83,32 +87,37 @@ export default function ClientUserProfile({
   return (
     <ContentWrapper>
       <ProfileHeader user={user} isOwner={isOwner} />
+
       <AskPersonalWrapper
         profileUserId={profileUserId}
         currentUserId={currentUserId}
         isOwner={isOwner}
       />
-      <UnansweredList
-        unanswered={unanswered}
-        user={user}
-        isOwner={isOwner}
-        onDelete={() => setUnanswered((prev) => [...prev])}
-        onAnswered={() =>
-          setUnanswered((prev) => prev.filter((q) => q.status !== "answered"))
-        }
-      />
+
+      {isOwner && (
+        <UnansweredList
+          unanswered={unanswered}
+          user={user}
+          isOwner={isOwner}
+          onDelete={() => setUnanswered((prev) => [...prev])}
+          onAnswered={() =>
+            setUnanswered((prev) => prev.filter((q) => q.status !== "answered"))
+          }
+        />
+      )}
+
       {loadingAnswers ? (
         <Spinner>Loading answered...</Spinner>
       ) : (
         <AnsweredList
-              answered={answered}
-              user={user}
-              isOwner={isOwner}
-              loading={loadingAnswers}
-              onDelete={(id) => setAnswered((prev) =>
-				                       prev.filter((q) => q._id !== id))}
-            />
-            
+          answered={answered}
+          user={user}
+          isOwner={isOwner}
+          loading={loadingAnswers}
+          onDelete={(id) =>
+            setAnswered((prev) => prev.filter((q) => q._id !== id))
+          }
+        />
       )}
     </ContentWrapper>
   );

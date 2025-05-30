@@ -40,7 +40,6 @@ export default function AnsweredList({
 }: AnsweredListProps) {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  // ✅ Get userId from cookie
   useEffect(() => {
     const cookie = document.cookie
       .split("; ")
@@ -57,9 +56,7 @@ export default function AnsweredList({
   }, []);
 
   const canDelete = (q: any) =>
-    q?.authorId === currentUserId ||
-    isOwner ||
-    user?.status === "admin";
+    q?.authorId === currentUserId || isOwner || user?.status === "admin";
 
   const handleDelete = async (questionId: string) => {
     const res = await fetch(`${getBaseUrl()}/personal/${questionId}`, {
@@ -68,7 +65,7 @@ export default function AnsweredList({
       body: JSON.stringify({ userId: currentUserId }),
     });
 
-    if (res.ok) if (res.ok) {
+    if (res.ok) {
       onDelete(questionId);
     } else {
       const error = await res.text();
@@ -83,7 +80,9 @@ export default function AnsweredList({
       {loading ? (
         <div style={{ textAlign: "center", padding: "1rem" }}>
           <Spinner />
-          <p style={{ color: "#666", fontStyle: "italic" }}>Loading answered questions...</p>
+          <p style={{ color: "#666", fontStyle: "italic" }}>
+            Loading answered questions...
+          </p>
         </div>
       ) : answered.length === 0 ? (
         <p>No answered questions</p>
