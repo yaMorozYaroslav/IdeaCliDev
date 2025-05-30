@@ -57,10 +57,12 @@ export default function ClientUserProfile({
       await new Promise((res) => setTimeout(res, 300));
 
       try {
-        const res = await fetch(
-          `${getBaseUrl()}/google/public/${profileUserId}?requesterId=${currentUserId ?? ""}`,
-          { cache: "no-store" }
-        );
+        const res = await fetch(`${getBaseUrl()}/google/public/${profileUserId}`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ requesterId: currentUserId }),
+});
+
 
         if (!res.ok) {
           throw new Error(`Status ${res.status}`);
