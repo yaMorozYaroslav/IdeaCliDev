@@ -35,8 +35,11 @@ export default async function Page({ params }) {
     });
 
     if (res.ok) {
-      profileUser = await res.json();
-    }
+  profileUser = await res.json();
+  console.log("✅ Public profile loaded:", profileUser);
+} else {
+  console.warn("⚠️ Failed to fetch public profile, status:", res.status);
+}
   } catch (err) {
     console.error("❌ Failed to fetch public profile:", err);
   }
