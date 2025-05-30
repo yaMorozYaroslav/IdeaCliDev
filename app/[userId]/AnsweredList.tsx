@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import getBaseUrl from "../../lib/getBaseUrl";
 
@@ -13,8 +14,12 @@ const Spinner = styled.div`
   margin: 0 auto 1rem;
 
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 `;
 
@@ -33,14 +38,34 @@ export default function AnsweredList({
   loading,
   onDelete,
 }: AnsweredListProps) {
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  // ✅ Get userId from cookie
+  useEffect(() => {
+    const cookie = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("user_data="));
+    if (cookie) {
+      try {
+        const raw = decodeURIComponent(cookie.split("=")[1]);
+        const parsed = JSON.parse(raw);
+        setCurrentUserId(parsed?.userId || null);
+      } catch {
+        setCurrentUserId(null);
+      }
+    }
+  }, []);
+
   const canDelete = (q: any) =>
-    q?.authorId === user?.googleId || isOwner || user?.status === "admin";
+    q?.authorId === currentUserId ||
+    isOwner ||
+    user?.status === "admin";
 
   const handleDelete = async (questionId: string) => {
     const res = await fetch(`${getBaseUrl()}/personal/${questionId}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: user?.googleId }),
+      body: JSON.stringify({ userId: currentUserId }),
     });
 
     if (res.ok) {
@@ -65,12 +90,29 @@ export default function AnsweredList({
       ) : (
         answered.map((q) =>
           q?.title ? (
-            <div key={q._id} style={{ border: "1px solid #ccc", padding: "1rem", marginBottom: "1rem" }}>
-              <p><strong>{q.title}</strong></p>
-              <p style={{ fontSize: "0.9em", color: "#666" }}>by {q.authorName}</p>
+            <div
+              key={q._id}
+              style={{
+                border: "1px solid #ccc",
+                padding: "1rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <p>
+                <strong>{q.title}</strong>
+              </p>
+              <p style={{ fontSize: "0.9em", color: "#666" }}>
+                by {q.authorName}
+              </p>
 
               {q.answer && (
-                <div style={{ marginTop: "1rem", paddingLeft: "1rem", borderLeft: "3px solid #333" }}>
+                <div
+                  style={{
+                    marginTop: "1rem",
+                    paddingLeft: "1rem",
+                    borderLeft: "3px solid #333",
+                  }}
+                >
                   <p>💬 {q.answer}</p>
                   <p style={{ fontSize: "0.8em", color: "#999" }}>
                     — {user?.name || "Anonymous"}
@@ -79,7 +121,9 @@ export default function AnsweredList({
               )}
 
               {canDelete(q) && (
-                <button onClick={() => handleDelete(q._id)}>Delete Question</button>
+                <button onClick={() => handleDelete(q._id)}>
+                  Delete Question
+                </button>
               )}
             </div>
           ) : null
