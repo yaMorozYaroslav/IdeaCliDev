@@ -23,7 +23,7 @@ export default function ClientUserProfile({
   const [isOwner, setIsOwner] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  // 🍪 Check user_data cookie only if it exists
+  // 🍪 Extract current user ID from cookie
   useEffect(() => {
     const cookie = document.cookie
       .split("; ")
@@ -41,16 +41,15 @@ export default function ClientUserProfile({
           return;
         }
       } catch {
-        // fail silently and fall through to anonymous
+        // Ignore cookie parsing error
       }
     }
 
-    // fallback if no cookie or parse failed
     setCurrentUserId(null);
     setIsOwner(false);
   }, [profileUserId]);
 
-  // 🧠 Fetch answered questions from backend
+  // 🧠 Fetch answered (and possibly unanswered) questions via POST
   useEffect(() => {
     const fetchAnswered = async () => {
       setLoadingAnswers(true);
@@ -58,11 +57,12 @@ export default function ClientUserProfile({
 
       try {
         const res = await fetch(`${getBaseUrl()}/google/public/${profileUserId}`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ requesterId: currentUserId }),
-});
-
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            requesterId: currentUserId,
+          }),
+        });
 
         if (!res.ok) {
           throw new Error(`Status ${res.status}`);
@@ -70,6 +70,9 @@ export default function ClientUserProfile({
 
         const data = await res.json();
         setAnswered(data?.answered || []);
+        if (data?.unanswered && Array.isArray(data.unanswered)) {
+          setUnanswered(data.unanswered);
+        }
       } catch (err) {
         console.error("❌ Failed to load answered questions:", err);
         setAnswered([]);
@@ -78,10 +81,13 @@ export default function ClientUserProfile({
       }
     };
 
-    fetchAnswered();
+    // ✅ Wait for currentUserId to be resolved first (even if it's null)
+    if (currentUserId !== undefined) {
+      fetchAnswered();
+    }
   }, [profileUserId, currentUserId]);
 
-  // 🔄 Watch for logout to clear personal data
+  // 🔄 Clear state on logout
   useEffect(() => {
     const interval = setInterval(() => {
       const hasCookie = document.cookie
