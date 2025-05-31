@@ -1,6 +1,7 @@
 "use client";
 
 import styled from "styled-components";
+import getBaseUrl from "../../lib/getBaseUrl";
 
 export default function AskPersonalWrapper({
   profileUserId,
@@ -12,7 +13,7 @@ export default function AskPersonalWrapper({
   isOwner: boolean;
 }) {
   if (isOwner) return null;
-
+  const baseUrl = getBaseUrl()
   return (
     <AskContainer>
       <AskButton
@@ -20,7 +21,7 @@ export default function AskPersonalWrapper({
           const title = prompt("What's your question?");
           if (!title) return;
 
-          fetch("http://localhost:5000/personal/new", {
+          fetch(`${baseUrl}/personal/new`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

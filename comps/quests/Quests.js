@@ -5,6 +5,7 @@ import getBaseUrl from '/lib/getBaseUrl'
 
 export default function Questions({ user }) {
   const url = getBaseUrl()
+  console.log(url)
   const BASE_URL = `${url}/questions`;
   //~ console.log('url', BASE_URL)
   const [questions, setQuestions] = useState([]);
