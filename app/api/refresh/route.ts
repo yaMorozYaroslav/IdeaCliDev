@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import getBaseUrl from "../../../lib/getBaseUrl";
 
-export async function POST(request) {
-  const cookieStore = await cookies();
+export async function POST() {
+  const cookieStore = cookies(); // ✅ no await, no arguments
   const refreshToken = cookieStore.get("refresh_token")?.value;
 
   if (!refreshToken) {
@@ -12,7 +12,7 @@ export async function POST(request) {
   }
 
   try {
-    const baseUrl = getBaseUrl(request);
+    const baseUrl = getBaseUrl(); // ✅ no request needed
     console.log("🌐 Refreshing token from backend:", `${baseUrl}/google/refresh`);
 
     const backendRes = await fetch(`${baseUrl}/google/refresh`, {
@@ -41,25 +41,24 @@ export async function POST(request) {
     const response = NextResponse.json({ accessToken, userData: cleanedUserData });
 
     response.cookies.set("access_token", accessToken, {
-  httpOnly: true,
-  secure: true,
-  sameSite: "lax", // ✅ lowercase
-  path: "/",
-  maxAge: 15 * 60,
-});
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 15 * 60,
+    });
 
-response.cookies.set("user_data", JSON.stringify(cleanedUserData), {
-  httpOnly: false,
-  secure: true,
-  sameSite: "lax", // ✅ lowercase
-  path: "/",
-  maxAge: 15 * 60,
-});
-
+    response.cookies.set("user_data", JSON.stringify(cleanedUserData), {
+      httpOnly: false,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 15 * 60,
+    });
 
     console.log("🍪 Cookies updated successfully");
     return response;
-  } catch (err) {
+  } catch (err: any) {
     console.error("❌ Refresh error:", err.message);
 
     const response = NextResponse.json({ message: "Refresh failed" }, { status: 200 });
