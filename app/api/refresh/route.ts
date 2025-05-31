@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 import getBaseUrl from "../../../lib/getBaseUrl";
 
 export async function POST() {
-  // ✅ Await cookies
   const cookieStore = await cookies();
   const refreshToken = cookieStore.get("refresh_token")?.value;
 
@@ -25,12 +24,23 @@ export async function POST() {
       body: JSON.stringify({ refreshToken }),
     });
 
-    if (!backendRes.ok) throw new Error("Backend refresh failed");
+    if (!backendRes.ok) {
+      const errorText = await backendRes.text();
+      console.error("❌ Backend refresh failed:", errorText);
+      throw new Error("Backend refresh failed");
+    }
 
-    const { accessToken, userData } = await backendRes.json();
+    const data = await backendRes.json();
+    console.log("🧪 Raw response from backend:", data);
+
+    if (!data.userData || !data.userData.userId) {
+      throw new Error("userData is missing or malformed");
+    }
+
+    const { accessToken, userData } = data;
 
     const cleanedUserData = {
-      userId: userData.userId || userData.googleId,
+      userId: userData.userId,
       email: userData.email,
       name: userData.name,
       picture: userData.picture,
@@ -48,7 +58,7 @@ export async function POST() {
       secure: true,
       sameSite: "lax",
       path: "/",
-      maxAge: 15 * 60,
+      maxAge: 15 * 60, // 15 minutes
     });
 
     response.cookies.set("user_data", JSON.stringify(cleanedUserData), {
