@@ -2,16 +2,11 @@
 
 import styled from "styled-components";
 
-export default function ProfileHeader({
-  user,
-  isOwner,
-}: {
-  user: any;
-  isOwner: boolean;
-}) {
+export default function ProfileHeader({ user, isOwner }: { user: any; isOwner: boolean }) {
+  console.log('user',user)
   const name = user?.name || "Anonymous";
   const picture = user?.picture || "/default-avatar.png";
-
+  console.log(user)
   return (
     <HeaderContainer>
       <Avatar src={picture} alt={name} />

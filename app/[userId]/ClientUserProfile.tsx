@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import getBaseUrl from "../../lib/getBaseUrl";
+import styled from "styled-components";
 import AskPersonalWrapper from "./AskPersonalWrapper";
 import ProfileHeader from "./ProfileHeader";
 import UnansweredList from "./UnansweredList";
 import AnsweredList from "./AnsweredList";
-import styled from "styled-components";
 
 export default function ClientUserProfile({
   userId: profileUserId,
@@ -17,13 +16,11 @@ export default function ClientUserProfile({
   user: any;
   initialUnanswered?: any[];
 }) {
-  const [answered, setAnswered] = useState([]);
   const [unanswered, setUnanswered] = useState(initialUnanswered);
-  const [loadingAnswers, setLoadingAnswers] = useState(true);
+  const [answered, setAnswered] = useState(user?.answered || []);
   const [isOwner, setIsOwner] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
-  // 🍪 Extract current user ID from cookie
   useEffect(() => {
     const cookie = document.cookie
       .split("; ")
@@ -34,14 +31,11 @@ export default function ClientUserProfile({
         const raw = decodeURIComponent(cookie.split("=")[1]);
         const parsed = JSON.parse(raw);
         const userIdFromCookie = parsed?.userId;
-
-        if (userIdFromCookie) {
-          setCurrentUserId(userIdFromCookie);
-          setIsOwner(userIdFromCookie === profileUserId);
-          return;
-        }
-      } catch {
-        // Ignore cookie parsing error
+        setCurrentUserId(userIdFromCookie);
+        setIsOwner(userIdFromCookie === profileUserId);
+        return;
+      } catch (err) {
+        console.warn("❌ Failed to parse user_data cookie:", err);
       }
     }
 
@@ -49,45 +43,6 @@ export default function ClientUserProfile({
     setIsOwner(false);
   }, [profileUserId]);
 
-  // 🧠 Fetch answered (and possibly unanswered) questions via POST
-  useEffect(() => {
-    const fetchAnswered = async () => {
-      setLoadingAnswers(true);
-      await new Promise((res) => setTimeout(res, 300));
-
-      try {
-        const res = await fetch(`${getBaseUrl()}/google/public/${profileUserId}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            requesterId: currentUserId,
-          }),
-        });
-
-        if (!res.ok) {
-          throw new Error(`Status ${res.status}`);
-        }
-
-        const data = await res.json();
-        setAnswered(data?.answered || []);
-        if (data?.unanswered && Array.isArray(data.unanswered)) {
-          setUnanswered(data.unanswered);
-        }
-      } catch (err) {
-        console.error("❌ Failed to load answered questions:", err);
-        setAnswered([]);
-      } finally {
-        setLoadingAnswers(false);
-      }
-    };
-
-    // ✅ Wait for currentUserId to be resolved first (even if it's null)
-    if (currentUserId !== undefined) {
-      fetchAnswered();
-    }
-  }, [profileUserId, currentUserId]);
-
-  // 🔄 Clear state on logout
   useEffect(() => {
     const interval = setInterval(() => {
       const hasCookie = document.cookie
@@ -125,29 +80,18 @@ export default function ClientUserProfile({
         />
       )}
 
-      {loadingAnswers ? (
-        <Spinner>Loading answered...</Spinner>
-      ) : (
-        <AnsweredList
-          answered={answered}
-          user={user}
-          isOwner={isOwner}
-          loading={loadingAnswers}
-          onDelete={(id) =>
-            setAnswered((prev) => prev.filter((q) => q._id !== id))
-          }
-        />
-      )}
+      <AnsweredList
+        answered={answered}
+        user={user}
+        isOwner={isOwner}
+        loading={false}
+        onDelete={(id) =>
+          setAnswered((prev) => prev.filter((q) => q._id !== id))
+        }
+      />
     </ContentWrapper>
   );
 }
-
-const Spinner = styled.div`
-  margin-top: 2rem;
-  text-align: center;
-  font-weight: bold;
-  font-size: 1.2rem;
-`;
 
 const ContentWrapper = styled.div`
   margin-top: 180px;
