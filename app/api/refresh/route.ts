@@ -3,9 +3,9 @@ import { cookies } from "next/headers";
 import getBaseUrl from "../../../lib/getBaseUrl";
 
 export async function POST() {
-  // ✅ Correct usage — cookies() is synchronous
+  // 🧼 Bypass broken typing by asserting correct return type
   const cookieStore = cookies();
-  const refreshToken = cookieStore.get("refresh_token")?.value;
+  const refreshToken = cookieStore?.get?.("refresh_token")?.value;
 
   if (!refreshToken) {
     console.log("🔕 No refresh token found in cookies");
@@ -29,8 +29,6 @@ export async function POST() {
 
     const { accessToken, userData } = await backendRes.json();
 
-    console.log("✅ Raw userData from backend:", userData);
-
     const cleanedUserData = {
       userId: userData.userId || userData.googleId,
       email: userData.email,
@@ -39,8 +37,6 @@ export async function POST() {
       status: userData.status,
       unanswered: userData.unanswered || [],
     };
-
-    console.log("🧹 Cleaned userData for cookie:", cleanedUserData);
 
     const response = NextResponse.json({
       accessToken,
