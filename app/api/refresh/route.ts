@@ -3,16 +3,20 @@ import { cookies } from "next/headers";
 import getBaseUrl from "../../../lib/getBaseUrl";
 
 export async function POST() {
-  const cookieStore = cookies(); // ✅ no await, no arguments
+  // ✅ Correct usage — cookies() is synchronous
+  const cookieStore = cookies();
   const refreshToken = cookieStore.get("refresh_token")?.value;
 
   if (!refreshToken) {
     console.log("🔕 No refresh token found in cookies");
-    return NextResponse.json({ message: "No refresh token present" }, { status: 200 });
+    return NextResponse.json(
+      { message: "No refresh token present" },
+      { status: 200 }
+    );
   }
 
   try {
-    const baseUrl = getBaseUrl(); // ✅ no request needed
+    const baseUrl = getBaseUrl();
     console.log("🌐 Refreshing token from backend:", `${baseUrl}/google/refresh`);
 
     const backendRes = await fetch(`${baseUrl}/google/refresh`, {
@@ -38,7 +42,10 @@ export async function POST() {
 
     console.log("🧹 Cleaned userData for cookie:", cleanedUserData);
 
-    const response = NextResponse.json({ accessToken, userData: cleanedUserData });
+    const response = NextResponse.json({
+      accessToken,
+      userData: cleanedUserData,
+    });
 
     response.cookies.set("access_token", accessToken, {
       httpOnly: true,
@@ -61,7 +68,10 @@ export async function POST() {
   } catch (err: any) {
     console.error("❌ Refresh error:", err.message);
 
-    const response = NextResponse.json({ message: "Refresh failed" }, { status: 200 });
+    const response = NextResponse.json(
+      { message: "Refresh failed" },
+      { status: 200 }
+    );
 
     response.cookies.delete("access_token");
     response.cookies.delete("refresh_token");
