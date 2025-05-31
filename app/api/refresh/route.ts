@@ -3,9 +3,9 @@ import { cookies } from "next/headers";
 import getBaseUrl from "../../../lib/getBaseUrl";
 
 export async function POST() {
-  // 🧼 Bypass broken typing by asserting correct return type
-  const cookieStore = cookies();
-  const refreshToken = cookieStore?.get?.("refresh_token")?.value;
+  // ✅ Await cookies
+  const cookieStore = await cookies();
+  const refreshToken = cookieStore.get("refresh_token")?.value;
 
   if (!refreshToken) {
     console.log("🔕 No refresh token found in cookies");
