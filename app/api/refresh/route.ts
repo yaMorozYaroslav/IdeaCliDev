@@ -3,15 +3,12 @@ import { cookies } from "next/headers";
 import getBaseUrl from "../../../lib/getBaseUrl";
 
 export async function POST() {
-  const cookieStore = await cookies();
+  const cookieStore = cookies();
   const refreshToken = cookieStore.get("refresh_token")?.value;
 
   if (!refreshToken) {
     console.log("🔕 No refresh token found in cookies");
-    return NextResponse.json(
-      { message: "No refresh token present" },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: "No refresh token present" }, { status: 200 });
   }
 
   try {
@@ -24,60 +21,49 @@ export async function POST() {
       body: JSON.stringify({ refreshToken }),
     });
 
-    if (!backendRes.ok) {
-      const errorText = await backendRes.text();
-      console.error("❌ Backend refresh failed:", errorText);
-      throw new Error("Backend refresh failed");
+    const raw = await backendRes.text();
+    console.log("🧪 Raw response from backend:", raw);
+
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch (e) {
+      console.error("❌ Failed to parse backend JSON:", e);
+      throw new Error("Invalid backend JSON");
     }
 
-    const data = await backendRes.json();
-    console.log("🧪 Raw response from backend:", data);
+    const { accessToken, userData } = parsed;
 
-    if (!data.userData || !data.userData.userId) {
-      throw new Error("userData is missing or malformed");
+    if (!accessToken) {
+      throw new Error("Access token missing");
     }
 
-    const { accessToken, userData } = data;
-
-    const cleanedUserData = {
-      userId: userData.userId,
-      email: userData.email,
-      name: userData.name,
-      picture: userData.picture,
-      status: userData.status,
-      unanswered: userData.unanswered || [],
-    };
-
-    const response = NextResponse.json({
-      accessToken,
-      userData: cleanedUserData,
-    });
+    const isLocal = process.env.LOCALHOST === "true" || process.env.NODE_ENV !== "production";
+    const response = NextResponse.json({ accessToken, userData: userData || null });
 
     response.cookies.set("access_token", accessToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 15 * 60, // 15 minutes
-    });
-
-    response.cookies.set("user_data", JSON.stringify(cleanedUserData), {
-      httpOnly: false,
-      secure: true,
-      sameSite: "lax",
-      path: "/",
+      secure: !isLocal,
+      sameSite: isLocal ? "lax" : "strict",
       maxAge: 15 * 60,
+      path: "/",
     });
 
-    console.log("🍪 Cookies updated successfully");
-    return response;
-  } catch (err: any) {
-    console.error("❌ Refresh error:", err.message);
+    if (userData) {
+      response.cookies.set("user_data", JSON.stringify(userData), {
+        httpOnly: false,
+        secure: !isLocal,
+        sameSite: "lax",
+        maxAge: 15 * 60,
+        path: "/",
+      });
+    }
 
-    const response = NextResponse.json(
-      { message: "Refresh failed" },
-      { status: 200 }
-    );
+    console.log("✅ Cookies set successfully");
+    return response;
+  } catch (err) {
+    console.error("❌ Refresh error:", err.message);
+    const response = NextResponse.json({ message: "Refresh failed" }, { status: 200 });
 
     response.cookies.delete("access_token");
     response.cookies.delete("refresh_token");

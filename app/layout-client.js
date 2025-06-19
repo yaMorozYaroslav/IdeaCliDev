@@ -8,20 +8,18 @@ import isPropValid from "@emotion/is-prop-valid";
 export default function LayoutClient({ user, children }) {
   const [mounted, setMounted] = useState(false);
   const refreshTimeoutRef = useRef(null);
-  const REFRESH_INTERVAL = 1 * 60 * 1000; // 1 minute
+  const REFRESH_INTERVAL = 1 * 60 * 1000;
 
   useEffect(() => {
     setMounted(true);
 
-    // 🔄 Trigger refresh immediately on mount
-    console.log("🚀 Checking for access token on mount...");
-    refreshToken();
+    console.log("🔍 Initial cookies:", document.cookie);
+    waitForRefreshToken();
 
-    // 🔁 Start scheduled refresh cycle
+    // Setup periodic refresh
     startRefreshCycle();
     console.log("⏰ First scheduled refresh set at:", new Date().toLocaleTimeString());
 
-    // 📥 Listen for postMessage from popup
     const handleMessage = async (event) => {
       if (event.data?.type === "SET_TOKENS") {
         try {
@@ -32,7 +30,12 @@ export default function LayoutClient({ user, children }) {
           });
 
           console.log("✅ Tokens sent to backend and cookies set");
-          window.location.href = `/${event.data.userData.userId}`;
+
+          // ✅ Delay before redirect to ensure cookies are committed
+          setTimeout(() => {
+            console.log("➡️ Redirecting to profile page");
+            window.location.href = `/profiles/${event.data.userData.userId}`;
+          }, 300);
         } catch (err) {
           console.error("❌ Failed to store tokens in cookies:", err);
         }
@@ -56,12 +59,27 @@ export default function LayoutClient({ user, children }) {
     }, REFRESH_INTERVAL);
   };
 
+  const waitForRefreshToken = () => {
+    const hasRefresh = document.cookie.includes("refresh_token=");
+
+    if (!hasRefresh) {
+      console.warn("⏳ Waiting for refresh_token cookie...");
+      setTimeout(() => {
+        waitForRefreshToken(); // retry until cookie appears
+      }, 200);
+    } else {
+      console.log("✅ refresh_token found, starting refresh now");
+      refreshToken();
+    }
+  };
+
   const refreshToken = async (retry = true) => {
     try {
       const res = await fetch("/api/refresh", {
         method: "POST",
         credentials: "include",
       });
+
       const data = await res.json();
 
       if (data.message === "No refresh token present") {
@@ -69,7 +87,7 @@ export default function LayoutClient({ user, children }) {
         return;
       }
 
-      if (!res.ok) {
+      if (!res.ok || !data.accessToken) {
         throw new Error(data.message || "Refresh failed");
       }
 

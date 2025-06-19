@@ -5,6 +5,8 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   const body = await req.json();
+  console.log("📩 POST /api/store-tokens received:", body);
+
   const { accessToken, refreshToken, userData } = body;
 
   if (!accessToken || !refreshToken || !userData) {
