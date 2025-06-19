@@ -4,8 +4,32 @@ import { useEffect } from "react";
 
 export default function Popup() {
   useEffect(() => {
-    console.log("✅ Popup loaded — no action needed anymore.");
-    // Nothing else to do. The popup should already be closed.
+    const params = new URLSearchParams(window.location.search);
+    const accessToken = params.get("access_token");
+    const refreshToken = params.get("refresh_token");
+    const userDataRaw = params.get("user_data");
+
+    if (accessToken && refreshToken && userDataRaw) {
+      try {
+        const userData = JSON.parse(decodeURIComponent(userDataRaw));
+        window.opener?.postMessage(
+          {
+            type: "SET_TOKENS",
+            accessToken,
+            refreshToken,
+            userData,
+          },
+          "*"
+        );
+        console.log("📤 Tokens sent to opener");
+      } catch (err) {
+        console.error("❌ Error sending tokens to opener", err);
+      }
+    }
+
+    setTimeout(() => {
+      window.close();
+    }, 1000);
   }, []);
 
   return (

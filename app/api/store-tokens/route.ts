@@ -1,94 +1,41 @@
-// 🔄 Force dynamic execution (fix for Vercel caching issue)
-export const dynamic = "force-dynamic";
-
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const accessToken = searchParams.get("access_token");
-  const refreshToken = searchParams.get("refresh_token");
+export const dynamic = "force-dynamic";
 
-  if (!accessToken || !refreshToken) {
-    return NextResponse.redirect(new URL("/", request.url));
+export async function POST(req: Request) {
+  const body = await req.json();
+  const { accessToken, refreshToken, userData } = body;
+
+  if (!accessToken || !refreshToken || !userData) {
+    return NextResponse.json({ message: "Missing token data" }, { status: 400 });
   }
 
-  try {
-    const decoded = jwt.verify(accessToken, process.env.JWT_SECRET || "test");
+  const response = NextResponse.json({ message: "Cookies set" });
 
-    const userData = {
-      userId: decoded.userId,
-      email: decoded.email,
-      name: decoded.name,
-      picture: decoded.picture,
-      status: decoded.status,
-      unanswered: decoded.unanswered || [],
-    };
+  response.cookies.set("access_token", accessToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+    maxAge: 15 * 60,
+    path: "/",
+  });
 
-    const cookieStore = await cookies(); // ✅ Await the Promise
-    const existingUserData = cookieStore.get("user_data");
+  response.cookies.set("refresh_token", refreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60,
+    path: "/",
+  });
 
-    console.log("🔍 Existing user_data cookie:", existingUserData?.value);
+  response.cookies.set("user_data", JSON.stringify(userData), {
+    httpOnly: false,
+    secure: true,
+    sameSite: "lax",
+    maxAge: 15 * 60,
+    path: "/",
+  });
 
-    const redirectTo = `/${userData.userId}`;
-
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <body>
-          <script>
-            const target = "${redirectTo}";
-            if (window.opener) {
-              try {
-                window.opener.location.href = target;
-              } catch (err) {
-                console.warn("🔁 Failed to redirect opener:", err);
-              }
-              window.close();
-            } else {
-              window.location.href = target;
-            }
-          </script>
-        </body>
-      </html>
-    `;
-
-    const response = new NextResponse(html, {
-      headers: {
-        "Content-Type": "text/html",
-      },
-    });
-
-    // 🍪 Store cookies
-    response.cookies.set("access_token", accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 15 * 60,
-      path: "/",
-    });
-
-    response.cookies.set("refresh_token", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60,
-      path: "/",
-    });
-
-    response.cookies.set("user_data", JSON.stringify(userData), {
-      httpOnly: false,
-      secure: true,
-      sameSite: "lax",
-      maxAge: 15 * 60,
-      path: "/",
-    });
-
-    console.log("✅ Returning redirect response");
-    return response;
-  } catch (err) {
-    console.error("❌ Failed to process tokens:", err);
-    return NextResponse.redirect(new URL("/", request.url));
-  }
+  return response;
 }
