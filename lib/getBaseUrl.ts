@@ -1,16 +1,20 @@
 export default function getBaseUrl(): string {
-  // ✅ Client-side in browser
   if (typeof window !== "undefined") {
-    return ""; // use relative URLs on client
+    const hostname = window.location.hostname;
+
+    if (hostname === "localhost") {
+      return "http://localhost:5000";
+    }
+
+    if (hostname.includes("idea-sphere-dev")) {
+      return "https://idea-sphere-dev-30492dbf5e99.herokuapp.com";
+    }
+
+    if (hostname.includes("idea-sphere")) {
+      return "https://idea-sphere-50bb3c5bc07b.herokuapp.com";
+    }
   }
 
-  // ✅ Check .env setting
-  const isLocal = process.env.LOCALHOST === "true";
-
-  if (isLocal) {
-    return "http://localhost:5000"; // ✅ local dev backend
-  }
-
-  // ✅ fallback to production
-  return "https://idea-sphere-50bb3c5bc07b.herokuapp.com"; // ✅ deployed backend
+  // ✅ Server-side fallback (used only during SSR, not ideal but works)
+  return "https://idea-sphere-50bb3c5bc07b.herokuapp.com";
 }

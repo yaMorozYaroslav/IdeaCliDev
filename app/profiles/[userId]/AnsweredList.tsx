@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import getBaseUrl from "../../lib/getBaseUrl";
+import getBaseUrl from "../../../lib/getBaseUrl";
 
 const Spinner = styled.div`
   border: 4px solid #f3f3f3;
@@ -39,7 +39,7 @@ export default function AnsweredList({
   onDelete,
 }: AnsweredListProps) {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-
+  const baseUrl = getBaseUrl()
   useEffect(() => {
     const cookie = document.cookie
       .split("; ")
@@ -59,7 +59,7 @@ export default function AnsweredList({
     q?.authorId === currentUserId || isOwner || user?.status === "admin";
 
   const handleDelete = async (questionId: string) => {
-    const res = await fetch(`${getBaseUrl()}/personal/${questionId}`, {
+    const res = await fetch(`${baseUrl}/personal/${questionId}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId: currentUserId }),

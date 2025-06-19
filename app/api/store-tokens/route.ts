@@ -1,8 +1,11 @@
+// 🔄 Force dynamic execution (fix for Vercel caching issue)
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 
-export async function GET(request) {
+export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const accessToken = searchParams.get("access_token");
   const refreshToken = searchParams.get("refresh_token");
@@ -14,9 +17,8 @@ export async function GET(request) {
   try {
     const decoded = jwt.verify(accessToken, process.env.JWT_SECRET || "test");
 
-    // ✅ userId is now googleId
     const userData = {
-      userId: decoded.userId, // this is the Google ID (sub)
+      userId: decoded.userId,
       email: decoded.email,
       name: decoded.name,
       picture: decoded.picture,
@@ -24,11 +26,10 @@ export async function GET(request) {
       unanswered: decoded.unanswered || [],
     };
 
-    const cookieStore = await cookies();
+    const cookieStore = cookies();
     const existingUserData = cookieStore.get("user_data");
     console.log("🔍 Existing user_data cookie:", existingUserData?.value);
 
-    // ✅ Redirect to profile page using Google ID
     const redirectTo = `/${userData.userId}`;
 
     const html = `
@@ -36,11 +37,16 @@ export async function GET(request) {
       <html>
         <body>
           <script>
+            const target = "${redirectTo}";
             if (window.opener) {
-              window.opener.location.href = "${redirectTo}";
+              try {
+                window.opener.location.href = target;
+              } catch (err) {
+                console.warn("🔁 Failed to redirect opener:", err);
+              }
               window.close();
             } else {
-              window.location.href = "${redirectTo}";
+              window.location.href = target;
             }
           </script>
         </body>
@@ -53,11 +59,12 @@ export async function GET(request) {
       },
     });
 
+    // 🍪 Store cookies
     response.cookies.set("access_token", accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: "strict",
-      maxAge: 15 * 60, // 15 minutes
+      maxAge: 15 * 60,
       path: "/",
     });
 
@@ -65,20 +72,19 @@ export async function GET(request) {
       httpOnly: true,
       secure: true,
       sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60, // 7 days
+      maxAge: 7 * 24 * 60 * 60,
       path: "/",
     });
 
-    // ❌ Remove encodeURIComponent
-response.cookies.set("user_data", JSON.stringify(userData), {
-  httpOnly: false,
-  secure: true,
-  sameSite: "lax",
-  maxAge: 15 * 60, // 15 minutes
-  path: "/",
-});
+    response.cookies.set("user_data", JSON.stringify(userData), {
+      httpOnly: false,
+      secure: true,
+      sameSite: "lax",
+      maxAge: 15 * 60,
+      path: "/",
+    });
 
-
+    console.log("✅ Returning redirect response");
     return response;
   } catch (err) {
     console.error("❌ Failed to process tokens:", err);

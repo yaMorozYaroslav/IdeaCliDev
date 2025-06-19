@@ -1,16 +1,15 @@
 import ClientUserProfile from "./ClientUserProfile";
 import { cookies } from "next/headers";
-import getBaseUrl from "../../lib/getBaseUrl";
+import getBaseUrl from "../../../lib/getBaseUrl";
 import { notFound } from "next/navigation";
 
 export default async function Page({ params }) {
   const profileUserId = params.userId;
 
-if (!profileUserId || profileUserId === "questions") {
-  console.warn("🛑 Invalid userId route accessed:", profileUserId);
-  return notFound(); // ✅ must return here
-}
-
+  if (!profileUserId || profileUserId === "questions") {
+    console.warn("🛑 Invalid userId route accessed:", profileUserId);
+    notFound();
+  }
 
   const baseUrl = getBaseUrl();
   const cookieStore = await cookies();
@@ -40,9 +39,6 @@ if (!profileUserId || profileUserId === "questions") {
   }
 
   const initialUnanswered = profileUser?.unanswered || [];
-
-  console.log("🌐 Profile being viewed:", profileUserId);
-  console.log("📦 Fetched profile user:", profileUser);
 
   return (
     <ClientUserProfile

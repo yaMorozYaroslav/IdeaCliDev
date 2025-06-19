@@ -1,16 +1,14 @@
 import { useState, useEffect } from "react";
 import * as S from "./quests.styled"; // Import styles
 import QuestionList from "./QuestList";
-import getBaseUrl from '/lib/getBaseUrl'
+import getBaseUrl from "../../lib/getBaseUrl"; // ✅ fixed import path
 
 export default function Questions({ user }) {
-  const url = getBaseUrl()
-  console.log(url)
-  const BASE_URL = `${url}/questions`;
-  //~ console.log('url', BASE_URL)
   const [questions, setQuestions] = useState([]);
   const [newQuestion, setNewQuestion] = useState("");
-  const [loading, setLoading] = useState(true); // ✅ Loading state
+  const [loading, setLoading] = useState(true);
+
+  const BASE_URL = `${getBaseUrl()}/questions`; // ✅ correct dynamic backend base
 
   useEffect(() => {
     fetchQuestions();
@@ -22,59 +20,53 @@ export default function Questions({ user }) {
       const res = await fetch(BASE_URL);
       const data = await res.json();
 
-      // 🕒 Simulate longer loading (1.5 seconds total)
+      // 🕒 Simulate loading delay
       setTimeout(() => {
-        setQuestions(data.reverse()); // Ensure newest questions appear first
+        setQuestions(data.reverse()); // Newest first
         setLoading(false);
       }, 1500);
     } catch (error) {
       console.error("Error fetching questions:", error);
-      setLoading(false); // Stop loading on error
+      setLoading(false);
     }
   };
 
   const handleQuestionSubmit = async (questionTitle) => {
-  if (typeof questionTitle !== "string" || !questionTitle.trim()) {
-    console.error("Error: questionTitle is invalid:", questionTitle);
-    return;
-  }
-
-  const userIdentifier = user?.userId || null;
-  const userName = user?.name || "Anonymous"; // 👈 Add this line
-
-  const questionData = {
-    title: questionTitle.trim(),
-    userId: userIdentifier,
-    name: userName, // 👈 Add name to request body
-  };
-
-  console.log("Submitting question:", JSON.stringify(questionData), user);
-
-  try {
-    const response = await fetch(`${BASE_URL}/new`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(questionData),
-    });
-
-    console.log("Response Status:", response.status);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Error Response:", errorText);
-      throw new Error(errorText || "Failed to submit question");
+    if (typeof questionTitle !== "string" || !questionTitle.trim()) {
+      console.error("Error: questionTitle is invalid:", questionTitle);
+      return;
     }
 
-    const newQuestionData = await response.json();
-    setQuestions((prev) => [newQuestionData, ...prev]);
-    setNewQuestion("");
-  } catch (error) {
-    console.error("Error submitting question:", error.message);
-  }
-};
+    const questionData = {
+      title: questionTitle.trim(),
+      userId: user?.userId || null,
+      name: user?.name || "Anonymous",
+    };
 
+    console.log("Submitting question:", JSON.stringify(questionData));
+
+    try {
+      const response = await fetch(`${BASE_URL}/new`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(questionData),
+      });
+
+      console.log("Response Status:", response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error Response:", errorText);
+        throw new Error(errorText || "Failed to submit question");
+      }
+
+      const newQuestionData = await response.json();
+      setQuestions((prev) => [newQuestionData, ...prev]);
+      setNewQuestion("");
+    } catch (error) {
+      console.error("Error submitting question:", error.message);
+    }
+  };
 
   return (
     <S.Container>
