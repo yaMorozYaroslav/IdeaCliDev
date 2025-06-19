@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import getBaseUrl from "../../lib/getBaseUrl";
+import getBaseUrl from "../../../lib/getBaseUrl";
 
 export default function AskPersonalButton({ recipientUserId }: { recipientUserId: string }) {
   const [showForm, setShowForm] = useState(false);
