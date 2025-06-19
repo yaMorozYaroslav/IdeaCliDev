@@ -26,8 +26,9 @@ export async function GET(request: Request) {
       unanswered: decoded.unanswered || [],
     };
 
-    const cookieStore = cookies();
+    const cookieStore = await cookies(); // ✅ Await the Promise
     const existingUserData = cookieStore.get("user_data");
+
     console.log("🔍 Existing user_data cookie:", existingUserData?.value);
 
     const redirectTo = `/${userData.userId}`;
