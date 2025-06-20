@@ -3,7 +3,8 @@ import { cookies } from "next/headers";
 import getBaseUrl from "../../../lib/getBaseUrl";
 
 export async function POST() {
-  const cookieStore = await cookies(); // ✅ await is required
+  const cookieStore = cookies(); // ✅ no `await` needed here — it's synchronous
+
   const refreshToken = cookieStore.get("refresh_token")?.value;
 
   if (!refreshToken) {
@@ -45,8 +46,8 @@ export async function POST() {
       httpOnly: true,
       secure: !isLocal,
       sameSite: isLocal ? "lax" : "strict",
-      maxAge: 15 * 60,
       path: "/",
+      maxAge: 15 * 60,
     });
 
     if (userData) {
@@ -54,14 +55,14 @@ export async function POST() {
         httpOnly: false,
         secure: !isLocal,
         sameSite: "lax",
-        maxAge: 15 * 60,
         path: "/",
+        maxAge: 15 * 60,
       });
     }
 
     console.log("✅ Cookies set successfully");
     return response;
-  } catch (err) {
+  } catch (err: any) {
     console.error("❌ Refresh error:", err.message);
     const response = NextResponse.json({ message: "Refresh failed" }, { status: 200 });
 
