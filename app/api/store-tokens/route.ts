@@ -11,28 +11,32 @@ export async function POST(request: Request) {
   const isLocal = process.env.LOCALHOST === "true" || process.env.NODE_ENV !== "production";
   const response = NextResponse.json({ message: "Tokens stored" });
 
+  // ✅ Must use SameSite: "none" and Secure: true in production (Vercel)
+  const sameSite = isLocal ? "lax" : "none";
+  const secure = !isLocal;
+
   response.cookies.set("access_token", access_token, {
     httpOnly: true,
-    secure: !isLocal,
-    sameSite: isLocal ? "lax" : "none",
+    secure,
+    sameSite,
     path: "/",
     maxAge: 15 * 60, // 15 minutes
   });
 
   response.cookies.set("refresh_token", refresh_token, {
     httpOnly: true,
-    secure: !isLocal,
-    sameSite: isLocal ? "lax" : "none",
+    secure,
+    sameSite,
     path: "/",
     maxAge: 7 * 24 * 60 * 60, // 7 days
   });
 
   response.cookies.set("user_data", JSON.stringify(user_data), {
     httpOnly: false,
-    secure: !isLocal,
-    sameSite: isLocal ? "lax" : "none",
+    secure,
+    sameSite,
     path: "/",
-    maxAge: 15 * 60, // 15 minutes
+    maxAge: 15 * 60,
   });
 
   console.log("✅ Tokens stored via /api/store-tokens");

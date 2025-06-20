@@ -12,8 +12,11 @@ export default async function Page({ params }) {
   }
 
   const baseUrl = getBaseUrl();
-  const cookieStore = cookies(); // ✅ fixed: cookies() is synchronous
+  const cookieStore = cookies(); // ✅ Correct: synchronous
   const accessToken = cookieStore.get("access_token")?.value;
+
+  console.log("🪪 Access token:", accessToken);
+  console.log("🔎 Requested profile userId (googleId):", profileUserId);
 
   let profileUser = null;
 
