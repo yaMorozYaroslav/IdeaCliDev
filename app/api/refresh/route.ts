@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import getBaseUrl from "../../../lib/getBaseUrl";
 
 export async function POST() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies(); // ✅ MUST await to access .get()
   const refreshToken = cookieStore.get("refresh_token")?.value;
 
   if (!refreshToken) {
