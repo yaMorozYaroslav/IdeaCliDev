@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Header from "../comps/Header";
 import { StyleSheetManager } from "styled-components";
 import isPropValid from "@emotion/is-prop-valid";
+import Cookies from "js-cookie";
 
 export default function LayoutClient({ user, children }) {
   const [mounted, setMounted] = useState(false);
@@ -16,7 +17,6 @@ export default function LayoutClient({ user, children }) {
     console.log("🔍 Initial cookies:", document.cookie);
     waitForRefreshToken();
 
-    // Setup periodic refresh
     startRefreshCycle();
     console.log("⏰ First scheduled refresh set at:", new Date().toLocaleTimeString());
 
@@ -31,7 +31,6 @@ export default function LayoutClient({ user, children }) {
 
           console.log("✅ Tokens sent to backend and cookies set");
 
-          // ✅ Delay before redirect to ensure cookies are committed
           setTimeout(() => {
             console.log("➡️ Redirecting to profile page");
             window.location.href = `/profiles/${event.data.userData.userId}`;
@@ -59,18 +58,28 @@ export default function LayoutClient({ user, children }) {
     }, REFRESH_INTERVAL);
   };
 
-  const waitForRefreshToken = () => {
-    const hasRefresh = document.cookie.includes("refresh_token=");
+  const waitForRefreshToken = async () => {
+    for (let i = 0; i < 10; i++) {
+      const refresh = Cookies.get("refresh_token");
+      const access = Cookies.get("access_token");
+      const userData = Cookies.get("user_data");
 
-    if (!hasRefresh) {
+      if (!refresh && (!access || !userData)) {
+        console.log("🚪 User is logged out — stopping refresh loop");
+        return;
+      }
+
+      if (refresh) {
+        console.log("✅ refresh_token found, starting refresh now");
+        await refreshToken();
+        return;
+      }
+
       console.warn("⏳ Waiting for refresh_token cookie...");
-      setTimeout(() => {
-        waitForRefreshToken(); // retry until cookie appears
-      }, 200);
-    } else {
-      console.log("✅ refresh_token found, starting refresh now");
-      refreshToken();
+      await new Promise((r) => setTimeout(r, 200));
     }
+
+    console.warn("⛔ Gave up waiting for refresh_token after 10 tries");
   };
 
   const refreshToken = async (retry = true) => {
