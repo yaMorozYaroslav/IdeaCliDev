@@ -1,5 +1,4 @@
 import ClientUserProfile from "./ClientUserProfile";
-import { cookies } from "next/headers";
 import getBaseUrl from "../../../lib/getBaseUrl";
 import { notFound } from "next/navigation";
 
@@ -12,19 +11,13 @@ export default async function Page({ params }) {
   }
 
   const baseUrl = getBaseUrl();
-  const cookieStore = cookies(); // ✅ Correct: synchronous
-  const accessToken = cookieStore.get("access_token")?.value;
-
-  console.log("🪪 Access token:", accessToken);
-  console.log("🔎 Requested profile userId (googleId):", profileUserId);
-
   let profileUser = null;
 
   try {
     const res = await fetch(`${baseUrl}/google/public/${profileUserId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: accessToken }),
+      body: JSON.stringify({}), // ✅ Anonymous request
       cache: "no-store",
     });
 
@@ -41,7 +34,7 @@ export default async function Page({ params }) {
     console.error("❌ Profile fetch failed:", err);
   }
 
-  const initialUnanswered = profileUser?.unanswered || [];
+  const initialUnanswered = []; // 🔇 Not available anonymously
 
   return (
     <ClientUserProfile
