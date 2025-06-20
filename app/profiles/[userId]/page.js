@@ -12,7 +12,7 @@ export default async function Page({ params }) {
   }
 
   const baseUrl = getBaseUrl();
-  const cookieStore = await cookies();
+  const cookieStore = cookies(); // ✅ fixed: cookies() is synchronous
   const accessToken = cookieStore.get("access_token")?.value;
 
   let profileUser = null;
