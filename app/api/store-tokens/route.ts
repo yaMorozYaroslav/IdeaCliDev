@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   response.cookies.set("access_token", access_token, {
     httpOnly: true,
     secure: !isLocal,
-    sameSite: isLocal ? "lax" : "strict",
+    sameSite: isLocal ? "lax" : "none",
     path: "/",
     maxAge: 15 * 60, // 15 minutes
   });
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
   response.cookies.set("refresh_token", refresh_token, {
     httpOnly: true,
     secure: !isLocal,
-    sameSite: isLocal ? "lax" : "strict",
+    sameSite: isLocal ? "lax" : "none",
     path: "/",
     maxAge: 7 * 24 * 60 * 60, // 7 days
   });
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   response.cookies.set("user_data", JSON.stringify(user_data), {
     httpOnly: false,
     secure: !isLocal,
-    sameSite: "lax",
+    sameSite: isLocal ? "lax" : "none",
     path: "/",
     maxAge: 15 * 60, // 15 minutes
   });
