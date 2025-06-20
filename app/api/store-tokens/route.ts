@@ -1,43 +1,40 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-export const dynamic = "force-dynamic";
+export async function POST(request: Request) {
+  const { access_token, refresh_token, user_data } = await request.json();
 
-export async function POST(req: Request) {
-  const body = await req.json();
-  console.log("📩 POST /api/store-tokens received:", body);
-
-  const { accessToken, refreshToken, userData } = body;
-
-  if (!accessToken || !refreshToken || !userData) {
+  if (!access_token || !refresh_token || !user_data) {
     return NextResponse.json({ message: "Missing token data" }, { status: 400 });
   }
 
-  const response = NextResponse.json({ message: "Cookies set" });
+  const isLocal = process.env.LOCALHOST === "true" || process.env.NODE_ENV !== "production";
+  const response = NextResponse.json({ message: "Tokens stored" });
 
-  response.cookies.set("access_token", accessToken, {
+  response.cookies.set("access_token", access_token, {
     httpOnly: true,
-    secure: true,
-    sameSite: "strict",
-    maxAge: 15 * 60,
+    secure: !isLocal,
+    sameSite: isLocal ? "lax" : "strict",
     path: "/",
+    maxAge: 15 * 60, // 15 minutes
   });
 
-  response.cookies.set("refresh_token", refreshToken, {
+  response.cookies.set("refresh_token", refresh_token, {
     httpOnly: true,
-    secure: true,
-    sameSite: "strict",
-    maxAge: 7 * 24 * 60 * 60,
+    secure: !isLocal,
+    sameSite: isLocal ? "lax" : "strict",
     path: "/",
+    maxAge: 7 * 24 * 60 * 60, // 7 days
   });
 
-  response.cookies.set("user_data", JSON.stringify(userData), {
+  response.cookies.set("user_data", JSON.stringify(user_data), {
     httpOnly: false,
-    secure: true,
+    secure: !isLocal,
     sameSite: "lax",
-    maxAge: 15 * 60,
     path: "/",
+    maxAge: 15 * 60, // 15 minutes
   });
 
+  console.log("✅ Tokens stored via /api/store-tokens");
   return response;
 }
