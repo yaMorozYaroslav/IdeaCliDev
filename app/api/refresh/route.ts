@@ -3,9 +3,9 @@ import { cookies } from "next/headers";
 import getBaseUrl from "../../../lib/getBaseUrl";
 
 export async function POST() {
-  const cookieStore = cookies(); // ✅ no `await` needed here — it's synchronous
-
+  const cookieStore = await cookies(); // ✅ Await the promise
   const refreshToken = cookieStore.get("refresh_token")?.value;
+
 
   if (!refreshToken) {
     console.log("🔕 No refresh token found in cookies");
