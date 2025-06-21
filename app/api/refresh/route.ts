@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import getBaseUrl from "../../../lib/getBaseUrl";
 
 export async function POST() {
-  const cookieStore = cookies(); // ✅ FIXED: sync call
+  const cookieStore = cookies(); // ✅ FIXED: no await
   const refreshToken = cookieStore.get("refresh_token")?.value;
 
   if (!refreshToken) {
@@ -22,31 +22,23 @@ export async function POST() {
     });
 
     const raw = await backendRes.text();
-    console.log("🧪 Raw response from backend:", raw);
+    console.log("🧪 Raw backend response:", raw);
 
     let parsed;
     try {
       parsed = JSON.parse(raw);
-    } catch (e) {
-      console.error("❌ Failed to parse backend JSON:", e);
-      throw new Error("Invalid backend JSON");
+    } catch (err) {
+      console.error("❌ Failed to parse backend JSON:", err.message);
+      throw new Error("Invalid backend response");
     }
 
     const { accessToken, userData } = parsed;
-
-    if (!accessToken) {
-      throw new Error("Access token missing");
-    }
+    if (!accessToken) throw new Error("Access token missing");
 
     const isLocal = process.env.LOCALHOST === "true" || process.env.NODE_ENV !== "production";
-    const response = new NextResponse(JSON.stringify({ accessToken, userData: userData || null }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    const response = NextResponse.json({ accessToken, userData });
 
-    response.cookies.set({
-      name: "access_token",
-      value: accessToken,
+    response.cookies.set("access_token", accessToken, {
       httpOnly: true,
       secure: !isLocal,
       sameSite: isLocal ? "lax" : "none",
@@ -55,9 +47,7 @@ export async function POST() {
     });
 
     if (userData) {
-      response.cookies.set({
-        name: "user_data",
-        value: JSON.stringify(userData),
+      response.cookies.set("user_data", JSON.stringify(userData), {
         httpOnly: false,
         secure: !isLocal,
         sameSite: isLocal ? "lax" : "none",
@@ -66,12 +56,12 @@ export async function POST() {
       });
     }
 
-    console.log("✅ Cookies refreshed successfully");
+    console.log("✅ Refresh succeeded");
     return response;
-  } catch (err: any) {
-    console.error("❌ Refresh error:", err.message);
-
+  } catch (err) {
+    console.error("❌ Refresh failed:", err.message);
     const response = NextResponse.json({ message: "Refresh failed" }, { status: 200 });
+
     response.cookies.delete("access_token");
     response.cookies.delete("refresh_token");
     response.cookies.delete("user_data");
