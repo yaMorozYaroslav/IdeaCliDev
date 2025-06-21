@@ -7,11 +7,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Missing token data" }, { status: 400 });
   }
 
-  // ✅ Detect if running locally
   const isLocal = process.env.LOCALHOST === "true" || process.env.NODE_ENV !== "production";
 
-  const response = NextResponse.json({ message: "Tokens stored" });
+  // ✅ Create empty response first
+  const response = new NextResponse(JSON.stringify({ message: "Tokens stored" }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
 
+  // ✅ Shared cookie options
   const cookieOptions = {
     httpOnly: true,
     secure: !isLocal,
@@ -19,14 +23,15 @@ export async function POST(request: Request) {
     path: "/",
   };
 
+  // ✅ Set cookies
   response.cookies.set("access_token", access_token, {
     ...cookieOptions,
-    maxAge: 15 * 60, // 15 minutes
+    maxAge: 15 * 60,
   });
 
   response.cookies.set("refresh_token", refresh_token, {
     ...cookieOptions,
-    maxAge: 7 * 24 * 60 * 60, // 7 days
+    maxAge: 7 * 24 * 60 * 60,
   });
 
   response.cookies.set("user_data", JSON.stringify(user_data), {
