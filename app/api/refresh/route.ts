@@ -1,17 +1,15 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import getBaseUrl from "../../../lib/getBaseUrl";
 
-export async function POST() {
-  const cookieStore = await cookies(); // ✅ Await is needed in your case
-  const refreshToken = cookieStore.get("refresh_token")?.value;
-
-  if (!refreshToken) {
-    console.log("🔕 No refresh token found in cookies");
-    return NextResponse.json({ message: "No refresh token present" }, { status: 200 });
-  }
-
+export async function POST(req: Request) {
   try {
+    const { refreshToken } = await req.json();
+
+    if (!refreshToken) {
+      console.log("🔕 No refresh token provided in request body");
+      return NextResponse.json({ message: "No refresh token present" }, { status: 200 });
+    }
+
     const baseUrl = getBaseUrl();
     console.log("🌐 Refreshing token from backend:", `${baseUrl}/google/refresh`);
 
