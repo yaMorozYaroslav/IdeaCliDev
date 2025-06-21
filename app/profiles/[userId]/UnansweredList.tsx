@@ -1,4 +1,7 @@
+"use client";
+
 import styled from "styled-components";
+import getBaseUrl from "../../../lib/getBaseUrl"; // ✅ Make sure this exists
 
 const Card = styled.div`
   border: 1px solid #ccc;
@@ -43,6 +46,8 @@ export default function UnansweredList({
 }: UnansweredListProps) {
   if (!isOwner) return null;
 
+  const baseUrl = getBaseUrl();
+
   const canDelete = (q: any) =>
     q?.authorId === user?.googleId || isOwner || user?.status === "admin";
 
@@ -50,7 +55,7 @@ export default function UnansweredList({
     const content = prompt("Your answer:");
     if (!content) return;
 
-    const res = await fetch(`/personal/answer/${questionId}`, {
+    const res = await fetch(`${baseUrl}/personal/answer/${questionId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ content, userId: user?.googleId }),
@@ -59,13 +64,18 @@ export default function UnansweredList({
     if (res.ok) {
       onAnswered();
     } else {
-      const err = await res.json();
+      let err;
+      try {
+        err = await res.json();
+      } catch {
+        err = { message: await res.text() };
+      }
       alert(`❌ Failed to answer: ${err.message}`);
     }
   };
 
   const handleDelete = async (questionId: string) => {
-    const res = await fetch(`/personal/${questionId}`, {
+    const res = await fetch(`${baseUrl}/personal/${questionId}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId: user?.googleId }),
