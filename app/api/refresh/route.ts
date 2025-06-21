@@ -1,53 +1,71 @@
-// 🔁 Refresh token
-export async function refreshToken(req, res) {
-  const { refreshToken: token } = req.body;
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import getBaseUrl from "../../../lib/getBaseUrl";
 
-  if (!token) {
-    return res.status(401).json({ message: "No refresh token provided" });
+export async function POST() {
+  const cookieStore = await cookies(); // ✅ Await is needed in your case
+  const refreshToken = cookieStore.get("refresh_token")?.value;
+
+  if (!refreshToken) {
+    console.log("🔕 No refresh token found in cookies");
+    return NextResponse.json({ message: "No refresh token present" }, { status: 200 });
   }
 
   try {
-    const JWT_SECRET = process.env.JWT_SECRET || "test";
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const baseUrl = getBaseUrl();
+    console.log("🌐 Refreshing token from backend:", `${baseUrl}/google/refresh`);
 
-    const user = await db.collection("users").findOne(
-      { googleId: decoded.userId },
-      {
-        projection: {
-          googleId: 1,
-          name: 1,
-          email: 1,
-          picture: 1,
-          status: 1,
-          unanswered: 1,
-        },
-      }
-    );
+    const backendRes = await fetch(`${baseUrl}/google/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refreshToken }),
+    });
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    const raw = await backendRes.text();
+    console.log("🧪 Raw backend response:", raw);
+
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch (err) {
+      console.error("❌ Failed to parse backend JSON:", err.message);
+      throw new Error("Invalid backend response");
     }
 
-    const userData = {
-      userId: user.googleId,
-      email: user.email,
-      name: user.name,
-      picture: user.picture,
-      status: user.status,
-      unanswered: user.unanswered || [],
-    };
+    const { accessToken, userData } = parsed;
+    if (!accessToken) throw new Error("Access token missing");
 
-    const newAccessToken = jwt.sign(userData, JWT_SECRET, { expiresIn: "15m" });
+    const isLocal = process.env.LOCALHOST === "true" || process.env.NODE_ENV !== "production";
+    const response = NextResponse.json({ accessToken, userData });
 
-    return res.json({
-      accessToken: newAccessToken,
-      userData,
+    response.cookies.set("access_token", accessToken, {
+      httpOnly: true,
+      secure: !isLocal,
+      sameSite: isLocal ? "lax" : "none",
+      path: "/",
+      maxAge: 15 * 60,
     });
-  } catch (error) {
-    console.error("❌ Refresh token error:", error);
-    res.clearCookie("access_token");
-    res.clearCookie("refresh_token");
-    res.clearCookie("user_data");
-    return res.status(401).json({ message: "Invalid or expired refresh token" });
+
+    if (userData) {
+      response.cookies.set("user_data", JSON.stringify(userData), {
+        httpOnly: false,
+        secure: !isLocal,
+        sameSite: isLocal ? "lax" : "none",
+        path: "/",
+        maxAge: 15 * 60,
+      });
+    }
+
+    console.log("✅ Refresh succeeded");
+    return response;
+  } catch (err) {
+    console.error("❌ Refresh failed:", err.message);
+    const response = NextResponse.json({ message: "Refresh failed" }, { status: 200 });
+
+    response.cookies.delete("access_token");
+    response.cookies.delete("refresh_token");
+    response.cookies.delete("user_data");
+
+    return response;
   }
 }
