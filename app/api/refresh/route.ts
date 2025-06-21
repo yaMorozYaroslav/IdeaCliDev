@@ -3,9 +3,8 @@ import { cookies } from "next/headers";
 import getBaseUrl from "../../../lib/getBaseUrl";
 
 export async function POST() {
-  const cookieStore = await cookies(); // ✅ Await the promise
+  const cookieStore = cookies(); // ✅ FIXED: sync call
   const refreshToken = cookieStore.get("refresh_token")?.value;
-
 
   if (!refreshToken) {
     console.log("🔕 No refresh token found in cookies");
@@ -40,32 +39,39 @@ export async function POST() {
     }
 
     const isLocal = process.env.LOCALHOST === "true" || process.env.NODE_ENV !== "production";
-    const response = NextResponse.json({ accessToken, userData: userData || null });
+    const response = new NextResponse(JSON.stringify({ accessToken, userData: userData || null }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
 
-    response.cookies.set("access_token", accessToken, {
+    response.cookies.set({
+      name: "access_token",
+      value: accessToken,
       httpOnly: true,
       secure: !isLocal,
-      sameSite: isLocal ? "lax" : "strict",
+      sameSite: isLocal ? "lax" : "none",
       path: "/",
       maxAge: 15 * 60,
     });
 
     if (userData) {
-      response.cookies.set("user_data", JSON.stringify(userData), {
+      response.cookies.set({
+        name: "user_data",
+        value: JSON.stringify(userData),
         httpOnly: false,
         secure: !isLocal,
-        sameSite: "lax",
+        sameSite: isLocal ? "lax" : "none",
         path: "/",
         maxAge: 15 * 60,
       });
     }
 
-    console.log("✅ Cookies set successfully");
+    console.log("✅ Cookies refreshed successfully");
     return response;
   } catch (err: any) {
     console.error("❌ Refresh error:", err.message);
-    const response = NextResponse.json({ message: "Refresh failed" }, { status: 200 });
 
+    const response = NextResponse.json({ message: "Refresh failed" }, { status: 200 });
     response.cookies.delete("access_token");
     response.cookies.delete("refresh_token");
     response.cookies.delete("user_data");
