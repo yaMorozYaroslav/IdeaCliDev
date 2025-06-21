@@ -9,13 +9,11 @@ export async function POST(request: Request) {
 
   const isLocal = process.env.LOCALHOST === "true" || process.env.NODE_ENV !== "production";
 
-  // ✅ Create empty response first
   const response = new NextResponse(JSON.stringify({ message: "Tokens stored" }), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
 
-  // ✅ Shared cookie options
   const cookieOptions = {
     httpOnly: true,
     secure: !isLocal,
@@ -23,13 +21,13 @@ export async function POST(request: Request) {
     path: "/",
   };
 
-  // ✅ Set cookies
-  response.cookies.set("access_token", access_token, {
+  // ✅ Make sure all cookie values are strings
+  response.cookies.set("access_token", String(access_token), {
     ...cookieOptions,
     maxAge: 15 * 60,
   });
 
-  response.cookies.set("refresh_token", refresh_token, {
+  response.cookies.set("refresh_token", String(refresh_token), {
     ...cookieOptions,
     maxAge: 7 * 24 * 60 * 60,
   });
@@ -43,8 +41,8 @@ export async function POST(request: Request) {
   });
 
   console.log("✅ Cookies set:", {
-    access_token: access_token.slice(0, 10) + "...",
-    refresh_token: refresh_token.slice(0, 10) + "...",
+    access_token: String(access_token).slice(0, 10) + "...",
+    refresh_token: String(refresh_token).slice(0, 10) + "...",
     user_data: user_data.name,
     isLocal,
   });
