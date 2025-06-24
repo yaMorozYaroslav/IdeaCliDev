@@ -40,6 +40,7 @@ export async function POST() {
 
     const isLocal = process.env.LOCALHOST === "true" || process.env.NODE_ENV !== "production";
     const response = NextResponse.json({ accessToken, userData });
+    console.log("📏 Cookie size:", JSON.stringify(userData).length);
 
     // ✅ Always reset user_data cookie (to clear old one if missing)
     response.cookies.set("user_data", "", {

@@ -12,6 +12,7 @@ export default async function Page({ params }) {
   }
 
   const baseUrl = getBaseUrl();
+  console.log(baseUrl)
   const cookieStore = cookies(); // ✅ Correct: synchronous
   const accessToken = cookieStore.get("access_token")?.value;
 
