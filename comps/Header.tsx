@@ -27,23 +27,22 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
   const [screenWidth, setScreenWidth] = useState<number | null>(null);
 
   const loadUserFromCookie = () => {
-    const cookies = document.cookie.split("; ");
-    const userCookie = cookies.find((row) => row.startsWith("user_data="));
-    if (userCookie) {
-      try {
-        const encodedValue = userCookie.split("=")[1];
-        const decodedValue = decodeURIComponent(encodedValue);
-        const userData = JSON.parse(decodedValue);
-        //~ console.log("🍪 Loaded current user from cookie:", userData);
-        setCurrentUser(userData);
-      } catch (e) {
-        console.error("❌ Failed to parse user_data cookie:", e);
-        setCurrentUser(null);
-      }
+  try {
+    const match = document.cookie.match(/(?:^| )user_data=([^;]*)/);
+    if (!match) return setCurrentUser(null);
+
+    const decodedValue = decodeURIComponent(match[1]);
+    const user = JSON.parse(decodedValue);
+    if (user && user.userId) {
+      setCurrentUser(user);
     } else {
       setCurrentUser(null);
     }
-  };
+  } catch (e) {
+    console.error("❌ Failed to parse user_data cookie:", e);
+    setCurrentUser(null);
+  }
+};
 
   useEffect(() => {
     loadUserFromCookie();

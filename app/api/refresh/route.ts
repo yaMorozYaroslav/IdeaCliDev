@@ -1,17 +1,20 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import getBaseUrl from "../../../lib/getBaseUrl";
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
-    const { refreshToken } = await req.json();
+    const cookieStore = cookies();
+    const refreshToken = cookieStore.get("refresh_token")?.value;
+
+    console.log("🍪 Refresh token from cookies:", !!refreshToken);
 
     if (!refreshToken) {
-      console.log("🔕 No refresh token provided in request body");
       return NextResponse.json({ message: "No refresh token present" }, { status: 200 });
     }
 
     const baseUrl = getBaseUrl();
-    console.log("🌐 Refreshing token from backend:", `${baseUrl}/google/refresh`);
+    console.log("🌐 Calling backend refresh:", `${baseUrl}/google/refresh`);
 
     const backendRes = await fetch(`${baseUrl}/google/refresh`, {
       method: "POST",
@@ -20,7 +23,7 @@ export async function POST(req: Request) {
     });
 
     const raw = await backendRes.text();
-    console.log("🧪 Raw backend response:", raw);
+    console.log("📦 Raw backend response:", raw);
 
     let parsed;
     try {
@@ -31,7 +34,7 @@ export async function POST(req: Request) {
     }
 
     const { accessToken, userData } = parsed;
-    if (!accessToken) throw new Error("Access token missing");
+    if (!accessToken) throw new Error("Access token missing in backend response");
 
     const isLocal = process.env.LOCALHOST === "true" || process.env.NODE_ENV !== "production";
     const response = NextResponse.json({ accessToken, userData });
@@ -54,7 +57,7 @@ export async function POST(req: Request) {
       });
     }
 
-    console.log("✅ Refresh succeeded");
+    console.log("✅ Refresh completed successfully");
     return response;
   } catch (err) {
     console.error("❌ Refresh failed:", err.message);

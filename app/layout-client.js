@@ -82,37 +82,44 @@ export default function LayoutClient({ user, children }) {
     console.warn("⛔ Gave up waiting for refresh_token after 10 tries");
   };
 
-  const refreshToken = async (retry = true) => {
-    try {
-      const res = await fetch("/api/refresh", {
-        method: "POST",
-        credentials: "include",
-      });
+ const refreshToken = async (retry = true) => {
+  try {
+    const res = await fetch("/api/refresh", {
+      method: "POST",
+      credentials: "include", // ✅ this is enough to send cookies (including HttpOnly)
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (data.message === "No refresh token present") {
-        console.log("🟡 No refresh token. Not restarting refresh cycle.");
-        return;
-      }
-
-      if (!res.ok || !data.accessToken) {
-        throw new Error(data.message || "Refresh failed");
-      }
-
-      console.log("✅ Token refresh successful!");
-      window.dispatchEvent(new Event("tokenRefreshed"));
-      startRefreshCycle();
-    } catch (err) {
-      console.error("❌ Error during token refresh:", err.message);
-      if (retry) {
-        console.warn("🔄 Retrying refresh in 5 seconds...");
-        setTimeout(() => refreshToken(false), 5000);
-      } else {
-        console.error("❌ Refresh retry also failed. Giving up.");
-      }
+    if (data.message === "No refresh token present") {
+      console.log("🟡 No refresh token. Not restarting refresh cycle.");
+      return;
     }
-  };
+
+    if (!res.ok || !data.accessToken) {
+      throw new Error(data.message || "Refresh failed");
+    }
+
+    console.log("✅ Token refresh successful!");
+    if (data.userData) {
+      Cookies.set("user_data", JSON.stringify(data.userData), {
+        expires: new Date(Date.now() + 15 * 60 * 1000),
+        path: "/",
+      });
+    }
+
+    window.dispatchEvent(new Event("tokenRefreshed"));
+    startRefreshCycle();
+  } catch (err) {
+    console.error("❌ Error during token refresh:", err.message);
+    if (retry) {
+      console.warn("🔄 Retrying refresh in 5 seconds...");
+      setTimeout(() => refreshToken(false), 5000);
+    } else {
+      console.error("❌ Refresh retry also failed. Giving up.");
+    }
+  }
+};
 
   if (!mounted) return null;
 
