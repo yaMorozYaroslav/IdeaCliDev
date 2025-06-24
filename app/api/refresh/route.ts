@@ -4,9 +4,8 @@ import getBaseUrl from "../../../lib/getBaseUrl";
 
 export async function POST() {
   try {
-    const cookieStore = await cookies(); // ✅ resolve the Promise
+    const cookieStore = await cookies();
     const refreshToken = cookieStore.get("refresh_token")?.value;
-
 
     console.log("🍪 Refresh token from cookies:", !!refreshToken);
 
@@ -34,11 +33,22 @@ export async function POST() {
       throw new Error("Invalid backend response");
     }
 
+    console.log("🔍 Parsed backend refresh:", parsed);
+
     const { accessToken, userData } = parsed;
     if (!accessToken) throw new Error("Access token missing in backend response");
 
     const isLocal = process.env.LOCALHOST === "true" || process.env.NODE_ENV !== "production";
     const response = NextResponse.json({ accessToken, userData });
+
+    // ✅ Always reset user_data cookie (to clear old one if missing)
+    response.cookies.set("user_data", "", {
+      httpOnly: false,
+      secure: !isLocal,
+      sameSite: isLocal ? "lax" : "none",
+      path: "/",
+      maxAge: 0,
+    });
 
     response.cookies.set("access_token", accessToken, {
       httpOnly: true,
