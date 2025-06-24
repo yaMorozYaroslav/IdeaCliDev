@@ -24,7 +24,7 @@ export default async function Page({ params }) {
     const res = await fetch(`${baseUrl}/google/public/${profileUserId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: accessToken }),
+      body: JSON.stringify({ }),
       cache: "no-store",
     });
 
