@@ -27,7 +27,7 @@ export default async function Page({ params }) {
       body: JSON.stringify({ }),
       cache: "no-store",
     });
-
+    console.log(res)
     const text = await res.text();
     console.log("📬 Status:", res.status);
     console.log("📦 Raw response:", text);
