@@ -4,7 +4,7 @@ import getBaseUrl from "../../../lib/getBaseUrl";
 
 export async function POST() {
   try {
-    cconst cookieStore = await cookies(); // ✅ resolve the Promise
+    const cookieStore = await cookies(); // ✅ resolve the Promise
     const refreshToken = cookieStore.get("refresh_token")?.value;
 
 
