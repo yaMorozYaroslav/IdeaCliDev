@@ -40,9 +40,8 @@ export async function POST() {
 
     const isLocal = process.env.LOCALHOST === "true" || process.env.NODE_ENV !== "production";
     const response = NextResponse.json({ accessToken, userData });
-    console.log("📏 Cookie size:", JSON.stringify(userData).length);
 
-    // ✅ Always reset user_data cookie (to clear old one if missing)
+    // 🧹 Always clear the previous user_data cookie
     response.cookies.set("user_data", "", {
       httpOnly: false,
       secure: !isLocal,
@@ -51,6 +50,7 @@ export async function POST() {
       maxAge: 0,
     });
 
+    // ✅ Set new access token
     response.cookies.set("access_token", accessToken, {
       httpOnly: true,
       secure: !isLocal,
@@ -59,14 +59,26 @@ export async function POST() {
       maxAge: 15 * 60,
     });
 
+    // ✅ Set slimmed down user_data cookie if available
     if (userData) {
-      response.cookies.set("user_data", JSON.stringify(userData), {
+      const slimUserData = {
+        userId: userData.userId,
+        name: userData.name,
+        picture: userData.picture,
+        status: userData.status,
+      };
+
+      console.log("📏 Cookie size:", JSON.stringify(slimUserData).length);
+
+      response.cookies.set("user_data", JSON.stringify(slimUserData), {
         httpOnly: false,
         secure: !isLocal,
         sameSite: isLocal ? "lax" : "none",
         path: "/",
         maxAge: 15 * 60,
       });
+    } else {
+      console.warn("⚠️ userData missing from backend response — user_data cookie not set");
     }
 
     console.log("✅ Refresh completed successfully");
