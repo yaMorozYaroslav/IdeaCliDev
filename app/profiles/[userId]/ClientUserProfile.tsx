@@ -22,23 +22,34 @@ export default function ClientUserProfile({
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log("🍪 Full document.cookie:", document.cookie);
+
     const cookie = document.cookie
       .split("; ")
       .find((row) => row.startsWith("user_data="));
 
     if (cookie) {
       try {
-        const raw = decodeURIComponent(cookie.split("=")[1]);
-        const parsed = JSON.parse(raw);
+        const raw = cookie.split("=")[1];
+        if (!raw) throw new Error("Empty cookie value");
+
+        const decoded = decodeURIComponent(raw);
+        const parsed = JSON.parse(decoded);
+
         const userIdFromCookie = parsed?.userId;
-        setCurrentUserId(userIdFromCookie);
-        setIsOwner(userIdFromCookie === profileUserId);
-        return;
+        if (userIdFromCookie) {
+          setCurrentUserId(userIdFromCookie);
+          setIsOwner(userIdFromCookie === profileUserId);
+          return;
+        } else {
+          console.warn("⚠️ user_data cookie found, but userId is missing");
+        }
       } catch (err) {
         console.warn("❌ Failed to parse user_data cookie:", err);
       }
     }
 
+    // Fallback if no valid cookie
     setCurrentUserId(null);
     setIsOwner(false);
   }, [profileUserId]);
