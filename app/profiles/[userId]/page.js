@@ -1,5 +1,4 @@
 import ClientUserProfile from "./ClientUserProfile";
-import { cookies } from "next/headers";
 import getBaseUrl from "../../../lib/getBaseUrl";
 import { notFound } from "next/navigation";
 
@@ -12,11 +11,7 @@ export default async function Page({ params }) {
   }
 
   const baseUrl = getBaseUrl();
-  console.log(baseUrl)
-  const cookieStore = cookies(); // ✅ Correct: synchronous
-  const accessToken = cookieStore.get("access_token")?.value;
-
-  console.log("🪪 Access token:", accessToken);
+  console.log("🌐 Base URL:", baseUrl);
   console.log("🔎 Requested profile userId (googleId):", profileUserId);
 
   let profileUser = null;
@@ -25,10 +20,10 @@ export default async function Page({ params }) {
     const res = await fetch(`${baseUrl}/google/public/${profileUserId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ }),
+      body: JSON.stringify({}), // no token needed
       cache: "no-store",
     });
-    console.log(res)
+
     const text = await res.text();
     console.log("📬 Status:", res.status);
     console.log("📦 Raw response:", text);
