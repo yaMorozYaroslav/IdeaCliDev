@@ -1,46 +1,19 @@
-import type { NextRequest } from "next/server";
-import type { IncomingMessage } from "http";
+export const getBaseUrl = (): string => {
+  const isBrowser = typeof window !== "undefined";
 
-type RequestLike = NextRequest | IncomingMessage | undefined;
+  const env = isBrowser
+    ? process.env.NEXT_PUBLIC_HOST
+    : process.env.HOST;
 
-export const getBaseUrl = (request?: RequestLike): string => {
-  // ✅ Client-side (browser)
-  if (typeof window !== "undefined") {
-    const hostname = window.location.hostname;
-
-    if (hostname.includes("localhost")) {
-      return "http://localhost:5000";
-    }
-    if (hostname.includes("idea-sphere-dev.vercel.app")) {
-      return "https://idea-sphere-dev-30492dbf5e99.herokuapp.com";
-    }
-
-    return "https://idea-sphere-50bb3c5bc07b.herokuapp.com";
+  if (env === "LOCAL") {
+    return "http://localhost:5000";
   }
 
-  // ✅ Server-side (middleware, API routes)
-  if (request) {
-    let hostname = "";
-
-    if ("headers" in request && typeof request.headers.get === "function") {
-      // Middleware (NextRequest)
-      hostname = request.headers.get("host") ?? "";
-    } else if ("headers" in request && typeof request.headers === "object") {
-      // API route or SSR (IncomingMessage)
-      hostname = (request.headers as Record<string, string>)["host"] ?? "";
-    }
-
-    if (hostname.includes("localhost")) {
-      return "http://localhost:5000";
-    }
-    if (hostname.includes("idea-sphere-dev.vercel.app")) {
-      return "https://idea-sphere-dev-30492dbf5e99.herokuapp.com";
-    }
-
-    return "https://idea-sphere-50bb3c5bc07b.herokuapp.com";
+  if (env === "DEVELOPMENT") {
+    return "https://idea-sphere-dev-30492dbf5e99.herokuapp.com";
   }
 
-  // ✅ SSR without request (e.g., page.tsx)
+  // Default to PRODUCTION
   return "https://idea-sphere-50bb3c5bc07b.herokuapp.com";
 };
 

@@ -1,6 +1,7 @@
 import ClientUserProfile from "./ClientUserProfile";
 import getBaseUrl from "../../../lib/getBaseUrl";
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 
 export default async function Page({ params }) {
   const profileUserId = params.userId;
@@ -17,10 +18,15 @@ export default async function Page({ params }) {
   let profileUser = null;
 
   try {
+    const cookieStore = await cookies(); // ✅ Await required
+    const accessToken = cookieStore.get("access_token")?.value;
+
     const res = await fetch(`${baseUrl}/google/public/${profileUserId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({}), // no token needed
+      body: JSON.stringify({
+        token: accessToken || null, // ✅ Pass token for ownership check
+      }),
       cache: "no-store",
     });
 
