@@ -15,6 +15,7 @@ export default function ProfileHeader({
   const picture = user?.picture?.trim() || "/default-avatar.png";
   const unansweredCount = isOwner ? user?.unanswered ?? 0 : null;
 
+
   return (
     <HeaderContainer>
       <Avatar src={picture} alt={name} />
