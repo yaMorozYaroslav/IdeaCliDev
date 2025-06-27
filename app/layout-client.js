@@ -8,10 +8,22 @@ import Cookies from "js-cookie";
 
 export default function LayoutClient({ user, children }) {
   const [mounted, setMounted] = useState(false);
+  const [unanswered, setUnanswered] = useState([]);
   const refreshTimeoutRef = useRef(null);
   const REFRESH_INTERVAL = 1 * 60 * 1000;
 
   useEffect(() => {
+    try {
+      const raw = Cookies.get("unanswered");
+      if (raw) {
+        const parsed = JSON.parse(decodeURIComponent(raw));
+        setUnanswered(parsed);
+        console.log("📦 Loaded unanswered from cookie:", parsed);
+      }
+    } catch (err) {
+      console.error("❌ Failed to parse unanswered cookie:", err);
+    }
+
     setMounted(true);
     console.log("🔍 Initial cookies:", document.cookie);
 
@@ -105,6 +117,17 @@ export default function LayoutClient({ user, children }) {
           expires: new Date(Date.now() + 15 * 60 * 1000),
           path: "/",
         });
+
+        if (data.userData.unanswered?.length) {
+          Cookies.set("unanswered", encodeURIComponent(JSON.stringify(data.userData.unanswered)), {
+            expires: new Date(Date.now() + 15 * 60 * 1000),
+            path: "/",
+          });
+          setUnanswered(data.userData.unanswered);
+        } else {
+          Cookies.remove("unanswered");
+          setUnanswered([]);
+        }
       }
 
       window.dispatchEvent(new Event("tokenRefreshed"));
@@ -124,7 +147,7 @@ export default function LayoutClient({ user, children }) {
 
   return (
     <StyleSheetManager shouldForwardProp={(prop) => isPropValid(prop)}>
-      <Header user={user} />
+      <Header user={user} unanswered={unanswered} />
       {children}
     </StyleSheetManager>
   );

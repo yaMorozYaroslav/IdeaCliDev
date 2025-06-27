@@ -5,12 +5,14 @@ import { FiMenu } from "react-icons/fi";
 import { FaSearch, FaInfoCircle } from "react-icons/fa";
 import * as S from "./header.styled";
 import getBaseUrl from "../lib/getBaseUrl";
+import Cookies from "js-cookie";
 
 interface User {
   userId: string;
   name: string;
+  email?: string;
   picture?: string;
-  unanswered?: any[];
+  status?: string;
   [key: string]: any;
 }
 
@@ -23,36 +25,58 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(user ?? null);
+  const [unansweredCount, setUnansweredCount] = useState<number>(0);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [screenWidth, setScreenWidth] = useState<number | null>(null);
 
   const loadUserFromCookie = () => {
-  try {
-    const match = document.cookie.match(/(?:^| )user_data=([^;]*)/);
-    if (!match) return setCurrentUser(null);
-
-    const decodedValue = decodeURIComponent(match[1]);
-    const user = JSON.parse(decodedValue);
-    if (user && user.userId) {
-      setCurrentUser(user);
-    } else {
+    try {
+      const match = document.cookie.match(/(?:^| )user_data=([^;]*)/);
+      if (!match) return setCurrentUser(null);
+      const decoded = decodeURIComponent(match[1]);
+      const user = JSON.parse(decoded);
+      if (user && user.userId) {
+        setCurrentUser(user);
+      } else {
+        setCurrentUser(null);
+      }
+    } catch (err) {
+      console.error("❌ Failed to parse user_data cookie:", err);
       setCurrentUser(null);
     }
-  } catch (e) {
-    console.error("❌ Failed to parse user_data cookie:", e);
-    setCurrentUser(null);
-  }
-};
+  };
+
+  const loadUnansweredFromCookie = () => {
+    try {
+      const raw = Cookies.get("unanswered");
+      if (!raw) return setUnansweredCount(0);
+      const parsed = JSON.parse(decodeURIComponent(raw));
+      if (Array.isArray(parsed)) {
+        setUnansweredCount(parsed.length);
+      }
+    } catch (err) {
+      console.error("❌ Failed to parse unanswered cookie:", err);
+    }
+  };
 
   useEffect(() => {
     loadUserFromCookie();
-    const handleTokenRefreshed = () => loadUserFromCookie();
+    loadUnansweredFromCookie();
+
+    const handleTokenRefreshed = () => {
+      loadUserFromCookie();
+      loadUnansweredFromCookie();
+    };
+
     window.addEventListener("tokenRefreshed", handleTokenRefreshed);
     return () => window.removeEventListener("tokenRefreshed", handleTokenRefreshed);
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => loadUserFromCookie(), 15000); // every 15s
+    const interval = setInterval(() => {
+      loadUserFromCookie();
+      loadUnansweredFromCookie();
+    }, 15000);
     return () => clearInterval(interval);
   }, []);
 
@@ -84,6 +108,7 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
       const handleMessage = (event: MessageEvent) => {
         if (event.data?.loginDone) {
           loadUserFromCookie();
+          loadUnansweredFromCookie();
           setIsLoggingIn(false);
           window.removeEventListener("message", handleMessage);
         }
@@ -98,7 +123,8 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
     try {
       await fetch("/api/logout", { method: "POST" });
       setCurrentUser(null);
-      document.cookie = "user_data=; path=/; max-age=0";
+      Cookies.remove("user_data");
+      Cookies.remove("unanswered");
       window.dispatchEvent(new Event("tokenRefreshed"));
     } catch (error) {
       console.error("❌ Logout failed:", error);
@@ -141,12 +167,21 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
                   <S.UserAvatar src={currentUser.picture} alt={currentUser.name} />
                 )}
                 <S.UserNameLink href={`/${currentUser.userId}`}>
-                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "inline-block", maxWidth: 120, verticalAlign: "middle" }}>
+                  <span
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      display: "inline-block",
+                      maxWidth: 120,
+                      verticalAlign: "middle",
+                    }}
+                  >
                     {currentUser.name}
                   </span>
                 </S.UserNameLink>
-                {Array.isArray(currentUser.unanswered) && (
-                  <span> ({currentUser.unanswered.length || "*"})</span>
+                {unansweredCount > 0 && (
+                  <span style={{ marginLeft: 6 }}>({unansweredCount})</span>
                 )}
               </>
             ) : (

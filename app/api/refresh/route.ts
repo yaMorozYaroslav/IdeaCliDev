@@ -45,7 +45,7 @@ export async function POST() {
       JSON.stringify({
         message: "Tokens refreshed",
         accessToken,
-        userData, // ✅ Still returned to the client
+        userData,
       }),
       {
         status: 200,
@@ -53,6 +53,7 @@ export async function POST() {
       }
     );
 
+    // ✅ Access token
     response.cookies.set({
       name: "access_token",
       value: accessToken,
@@ -63,6 +64,7 @@ export async function POST() {
       maxAge: 15 * 60,
     });
 
+    // ✅ Refresh token
     response.cookies.set({
       name: "refresh_token",
       value: refreshToken,
@@ -73,22 +75,32 @@ export async function POST() {
       maxAge: 7 * 24 * 60 * 60,
     });
 
-    const { userId, name, picture, status } = userData;
-
+    // ✅ user_data without unanswered
+    const { userId, email, name, picture, status } = userData;
     response.cookies.set({
       name: "user_data",
-      value: JSON.stringify({
-        userId,
-        name,
-        picture,
-        status,
-      }),
+      value: JSON.stringify({ userId, email, name, picture, status }),
       httpOnly: false,
       secure: !isLocal,
       sameSite: isLocal ? "lax" : "none",
       path: "/",
       maxAge: 15 * 60,
     });
+
+    // ✅ Store unanswered in a separate cookie (encoded)
+    if (userData.unanswered?.length) {
+      response.cookies.set({
+        name: "unanswered",
+        value: encodeURIComponent(JSON.stringify(userData.unanswered)),
+        httpOnly: false,
+        secure: !isLocal,
+        sameSite: isLocal ? "lax" : "none",
+        path: "/",
+        maxAge: 15 * 60,
+      });
+    } else {
+      response.cookies.delete("unanswered");
+    }
 
     console.log("✅ Refreshed cookies set successfully");
     return response;
@@ -103,6 +115,7 @@ export async function POST() {
     response.cookies.delete("access_token");
     response.cookies.delete("refresh_token");
     response.cookies.delete("user_data");
+    response.cookies.delete("unanswered");
 
     return response;
   }
