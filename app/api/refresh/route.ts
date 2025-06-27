@@ -53,7 +53,6 @@ export async function POST() {
       }
     );
 
-    // ✅ Set tokens
     response.cookies.set({
       name: "access_token",
       value: accessToken,
@@ -74,22 +73,18 @@ export async function POST() {
       maxAge: 7 * 24 * 60 * 60,
     });
 
-    // ✅ Save lightweight user_data (excluding unanswered list)
     const { userId, email, name, picture, status, unanswered } = userData;
+
     response.cookies.set({
       name: "user_data",
-      value: JSON.stringify({ userId, email, name, picture, status }),
-      httpOnly: false,
-      secure: !isLocal,
-      sameSite: isLocal ? "lax" : "none",
-      path: "/",
-      maxAge: 15 * 60,
-    });
-
-    // ✅ Save only the count of unanswered questions
-    response.cookies.set({
-      name: "unanswered_count",
-      value: String(unanswered?.length || 0),
+      value: JSON.stringify({
+        userId,
+        email,
+        name,
+        picture,
+        status,
+        unanswered: Array.isArray(unanswered) ? unanswered.length : 0,
+      }),
       httpOnly: false,
       secure: !isLocal,
       sameSite: isLocal ? "lax" : "none",
@@ -110,7 +105,6 @@ export async function POST() {
     response.cookies.delete("access_token");
     response.cookies.delete("refresh_token");
     response.cookies.delete("user_data");
-    response.cookies.delete("unanswered_count");
 
     return response;
   }

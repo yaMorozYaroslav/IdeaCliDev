@@ -17,7 +17,6 @@ export async function POST(request: Request) {
     headers: { "Content-Type": "application/json" },
   });
 
-  // 🍪 access_token
   response.cookies.set({
     name: "access_token",
     value: access_token,
@@ -28,7 +27,6 @@ export async function POST(request: Request) {
     maxAge: 15 * 60,
   });
 
-  // 🍪 refresh_token
   response.cookies.set({
     name: "refresh_token",
     value: refresh_token,
@@ -39,11 +37,18 @@ export async function POST(request: Request) {
     maxAge: 7 * 24 * 60 * 60,
   });
 
-  // 🍪 user_data (light version)
   const { userId, email, name, picture, status, unanswered } = user_data;
+
   response.cookies.set({
     name: "user_data",
-    value: JSON.stringify({ userId, email, name, picture, status }),
+    value: JSON.stringify({
+      userId,
+      email,
+      name,
+      picture,
+      status,
+      unanswered: Array.isArray(unanswered) ? unanswered.length : 0,
+    }),
     httpOnly: false,
     secure: !isLocal,
     sameSite: isLocal ? "lax" : "none",
@@ -51,18 +56,6 @@ export async function POST(request: Request) {
     maxAge: 15 * 60,
   });
 
-  // 🍪 unanswered_count only
-  const unansweredCount = Array.isArray(unanswered) ? unanswered.length : 0;
-  response.cookies.set({
-    name: "unanswered_count",
-    value: String(unansweredCount),
-    httpOnly: false,
-    secure: !isLocal,
-    sameSite: isLocal ? "lax" : "none",
-    path: "/",
-    maxAge: 15 * 60,
-  });
-
-  console.log("✅ Tokens and cookie counts stored");
+  console.log("✅ Cookies set successfully");
   return response;
 }
