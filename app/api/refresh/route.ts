@@ -41,19 +41,11 @@ export async function POST() {
 
     const isLocal = process.env.HOST === "LOCAL";
 
-    const { userId, name, picture, status, unanswered } = userData;
-
     const response = new NextResponse(
       JSON.stringify({
         message: "Tokens refreshed",
         accessToken,
-        userData: {
-          userId,
-          name,
-          picture,
-          status,
-          ...(unanswered ? { unanswered } : {}),
-        },
+        userData,
       }),
       {
         status: 200,
@@ -83,13 +75,7 @@ export async function POST() {
 
     response.cookies.set({
       name: "user_data",
-      value: JSON.stringify({
-        userId,
-        name,
-        picture,
-        status,
-        ...(unanswered ? { unanswered } : {}),
-      }),
+      value: JSON.stringify(userData), // ✅ match login exactly
       httpOnly: false,
       secure: !isLocal,
       sameSite: isLocal ? "lax" : "none",
