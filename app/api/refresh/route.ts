@@ -45,7 +45,7 @@ export async function POST() {
       JSON.stringify({
         message: "Tokens refreshed",
         accessToken,
-        userData,
+        userData, // ✅ Still returned to the client
       }),
       {
         status: 200,
@@ -73,9 +73,16 @@ export async function POST() {
       maxAge: 7 * 24 * 60 * 60,
     });
 
+    const { userId, name, picture, status } = userData;
+
     response.cookies.set({
       name: "user_data",
-      value: JSON.stringify(userData), // ✅ match login exactly
+      value: JSON.stringify({
+        userId,
+        name,
+        picture,
+        status,
+      }),
       httpOnly: false,
       secure: !isLocal,
       sameSite: isLocal ? "lax" : "none",
