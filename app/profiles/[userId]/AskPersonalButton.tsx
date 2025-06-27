@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import getBaseUrl from "../../../lib/getBaseUrl";
 
 export default function AskPersonalButton({ recipientUserId }: { recipientUserId: string }) {
@@ -9,6 +9,26 @@ export default function AskPersonalButton({ recipientUserId }: { recipientUserId
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isOwner, setIsOwner] = useState<boolean | null>(null);
+
+  // ✅ Check if current user is the profile owner
+  useEffect(() => {
+    try {
+      const match = document.cookie.match(/(?:^| )user_data=([^;]*)/);
+      if (!match) return setIsOwner(false);
+
+      const decoded = decodeURIComponent(match[1]);
+      const user = JSON.parse(decoded);
+      if (user?.userId === recipientUserId) {
+        setIsOwner(true);
+      } else {
+        setIsOwner(false);
+      }
+    } catch (err) {
+      console.error("❌ Failed to parse user_data cookie:", err);
+      setIsOwner(false);
+    }
+  }, [recipientUserId]);
 
   const handleSend = async () => {
     if (!question.trim()) return;
@@ -20,10 +40,7 @@ export default function AskPersonalButton({ recipientUserId }: { recipientUserId
       const res = await fetch(`${getBaseUrl()}/personal/new`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: question,
-          recipientUserId, // ✅ this is correct — your backend expects it
-        }),
+        body: JSON.stringify({ title: question, recipientUserId }),
         credentials: "include",
       });
 
@@ -41,6 +58,9 @@ export default function AskPersonalButton({ recipientUserId }: { recipientUserId
       setSending(false);
     }
   };
+
+  // ⛔ Don’t show if it’s the owner
+  if (isOwner === true) return null;
 
   if (sent) {
     return <p style={{ marginTop: "1rem" }}>✅ Your question has been sent!</p>;

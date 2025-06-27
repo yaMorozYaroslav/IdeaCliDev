@@ -39,8 +39,8 @@ export async function POST(request: Request) {
     maxAge: 7 * 24 * 60 * 60,
   });
 
-  // 🍪 user_data (no unanswered)
-  const { userId, email, name, picture, status } = user_data;
+  // 🍪 user_data (light version)
+  const { userId, email, name, picture, status, unanswered } = user_data;
   response.cookies.set({
     name: "user_data",
     value: JSON.stringify({ userId, email, name, picture, status }),
@@ -51,21 +51,18 @@ export async function POST(request: Request) {
     maxAge: 15 * 60,
   });
 
-  // 🍪 unanswered (stored separately)
-  if (user_data.unanswered?.length) {
-    response.cookies.set({
-      name: "unanswered",
-      value: JSON.stringify(user_data.unanswered),
-      httpOnly: false,
-      secure: !isLocal,
-      sameSite: isLocal ? "lax" : "none",
-      path: "/",
-      maxAge: 15 * 60,
-    });
-  } else {
-    response.cookies.delete("unanswered");
-  }
+  // 🍪 unanswered_count only
+  const unansweredCount = Array.isArray(unanswered) ? unanswered.length : 0;
+  response.cookies.set({
+    name: "unanswered_count",
+    value: String(unansweredCount),
+    httpOnly: false,
+    secure: !isLocal,
+    sameSite: isLocal ? "lax" : "none",
+    path: "/",
+    maxAge: 15 * 60,
+  });
 
-  console.log("✅ Tokens and cookies stored");
+  console.log("✅ Tokens and cookie counts stored");
   return response;
 }

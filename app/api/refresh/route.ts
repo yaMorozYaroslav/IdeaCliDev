@@ -53,7 +53,7 @@ export async function POST() {
       }
     );
 
-    // 🍪 Access token
+    // ✅ Set tokens
     response.cookies.set({
       name: "access_token",
       value: accessToken,
@@ -64,7 +64,6 @@ export async function POST() {
       maxAge: 15 * 60,
     });
 
-    // 🍪 Refresh token
     response.cookies.set({
       name: "refresh_token",
       value: refreshToken,
@@ -75,8 +74,8 @@ export async function POST() {
       maxAge: 7 * 24 * 60 * 60,
     });
 
-    // 🍪 user_data (basic info only)
-    const { userId, email, name, picture, status } = userData;
+    // ✅ Save lightweight user_data (excluding unanswered list)
+    const { userId, email, name, picture, status, unanswered } = userData;
     response.cookies.set({
       name: "user_data",
       value: JSON.stringify({ userId, email, name, picture, status }),
@@ -87,20 +86,16 @@ export async function POST() {
       maxAge: 15 * 60,
     });
 
-    // 🍪 unanswered (stored separately, readable)
-    if (userData.unanswered?.length) {
-      response.cookies.set({
-        name: "unanswered",
-        value: JSON.stringify(userData.unanswered),
-        httpOnly: false,
-        secure: !isLocal,
-        sameSite: isLocal ? "lax" : "none",
-        path: "/",
-        maxAge: 15 * 60,
-      });
-    } else {
-      response.cookies.delete("unanswered");
-    }
+    // ✅ Save only the count of unanswered questions
+    response.cookies.set({
+      name: "unanswered_count",
+      value: String(unanswered?.length || 0),
+      httpOnly: false,
+      secure: !isLocal,
+      sameSite: isLocal ? "lax" : "none",
+      path: "/",
+      maxAge: 15 * 60,
+    });
 
     console.log("✅ Refreshed cookies set successfully");
     return response;
@@ -115,7 +110,7 @@ export async function POST() {
     response.cookies.delete("access_token");
     response.cookies.delete("refresh_token");
     response.cookies.delete("user_data");
-    response.cookies.delete("unanswered");
+    response.cookies.delete("unanswered_count");
 
     return response;
   }
