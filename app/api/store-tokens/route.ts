@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
-  const { access_token, refresh_token, user_data, unanswered } = await request.json();
+  const { access_token, refresh_token, user_data } = await request.json();
 
   if (!access_token || !refresh_token || !user_data) {
     return new Response(JSON.stringify({ message: "Missing token data" }), {
@@ -17,6 +17,7 @@ export async function POST(request: Request) {
     headers: { "Content-Type": "application/json" },
   });
 
+  // 🍪 access_token
   response.cookies.set({
     name: "access_token",
     value: access_token,
@@ -27,6 +28,7 @@ export async function POST(request: Request) {
     maxAge: 15 * 60,
   });
 
+  // 🍪 refresh_token
   response.cookies.set({
     name: "refresh_token",
     value: refresh_token,
@@ -37,9 +39,11 @@ export async function POST(request: Request) {
     maxAge: 7 * 24 * 60 * 60,
   });
 
+  // 🍪 user_data (no unanswered)
+  const { userId, email, name, picture, status } = user_data;
   response.cookies.set({
     name: "user_data",
-    value: JSON.stringify(user_data),
+    value: JSON.stringify({ userId, email, name, picture, status }),
     httpOnly: false,
     secure: !isLocal,
     sameSite: isLocal ? "lax" : "none",
@@ -47,19 +51,21 @@ export async function POST(request: Request) {
     maxAge: 15 * 60,
   });
 
-  if (unanswered) {
+  // 🍪 unanswered (stored separately)
+  if (user_data.unanswered?.length) {
     response.cookies.set({
       name: "unanswered",
-      value: JSON.stringify(unanswered), // ⚠️ readable but may break if too long
+      value: JSON.stringify(user_data.unanswered),
       httpOnly: false,
       secure: !isLocal,
       sameSite: isLocal ? "lax" : "none",
       path: "/",
       maxAge: 15 * 60,
     });
+  } else {
+    response.cookies.delete("unanswered");
   }
 
-  console.log("✅ Cookies set with readable unanswered");
-
+  console.log("✅ Tokens and cookies stored");
   return response;
 }

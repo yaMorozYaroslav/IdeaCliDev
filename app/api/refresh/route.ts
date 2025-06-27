@@ -53,6 +53,7 @@ export async function POST() {
       }
     );
 
+    // 🍪 Access token
     response.cookies.set({
       name: "access_token",
       value: accessToken,
@@ -63,6 +64,7 @@ export async function POST() {
       maxAge: 15 * 60,
     });
 
+    // 🍪 Refresh token
     response.cookies.set({
       name: "refresh_token",
       value: refreshToken,
@@ -73,6 +75,7 @@ export async function POST() {
       maxAge: 7 * 24 * 60 * 60,
     });
 
+    // 🍪 user_data (basic info only)
     const { userId, email, name, picture, status } = userData;
     response.cookies.set({
       name: "user_data",
@@ -84,11 +87,11 @@ export async function POST() {
       maxAge: 15 * 60,
     });
 
-    // ✅ Store unanswered separately — raw string for readability
+    // 🍪 unanswered (stored separately, readable)
     if (userData.unanswered?.length) {
       response.cookies.set({
         name: "unanswered",
-        value: JSON.stringify(userData.unanswered), // unencoded
+        value: JSON.stringify(userData.unanswered),
         httpOnly: false,
         secure: !isLocal,
         sameSite: isLocal ? "lax" : "none",

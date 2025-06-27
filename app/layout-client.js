@@ -69,28 +69,29 @@ export default function LayoutClient({ user, children }) {
   };
 
   const waitForRefreshToken = async () => {
-    for (let i = 0; i < 10; i++) {
-      const refresh = Cookies.get("refresh_token");
-      const access = Cookies.get("access_token");
-      const userData = Cookies.get("user_data");
+  for (let i = 0; i < 10; i++) {
+    const refresh = Cookies.get("refresh_token");
 
-      if (!refresh && (!access || !userData)) {
-        console.log("🚪 User is logged out — stopping refresh loop");
-        return;
-      }
-
-      if (refresh) {
-        console.log("✅ refresh_token found, starting refresh now");
-        await refreshToken();
-        return;
-      }
-
-      console.warn("⏳ Waiting for refresh_token cookie...");
-      await new Promise((r) => setTimeout(r, 200));
+    if (!refresh) {
+      console.log("🚪 No refresh token — stopping refresh loop");
+      return;
     }
 
-    console.warn("⛔ Gave up waiting for refresh_token after 10 tries");
-  };
+    const access = Cookies.get("access_token");
+    const userData = Cookies.get("user_data");
+
+    if (!access || !userData) {
+      console.warn("⏳ Missing access or user data — triggering immediate refresh");
+      await refreshToken();
+      return;
+    }
+
+    console.log("🟢 All tokens present, skipping immediate refresh");
+    return;
+  }
+
+  console.warn("⛔ Gave up waiting for refresh_token after 10 tries");
+};
 
   const refreshToken = async (retry = true) => {
     try {
