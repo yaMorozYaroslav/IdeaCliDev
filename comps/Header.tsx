@@ -166,7 +166,15 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
                 {currentUser.picture && (
                   <S.UserAvatar src={currentUser.picture} alt={currentUser.name} />
                 )}
-                <S.UserNameLink href={`/${currentUser.userId}`} style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                <S.UserNameLink
+  href={`/${currentUser.userId}`}
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "0.4rem",
+    textDecoration: "none",
+  }}
+>
   <span
     style={{
       overflow: "hidden",
@@ -181,6 +189,7 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
   </span>
   <span>({unansweredCount})</span>
 </S.UserNameLink>
+
 
               </>
             ) : (
