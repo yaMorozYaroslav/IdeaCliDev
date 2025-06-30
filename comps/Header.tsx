@@ -179,10 +179,8 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
                   >
                     {currentUser.name}
                   </span>
-                </S.UserNameLink>
-                {unansweredCount > 0 && (
                   <span style={{ marginLeft: 6 }}>({unansweredCount})</span>
-                )}
+                </S.UserNameLink>
               </>
             ) : (
               <S.UserName>Anonymous</S.UserName>
