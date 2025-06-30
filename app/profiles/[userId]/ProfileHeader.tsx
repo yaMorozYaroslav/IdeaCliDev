@@ -13,7 +13,8 @@ export default function ProfileHeader({
 
   const name = user?.name?.trim() || "Anonymous";
   const picture = user?.picture?.trim() || "/default-avatar.png";
-  const unansweredCount = isOwner ? user?.unanswered ?? 0 : null;
+  const unansweredCount = isOwner && typeof user?.unanswered === "number" ? user.unanswered : 0;
+
 
 
   return (
