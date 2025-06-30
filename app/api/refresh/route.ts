@@ -75,6 +75,7 @@ export async function POST() {
 
     const { userId, email, name, picture, status, unanswered } = userData;
 
+    // ✅ user_data without unanswered
     response.cookies.set({
       name: "user_data",
       value: JSON.stringify({
@@ -83,7 +84,6 @@ export async function POST() {
         name,
         picture,
         status,
-        unanswered: Array.isArray(unanswered) ? unanswered.length : 0,
       }),
       httpOnly: false,
       secure: !isLocal,
@@ -91,6 +91,27 @@ export async function POST() {
       path: "/",
       maxAge: 15 * 60,
     });
+
+    // ✅ Set unanswered separately
+    if (Array.isArray(unanswered)) {
+      response.cookies.set({
+        name: "unanswered",
+        value: encodeURIComponent(JSON.stringify(unanswered)),
+        httpOnly: false,
+        secure: !isLocal,
+        sameSite: isLocal ? "lax" : "none",
+        path: "/",
+        maxAge: 15 * 60,
+      });
+    } else {
+      response.cookies.set("unanswered", "", {
+        httpOnly: false,
+        secure: !isLocal,
+        sameSite: isLocal ? "lax" : "none",
+        path: "/",
+        maxAge: 0,
+      });
+    }
 
     console.log("✅ Refreshed cookies set successfully");
     return response;
@@ -105,6 +126,7 @@ export async function POST() {
     response.cookies.delete("access_token");
     response.cookies.delete("refresh_token");
     response.cookies.delete("user_data");
+    response.cookies.delete("unanswered");
 
     return response;
   }

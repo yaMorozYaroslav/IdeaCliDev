@@ -17,6 +17,7 @@ export async function POST(request: Request) {
     headers: { "Content-Type": "application/json" },
   });
 
+  // ✅ Set access token
   response.cookies.set({
     name: "access_token",
     value: access_token,
@@ -27,6 +28,7 @@ export async function POST(request: Request) {
     maxAge: 15 * 60,
   });
 
+  // ✅ Set refresh token
   response.cookies.set({
     name: "refresh_token",
     value: refresh_token,
@@ -37,8 +39,10 @@ export async function POST(request: Request) {
     maxAge: 7 * 24 * 60 * 60,
   });
 
+  // ✅ Destructure user fields (excluding `unanswered`)
   const { userId, email, name, picture, status, unanswered } = user_data;
 
+  // ✅ Set user_data without unanswered
   response.cookies.set({
     name: "user_data",
     value: JSON.stringify({
@@ -47,7 +51,6 @@ export async function POST(request: Request) {
       name,
       picture,
       status,
-      unanswered: Array.isArray(unanswered) ? unanswered.length : 0,
     }),
     httpOnly: false,
     secure: !isLocal,
@@ -55,6 +58,28 @@ export async function POST(request: Request) {
     path: "/",
     maxAge: 15 * 60,
   });
+
+  // ✅ Set unanswered as separate cookie
+  if (Array.isArray(unanswered)) {
+    response.cookies.set({
+      name: "unanswered",
+      value: encodeURIComponent(JSON.stringify(unanswered)),
+      httpOnly: false,
+      secure: !isLocal,
+      sameSite: isLocal ? "lax" : "none",
+      path: "/",
+      maxAge: 15 * 60,
+    });
+  } else {
+    // Clear cookie if invalid
+    response.cookies.set("unanswered", "", {
+      httpOnly: false,
+      secure: !isLocal,
+      sameSite: isLocal ? "lax" : "none",
+      path: "/",
+      maxAge: 0,
+    });
+  }
 
   console.log("✅ Cookies set successfully");
   return response;
