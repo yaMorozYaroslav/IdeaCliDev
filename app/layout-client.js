@@ -69,29 +69,29 @@ export default function LayoutClient({ user, children }) {
   };
 
   const waitForRefreshToken = async () => {
-  for (let i = 0; i < 10; i++) {
-    const refresh = Cookies.get("refresh_token");
+    for (let i = 0; i < 10; i++) {
+      const refresh = Cookies.get("refresh_token");
 
-    if (!refresh) {
-      console.log("🚪 No refresh token — stopping refresh loop");
+      if (!refresh) {
+        console.log("🚪 No refresh token — stopping refresh loop");
+        return;
+      }
+
+      const access = Cookies.get("access_token");
+      const userData = Cookies.get("user_data");
+
+      if (!access || !userData) {
+        console.warn("⏳ Missing access or user data — triggering immediate refresh");
+        await refreshToken();
+        return;
+      }
+
+      console.log("🟢 All tokens present, skipping immediate refresh");
       return;
     }
 
-    const access = Cookies.get("access_token");
-    const userData = Cookies.get("user_data");
-
-    if (!access || !userData) {
-      console.warn("⏳ Missing access or user data — triggering immediate refresh");
-      await refreshToken();
-      return;
-    }
-
-    console.log("🟢 All tokens present, skipping immediate refresh");
-    return;
-  }
-
-  console.warn("⛔ Gave up waiting for refresh_token after 10 tries");
-};
+    console.warn("⛔ Gave up waiting for refresh_token after 10 tries");
+  };
 
   const refreshToken = async (retry = true) => {
     try {
@@ -114,17 +114,20 @@ export default function LayoutClient({ user, children }) {
       console.log("✅ Token refresh successful!");
 
       if (data.userData) {
-        Cookies.set("user_data", JSON.stringify(data.userData), {
+        // ✅ Strip unanswered before saving user_data
+        const { unanswered, ...safeUserData } = data.userData;
+
+        Cookies.set("user_data", JSON.stringify(safeUserData), {
           expires: new Date(Date.now() + 15 * 60 * 1000),
           path: "/",
         });
 
-        if (data.userData.unanswered?.length) {
-          Cookies.set("unanswered", encodeURIComponent(JSON.stringify(data.userData.unanswered)), {
+        if (Array.isArray(unanswered) && unanswered.length > 0) {
+          Cookies.set("unanswered", encodeURIComponent(JSON.stringify(unanswered)), {
             expires: new Date(Date.now() + 15 * 60 * 1000),
             path: "/",
           });
-          setUnanswered(data.userData.unanswered);
+          setUnanswered(unanswered);
         } else {
           Cookies.remove("unanswered");
           setUnanswered([]);
