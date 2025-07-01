@@ -13,19 +13,11 @@ export default function ProfileHeader({
 
   const name = user?.name?.trim() || "Anonymous";
   const picture = user?.picture?.trim() || "/default-avatar.png";
-  const unansweredCount = isOwner && typeof user?.unanswered === "number" ? user.unanswered : 0;
-
-
 
   return (
     <HeaderContainer>
       <Avatar src={picture} alt={name} />
-      <Name>
-        {name}
-        {isOwner && unansweredCount !== null && (
-          <UnansweredBadge>{unansweredCount}</UnansweredBadge>
-        )}
-      </Name>
+      <Name>{name}</Name>
       {isOwner && <Note>This is your profile</Note>}
     </HeaderContainer>
   );
@@ -49,14 +41,6 @@ const Name = styled.h2`
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
-`;
-
-const UnansweredBadge = styled.span`
-  background-color: #e74c3c;
-  color: white;
-  font-size: 0.9rem;
-  padding: 0.2rem 0.6rem;
-  border-radius: 12px;
 `;
 
 const Note = styled.p`
