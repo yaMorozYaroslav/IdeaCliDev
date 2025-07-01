@@ -29,16 +29,6 @@ export async function POST() {
       return NextResponse.json({ message: "Incomplete token data" }, { status: 200 });
     }
 
-    const userProfileRes = await fetch(`${baseUrl}/google/public/${userData.userId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: accessToken }),
-    });
-
-    if (!userProfileRes.ok) {
-      console.warn("⚠️ Failed to validate user with new access token");
-    }
-
     const isLocal = process.env.HOST === "LOCAL";
 
     const response = new NextResponse(
@@ -53,6 +43,7 @@ export async function POST() {
       }
     );
 
+    // ✅ Set access token
     response.cookies.set({
       name: "access_token",
       value: accessToken,
@@ -63,6 +54,7 @@ export async function POST() {
       maxAge: 15 * 60,
     });
 
+    // ✅ Set refresh token
     response.cookies.set({
       name: "refresh_token",
       value: refreshToken,
@@ -73,9 +65,9 @@ export async function POST() {
       maxAge: 7 * 24 * 60 * 60,
     });
 
+    // ✅ Destructure and exclude unanswered from user_data
     const { userId, email, name, picture, status, unanswered } = userData;
 
-    // ✅ user_data without unanswered
     response.cookies.set({
       name: "user_data",
       value: JSON.stringify({
@@ -92,7 +84,7 @@ export async function POST() {
       maxAge: 15 * 60,
     });
 
-    // ✅ Set unanswered separately
+    // ✅ Set unanswered cookie separately
     if (Array.isArray(unanswered)) {
       response.cookies.set({
         name: "unanswered",
