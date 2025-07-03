@@ -29,13 +29,12 @@ export default function LayoutClient({ user, children }) {
       }
     }
 
-    loadUnansweredFromCookie();
-    setMounted(true);
-    console.log("🔍 Initial cookies:", document.cookie);
-
-    waitForRefreshToken();
-    startRefreshCycle();
-    console.log("⏰ First scheduled refresh set at:", new Date().toLocaleTimeString());
+    function handleVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        console.log("👀 Tab became visible — triggering token refresh");
+        refreshToken();
+      }
+    }
 
     const handleMessage = async (event) => {
       if (event.data?.type === "SET_TOKENS") {
@@ -57,8 +56,18 @@ export default function LayoutClient({ user, children }) {
       }
     };
 
+    loadUnansweredFromCookie();
+    setMounted(true);
+    console.log("🔍 Initial cookies:", document.cookie);
+
+    waitForRefreshToken();
+    startRefreshCycle();
+    console.log("⏰ First scheduled refresh set at:", new Date().toLocaleTimeString());
+
     window.addEventListener("message", handleMessage);
     window.addEventListener("tokenRefreshed", loadUnansweredFromCookie);
+    window.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", refreshToken);
 
     return () => {
       if (refreshTimeoutRef.current) {
@@ -66,6 +75,8 @@ export default function LayoutClient({ user, children }) {
       }
       window.removeEventListener("message", handleMessage);
       window.removeEventListener("tokenRefreshed", loadUnansweredFromCookie);
+      window.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", refreshToken);
     };
   }, [user]);
 
