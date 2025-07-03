@@ -13,17 +13,23 @@ export default function LayoutClient({ user, children }) {
   const REFRESH_INTERVAL = 1 * 60 * 1000;
 
   useEffect(() => {
-    try {
-      const raw = Cookies.get("unanswered");
-      if (raw) {
-        const parsed = JSON.parse(decodeURIComponent(raw));
-        setUnanswered(parsed);
-        console.log("📦 Loaded unanswered from cookie:", parsed);
+    function loadUnansweredFromCookie() {
+      try {
+        const raw = Cookies.get("unanswered");
+        if (raw) {
+          const parsed = JSON.parse(decodeURIComponent(raw));
+          setUnanswered(parsed);
+          console.log("📦 Loaded unanswered from cookie:", parsed);
+        } else {
+          setUnanswered([]);
+          console.log("🚫 No unanswered cookie found");
+        }
+      } catch (err) {
+        console.error("❌ Failed to parse unanswered cookie:", err);
       }
-    } catch (err) {
-      console.error("❌ Failed to parse unanswered cookie:", err);
     }
 
+    loadUnansweredFromCookie();
     setMounted(true);
     console.log("🔍 Initial cookies:", document.cookie);
 
@@ -52,12 +58,14 @@ export default function LayoutClient({ user, children }) {
     };
 
     window.addEventListener("message", handleMessage);
+    window.addEventListener("tokenRefreshed", loadUnansweredFromCookie);
 
     return () => {
       if (refreshTimeoutRef.current) {
         clearTimeout(refreshTimeoutRef.current);
       }
       window.removeEventListener("message", handleMessage);
+      window.removeEventListener("tokenRefreshed", loadUnansweredFromCookie);
     };
   }, [user]);
 
@@ -114,24 +122,12 @@ export default function LayoutClient({ user, children }) {
       console.log("✅ Token refresh successful!");
 
       if (data.userData) {
-        // ✅ Strip unanswered before saving user_data
         const { unanswered, ...safeUserData } = data.userData;
 
         Cookies.set("user_data", JSON.stringify(safeUserData), {
           expires: new Date(Date.now() + 15 * 60 * 1000),
           path: "/",
         });
-
-        if (Array.isArray(unanswered) && unanswered.length > 0) {
-          Cookies.set("unanswered", encodeURIComponent(JSON.stringify(unanswered)), {
-            expires: new Date(Date.now() + 15 * 60 * 1000),
-            path: "/",
-          });
-          setUnanswered(unanswered);
-        } else {
-          Cookies.remove("unanswered");
-          setUnanswered([]);
-        }
       }
 
       window.dispatchEvent(new Event("tokenRefreshed"));
