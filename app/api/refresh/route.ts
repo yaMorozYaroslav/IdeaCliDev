@@ -43,7 +43,6 @@ export async function POST() {
       }
     );
 
-    // ✅ Set access token
     response.cookies.set({
       name: "access_token",
       value: accessToken,
@@ -54,7 +53,6 @@ export async function POST() {
       maxAge: 15 * 60,
     });
 
-    // ✅ Set refresh token
     response.cookies.set({
       name: "refresh_token",
       value: refreshToken,
@@ -65,18 +63,20 @@ export async function POST() {
       maxAge: 7 * 24 * 60 * 60,
     });
 
-    // ✅ Destructure and exclude unanswered from user_data
     const { userId, email, name, picture, status, unanswered } = userData;
 
+    // ✅ Encode user_data to avoid broken JSON
     response.cookies.set({
       name: "user_data",
-      value: JSON.stringify({
-        userId,
-        email,
-        name,
-        picture,
-        status,
-      }),
+      value: encodeURIComponent(
+        JSON.stringify({
+          userId,
+          email,
+          name,
+          picture,
+          status,
+        })
+      ),
       httpOnly: false,
       secure: !isLocal,
       sameSite: isLocal ? "lax" : "none",
@@ -84,7 +84,6 @@ export async function POST() {
       maxAge: 15 * 60,
     });
 
-    // ✅ Set unanswered cookie separately
     if (Array.isArray(unanswered)) {
       response.cookies.set({
         name: "unanswered",
