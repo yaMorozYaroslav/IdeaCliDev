@@ -69,6 +69,7 @@ export async function POST() {
     response.cookies.set({
       name: "user_data",
       value:
+      encodeURIComponent(
         JSON.stringify({
           userId,
           email,
@@ -76,7 +77,7 @@ export async function POST() {
           picture,
           status,
         })
-      ,
+      ),
       httpOnly: false,
       secure: !isLocal,
       sameSite: isLocal ? "lax" : "none",
