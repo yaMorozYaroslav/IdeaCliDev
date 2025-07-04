@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     secure: !isLocal,
     sameSite: isLocal ? "lax" : "none",
     path: "/",
-    maxAge: 15 * 60,
+    maxAge: 15 * 60, // 15 minutes
   });
 
   // ✅ Set refresh token
@@ -36,22 +36,24 @@ export async function POST(request: Request) {
     secure: !isLocal,
     sameSite: isLocal ? "lax" : "none",
     path: "/",
-    maxAge: 7 * 24 * 60 * 60,
+    maxAge: 7 * 24 * 60 * 60, // 7 days
   });
 
   // ✅ Destructure user fields (excluding `unanswered`)
   const { userId, email, name, picture, status, unanswered } = user_data;
 
-  // ✅ Set user_data without unanswered
+  // ✅ Set encoded user_data (URI-safe)
   response.cookies.set({
     name: "user_data",
-    value: value: encodeURIComponent(JSON.stringify({
-                                                  userId,
-                                                  email,
-                                                  name,
-                                                  picture,
-                                                  status,
-                                                       })),
+    value: encodeURIComponent(
+      JSON.stringify({
+        userId,
+        email,
+        name,
+        picture,
+        status,
+      })
+    ),
     httpOnly: false,
     secure: !isLocal,
     sameSite: isLocal ? "lax" : "none",
