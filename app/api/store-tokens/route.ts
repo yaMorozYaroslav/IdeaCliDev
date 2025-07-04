@@ -45,13 +45,13 @@ export async function POST(request: Request) {
   // ✅ Set user_data without unanswered
   response.cookies.set({
     name: "user_data",
-    value: JSON.stringify({
-      userId,
-      email,
-      name,
-      picture,
-      status,
-    }),
+    value: value: encodeURIComponent(JSON.stringify({
+                                                  userId,
+                                                  email,
+                                                  name,
+                                                  picture,
+                                                  status,
+                                                       })),
     httpOnly: false,
     secure: !isLocal,
     sameSite: isLocal ? "lax" : "none",
