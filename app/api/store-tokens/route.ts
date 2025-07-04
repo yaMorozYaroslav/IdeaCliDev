@@ -32,13 +32,17 @@ export async function POST(request: Request) {
     maxAge: 7 * 24 * 60 * 60,
   });
 
-  // ✅ Decode and parse user_data
+  // ✅ Safely parse user_data, handling potential double-decode
   let parsedUser;
   try {
-    parsedUser = JSON.parse(decodeURIComponent(user_data));
+    parsedUser = JSON.parse(user_data);
   } catch (err) {
-    console.error("❌ Failed to decode user_data:", err);
-    return NextResponse.json({ message: "Invalid user_data format" }, { status: 400 });
+    try {
+      parsedUser = JSON.parse(decodeURIComponent(user_data));
+    } catch (e) {
+      console.error("❌ Failed to decode user_data:", err, e);
+      return NextResponse.json({ message: "Invalid user_data format" }, { status: 400 });
+    }
   }
 
   const { userId, email, name, picture, status, unanswered } = parsedUser;
@@ -72,5 +76,5 @@ export async function POST(request: Request) {
   }
 
   console.log("✅ Cookies set successfully");
-  return response; // ✅ This is what sends the cookies
+  return response;
 }
