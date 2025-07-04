@@ -67,16 +67,16 @@ export async function POST() {
 
     const { userId, email, name, picture, status, unanswered } = userData;
 
-    // ✅ Properly encode user_data with prefix
+    // ✅ Properly URI-encode user_data
     response.cookies.set({
       name: "user_data",
-      value: `j:${encodeURIComponent(JSON.stringify({
+      value: encodeURIComponent(JSON.stringify({
         userId,
         email,
         name,
         picture,
         status,
-      }))}`,
+      })),
       httpOnly: false,
       secure: !isLocal,
       sameSite: isLocal ? "lax" : "none",
