@@ -36,13 +36,13 @@ export async function POST(request: Request) {
   const { userId, email, name, picture, status, unanswered } = user_data;
 
   // ✅ Set user_data cookie
-  response.cookies.set("user_data", encodeURIComponent(JSON.stringify({ userId, email, name, picture, status })), {
+  response.cookies.set("user_data", JSON.stringify({ userId, email, name, picture, status })), {
     httpOnly: false,
     secure: !isLocal,
     sameSite: isLocal ? "lax" : "none",
     path: "/",
     maxAge: 15 * 60,
-  });
+  };
 
   // ✅ Set unanswered cookie
   if (Array.isArray(unanswered)) {
