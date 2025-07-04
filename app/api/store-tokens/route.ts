@@ -39,21 +39,24 @@ export async function POST(request: Request) {
     maxAge: 7 * 24 * 60 * 60, // 7 days
   });
 
-  // ✅ Destructure user fields (excluding `unanswered`)
-  const { userId, email, name, picture, status, unanswered } = user_data;
+  // ✅ Safely parse and decode user_data
+  let parsedUser;
+  try {
+    parsedUser = JSON.parse(decodeURIComponent(user_data));
+  } catch (err) {
+    console.error("❌ Failed to decode user_data:", err);
+    return new Response(JSON.stringify({ message: "Invalid user_data format" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
-  // ✅ Set encoded user_data (URI-safe)
+  const { userId, email, name, picture, status, unanswered } = parsedUser;
+
+  // ✅ Set user_data as cookie
   response.cookies.set({
     name: "user_data",
-    value: encodeURIComponent(
-      JSON.stringify({
-        userId,
-        email,
-        name,
-        picture,
-        status,
-      })
-    ),
+    value: encodeURIComponent(JSON.stringify({ userId, email, name, picture, status })),
     httpOnly: false,
     secure: !isLocal,
     sameSite: isLocal ? "lax" : "none",
@@ -61,7 +64,7 @@ export async function POST(request: Request) {
     maxAge: 15 * 60,
   });
 
-  // ✅ Set unanswered as separate cookie
+  // ✅ Set unanswered separately if valid
   if (Array.isArray(unanswered)) {
     response.cookies.set({
       name: "unanswered",
@@ -73,7 +76,7 @@ export async function POST(request: Request) {
       maxAge: 15 * 60,
     });
   } else {
-    // Clear cookie if invalid
+    // Clear cookie if not valid
     response.cookies.set("unanswered", "", {
       httpOnly: false,
       secure: !isLocal,
