@@ -43,6 +43,7 @@ export async function POST() {
       }
     );
 
+    // ✅ Set access_token
     response.cookies.set({
       name: "access_token",
       value: accessToken,
@@ -53,6 +54,7 @@ export async function POST() {
       maxAge: 15 * 60,
     });
 
+    // ✅ Set refresh_token again
     response.cookies.set({
       name: "refresh_token",
       value: refreshToken,
@@ -65,19 +67,16 @@ export async function POST() {
 
     const { userId, email, name, picture, status, unanswered } = userData;
 
-    // ✅ Encode user_data to avoid broken JSON
+    // ✅ Properly encode user_data with prefix
     response.cookies.set({
       name: "user_data",
-      value:
-      encodeURIComponent(
-        JSON.stringify({
-          userId,
-          email,
-          name,
-          picture,
-          status,
-        })
-      ),
+      value: `j:${encodeURIComponent(JSON.stringify({
+        userId,
+        email,
+        name,
+        picture,
+        status,
+      }))}`,
       httpOnly: false,
       secure: !isLocal,
       sameSite: isLocal ? "lax" : "none",
@@ -85,6 +84,7 @@ export async function POST() {
       maxAge: 15 * 60,
     });
 
+    // ✅ Properly encode unanswered
     if (Array.isArray(unanswered)) {
       response.cookies.set({
         name: "unanswered",
