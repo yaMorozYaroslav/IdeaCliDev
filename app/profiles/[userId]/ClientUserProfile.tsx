@@ -33,7 +33,10 @@ export default function ClientUserProfile({
         const raw = cookie.split("=")[1];
         if (!raw) throw new Error("Empty cookie value");
 
+        // ✅ First decode the URI-encoded cookie
         const decoded = decodeURIComponent(raw);
+
+        // ✅ Then parse it as JSON
         const parsed = JSON.parse(decoded);
 
         const userIdFromCookie = parsed?.userId;
