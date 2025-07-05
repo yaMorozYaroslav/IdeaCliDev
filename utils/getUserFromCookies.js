@@ -5,8 +5,8 @@ export function getUserFromCookies() {
     const match = cookies.match(/(?:^|;\s*)user_data=([^;]*)/);
     if (!match) return null;
 
-    const once = decodeURIComponent(match[1]);
-    const user = JSON.parse(decodeURIComponent(once));
+    const decoded = decodeURIComponent(match[1]);
+    const user = JSON.parse(decoded);
     return user;
   } catch (err) {
     console.error("❌ Failed to parse user_data cookie:", err);
