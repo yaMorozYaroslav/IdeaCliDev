@@ -67,16 +67,16 @@ export async function POST() {
 
     const { userId, email, name, picture, status, unanswered } = userData;
 
-    // ✅ Properly URI-encode user_data
+    // ✅ Set raw (unencoded) JSON string
     response.cookies.set({
       name: "user_data",
-      value: encodeURIComponent(JSON.stringify({
+      value: JSON.stringify({
         userId,
         email,
         name,
         picture,
         status,
-      })),
+      }),
       httpOnly: false,
       secure: !isLocal,
       sameSite: isLocal ? "lax" : "none",
@@ -84,7 +84,7 @@ export async function POST() {
       maxAge: 15 * 60,
     });
 
-    // ✅ Properly encode unanswered
+    // ✅ Keep unanswered encoded, as it's a large array
     if (Array.isArray(unanswered)) {
       response.cookies.set({
         name: "unanswered",
