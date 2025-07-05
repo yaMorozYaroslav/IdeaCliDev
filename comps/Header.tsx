@@ -32,11 +32,22 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
   const loadUserFromCookie = () => {
     try {
       const match = document.cookie.match(/(?:^| )user_data=([^;]*)/);
+      console.log("🔍 Matched user_data raw cookie:", match?.[1]);
       if (!match) return setCurrentUser(null);
+
       const decoded = decodeURIComponent(match[1]);
+      console.log("📦 Decoded user_data:", decoded);
+
       const user = JSON.parse(decoded);
       if (user && user.userId) {
         setCurrentUser(user);
+
+        // 🛡️ Normalize encoding for future use
+        Cookies.set("user_data", encodeURIComponent(JSON.stringify(user)), {
+          sameSite: "Lax",
+          secure: true,
+          path: "/",
+        });
       } else {
         setCurrentUser(null);
       }
@@ -167,30 +178,28 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
                   <S.UserAvatar src={currentUser.picture} alt={currentUser.name} />
                 )}
                 <S.UserNameLink
-  href={`/${currentUser.userId}`}
-  style={{
-    display: "flex",
-    alignItems: "center",
-    gap: "0.4rem",
-    textDecoration: "none",
-  }}
->
-  <span
-    style={{
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      whiteSpace: "nowrap",
-      display: "inline-block",
-      maxWidth: 120,
-      verticalAlign: "middle",
-    }}
-  >
-    {currentUser.name}
-  </span>
-  <span>({unansweredCount})</span>
-</S.UserNameLink>
-
-
+                  href={`/${currentUser.userId}`}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.4rem",
+                    textDecoration: "none",
+                  }}
+                >
+                  <span
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      display: "inline-block",
+                      maxWidth: 120,
+                      verticalAlign: "middle",
+                    }}
+                  >
+                    {currentUser.name}
+                  </span>
+                  <span>({unansweredCount})</span>
+                </S.UserNameLink>
               </>
             ) : (
               <S.UserName>Anonymous</S.UserName>

@@ -38,10 +38,11 @@ const WelcomeMessage = styled.h1`
 export default function HomeClient() {
   const [user, setUser] = useState(null);
 
-  useEffect(() => {
-    const userFromCookie = getUserFromCookies();
-    setUser(userFromCookie);
-  }, []);
+ useEffect(() => {
+  const userFromCookie = getUserFromCookies();
+  console.log("🧠 user from cookie (HomeClient):", userFromCookie);
+  setUser(userFromCookie);
+}, []);
 
   return (
     <Container>
