@@ -6,6 +6,7 @@ import AskPersonalWrapper from "./AskPersonalWrapper";
 import ProfileHeader from "./ProfileHeader";
 import UnansweredList from "./UnansweredList";
 import AnsweredList from "./AnsweredList";
+import { getUserFromCookies } from "../../../lib/getUserFromCookies";
 
 export default function ClientUserProfile({
   userId: profileUserId,
@@ -16,59 +17,33 @@ export default function ClientUserProfile({
   user: any;
   initialUnanswered?: any[];
 }) {
-  const [unanswered, setUnanswered] = useState(initialUnanswered);
   const [answered, setAnswered] = useState(user?.answered || []);
-  const [isOwner, setIsOwner] = useState(false);
+  const [unanswered, setUnanswered] = useState(initialUnanswered);
+  const [isOwner, setIsOwner] = useState<boolean>(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
+  // Detect if the logged-in user is viewing their own profile
   useEffect(() => {
-    console.log("🍪 Full document.cookie:", document.cookie);
-
-    const cookie = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("user_data="));
-
-    if (cookie) {
-      try {
-        const raw = cookie.split("=")[1];
-        if (!raw) throw new Error("Empty cookie value");
-
-        // ✅ First decode the URI-encoded cookie
-        const decoded = decodeURIComponent(raw);
-
-        // ✅ Then parse it as JSON
-        const parsed = JSON.parse(decoded);
-
-        const userIdFromCookie = parsed?.userId;
-        if (userIdFromCookie) {
-          setCurrentUserId(userIdFromCookie);
-          setIsOwner(userIdFromCookie === profileUserId);
-          return;
-        } else {
-          console.warn("⚠️ user_data cookie found, but userId is missing");
-        }
-      } catch (err) {
-        console.warn("❌ Failed to parse user_data cookie:", err);
-      }
+    const cookieUser = getUserFromCookies();
+    if (cookieUser?.userId) {
+      setCurrentUserId(cookieUser.userId);
+      setIsOwner(cookieUser.userId === profileUserId);
+    } else {
+      setCurrentUserId(null);
+      setIsOwner(false);
     }
-
-    // Fallback if no valid cookie
-    setCurrentUserId(null);
-    setIsOwner(false);
   }, [profileUserId]);
 
+  // Auto-clear on logout or cookie expiration
   useEffect(() => {
     const interval = setInterval(() => {
-      const hasCookie = document.cookie
-        .split("; ")
-        .some((c) => c.startsWith("user_data="));
-      if (!hasCookie) {
+      const stillExists = document.cookie.includes("user_data=");
+      if (!stillExists) {
         setIsOwner(false);
-        setUnanswered([]);
         setCurrentUserId(null);
+        setUnanswered([]);
       }
     }, 3000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -76,17 +51,19 @@ export default function ClientUserProfile({
     <ContentWrapper>
       <ProfileHeader user={user} isOwner={isOwner} />
 
-      <AskPersonalWrapper
-        profileUserId={profileUserId}
-        currentUserId={currentUserId}
-        isOwner={isOwner}
-      />
+      {!isOwner && (
+        <AskPersonalWrapper
+          profileUserId={profileUserId}
+          currentUserId={currentUserId}
+          isOwner={false}
+        />
+      )}
 
       {isOwner && (
         <UnansweredList
           unanswered={unanswered}
           user={user}
-          isOwner={isOwner}
+          isOwner={true}
           onDelete={() => setUnanswered((prev) => [...prev])}
           onAnswered={() =>
             setUnanswered((prev) => prev.filter((q) => q.status !== "answered"))

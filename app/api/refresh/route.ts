@@ -1,117 +1,76 @@
-import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import getBaseUrl from "../../../lib/getBaseUrl";
+import { NextResponse } from "next/server";
+import { decodeUserForCookies } from "@/lib/decodeUserForCookies";
 
-export async function POST() {
+export async function POST(request: Request) {
+  const cookieStore = cookies();
+  const refreshToken = cookieStore.get("refresh_token")?.value;
+
+  console.log("🍪 Refresh token from cookies:", !!refreshToken);
+
+  if (!refreshToken) {
+    return NextResponse.json({ message: "No refresh token present" }, { status: 200 });
+  }
+
   try {
-    const cookieStore = await cookies();
-    const refreshToken = cookieStore.get("refresh_token")?.value;
-
-    console.log("🍪 Refresh token from cookies:", !!refreshToken);
-
-    if (!refreshToken) {
-      return NextResponse.json({ message: "No refresh token present" }, { status: 200 });
-    }
-
-    const baseUrl = getBaseUrl();
-    console.log("🌐 Calling backend refresh:", `${baseUrl}/google/refresh`);
-
-    const backendRes = await fetch(`${baseUrl}/google/refresh`, {
+    const res = await fetch("https://idea-sphere-dev-30492dbf5e99.herokuapp.com/google/refresh", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refreshToken }),
+      body: JSON.stringify({ token: refreshToken }),
     });
 
-    const { accessToken, userData } = await backendRes.json();
+    const data = await res.json();
 
-    if (!accessToken || !userData) {
-      console.warn("⚠️ Backend refresh returned incomplete data");
-      return NextResponse.json({ message: "Incomplete token data" }, { status: 200 });
+    if (!res.ok || !data.accessToken) {
+      throw new Error(data.message || "Refresh failed");
     }
 
-    const isLocal = process.env.HOST === "LOCAL";
+    const accessToken = data.accessToken;
+    const isLocal = process.env.LOCALHOST === "true" || process.env.NODE_ENV !== "production";
 
-    const response = new NextResponse(
-      JSON.stringify({
-        message: "Tokens refreshed",
-        accessToken,
-        userData,
-      }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-
-    // ✅ Set access_token
-    response.cookies.set({
-      name: "access_token",
-      value: accessToken,
-      httpOnly: true,
-      secure: !isLocal,
-      sameSite: isLocal ? "lax" : "none",
-      path: "/",
-      maxAge: 15 * 60,
-    });
-
-    // ✅ Set refresh_token again
-    response.cookies.set({
-      name: "refresh_token",
-      value: refreshToken,
-      httpOnly: true,
-      secure: !isLocal,
-      sameSite: isLocal ? "lax" : "none",
-      path: "/",
-      maxAge: 7 * 24 * 60 * 60,
-    });
-
-    const { userId, email, name, picture, status, unanswered } = userData;
-
-    // ✅ Set raw (unencoded) JSON string
-    response.cookies.set("user_data", JSON.stringify({ userId, email, name, picture, status })), {
-    httpOnly: false,
-    secure: !isLocal,
-    sameSite: isLocal ? "lax" : "none",
-    path: "/",
-    maxAge: 15 * 60,
-  };
-
-    // ✅ Keep unanswered encoded, as it's a large array
-    if (Array.isArray(unanswered)) {
-      response.cookies.set({
-        name: "unanswered",
-        value: encodeURIComponent(JSON.stringify(unanswered)),
-        httpOnly: false,
-        secure: !isLocal,
-        sameSite: isLocal ? "lax" : "none",
-        path: "/",
-        maxAge: 15 * 60,
-      });
-    } else {
-      response.cookies.set("unanswered", "", {
-        httpOnly: false,
-        secure: !isLocal,
-        sameSite: isLocal ? "lax" : "none",
-        path: "/",
-        maxAge: 0,
-      });
-    }
-
-    console.log("✅ Refreshed cookies set successfully");
-    return response;
-  } catch (err) {
-    console.error("❌ Refresh failed:", err.message);
-
-    const response = new NextResponse(JSON.stringify({ message: "Refresh failed" }), {
+    const response = new NextResponse(JSON.stringify({ accessToken }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
 
-    response.cookies.delete("access_token");
-    response.cookies.delete("refresh_token");
-    response.cookies.delete("user_data");
-    response.cookies.delete("unanswered");
+    // 🍪 Set new access token
+    response.cookies.set("access_token", accessToken, {
+      httpOnly: true,
+      secure: !isLocal,
+      sameSite: isLocal ? "lax" : "strict",
+      path: "/",
+      maxAge: 15 * 60, // 15 minutes
+    });
 
+    // 🧠 Decode user data and set user_data cookie
+    const user = decodeUserForCookies(accessToken);
+    if (user?.userId) {
+      const userData = {
+        userId: user.userId,
+        email: user.email,
+        name: user.name,
+        picture: user.picture,
+        status: user.status,
+        unansweredCount: user.unansweredCount ?? 0,
+      };
+
+      response.cookies.set("user_data", JSON.stringify(userData), {
+        httpOnly: false,
+        secure: !isLocal,
+        sameSite: isLocal ? "lax" : "strict",
+        path: "/",
+        maxAge: 15 * 60,
+      });
+
+      console.log("👤 user_data updated after refresh:", userData);
+    } else {
+      console.warn("⚠️ Invalid decoded user during refresh");
+    }
+
+    console.log("🔁 Refreshed cookies returned");
     return response;
+  } catch (err: any) {
+    console.error("❌ Refresh error:", err.message);
+    return NextResponse.json({ message: "Token refresh failed" }, { status: 401 });
   }
 }

@@ -39,14 +39,15 @@ export default function AnsweredList({
   onDelete,
 }: AnsweredListProps) {
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const baseUrl = getBaseUrl()
+  const baseUrl = getBaseUrl();
+
   useEffect(() => {
     const cookie = document.cookie
       .split("; ")
       .find((row) => row.startsWith("user_data="));
     if (cookie) {
       try {
-        const raw = decodeURIComponent(cookie.split("=")[1]);
+        const raw = cookie.split("=")[1]; // ✅ no decodeURIComponent
         const parsed = JSON.parse(raw);
         setCurrentUserId(parsed?.userId || null);
       } catch {

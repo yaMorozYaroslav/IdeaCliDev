@@ -1,14 +1,12 @@
-// app/layout.js (Server Component)
-import { getUser } from "/lib/getUser";
-import LayoutClient from "./layout-client"; // Import client component
+import { getUserFromCookiesServer } from "../lib/getUserFromCookiesServer.js"; // updated name & path
+import LayoutClient from "./layout-client";
 
 export default async function Layout({ children }) {
-  const user = await getUser(); // Fetch user data on the server
+  const user = await getUserFromCookiesServer(); // ⬅️ now async
 
   return (
     <html lang="en">
       <head>
-        {/* 🚀 Preload your logo immediately */}
         <link rel="preload" as="image" href="/IconIdea.png" />
       </head>
       <body>

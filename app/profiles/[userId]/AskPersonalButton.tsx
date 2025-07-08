@@ -17,13 +17,9 @@ export default function AskPersonalButton({ recipientUserId }: { recipientUserId
       const match = document.cookie.match(/(?:^| )user_data=([^;]*)/);
       if (!match) return setIsOwner(false);
 
-      const decoded = decodeURIComponent(match[1]);
-      const user = JSON.parse(decoded);
-      if (user?.userId === recipientUserId) {
-        setIsOwner(true);
-      } else {
-        setIsOwner(false);
-      }
+      const raw = match[1]; // ✅ no decodeURIComponent
+      const user = JSON.parse(raw);
+      setIsOwner(user?.userId === recipientUserId);
     } catch (err) {
       console.error("❌ Failed to parse user_data cookie:", err);
       setIsOwner(false);

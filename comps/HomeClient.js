@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import Questions from "/comps/quests/Quests";
-import { getUserFromCookies } from "../utils/getUserFromCookies";
 
 const Container = styled.div`
   display: flex;
@@ -35,15 +34,7 @@ const WelcomeMessage = styled.h1`
   }
 `;
 
-export default function HomeClient() {
-  const [user, setUser] = useState(null);
-
- useEffect(() => {
-  const userFromCookie = getUserFromCookies();
-  console.log("🧠 user from cookie (HomeClient):", userFromCookie);
-  setUser(userFromCookie);
-}, []);
-
+export default function HomeClient({ user }) {
   return (
     <Container>
       <WelcomeMessage $first={true}>Ask & Answer Questions</WelcomeMessage>
@@ -53,7 +44,7 @@ export default function HomeClient() {
       <Questions user={user} />
 
       <pre style={{ color: "white", marginTop: "40px" }}>
-        {user ? JSON.stringify(user, null, 2) : "❌ No user loaded from cookie."}
+        {user ? JSON.stringify(user, null, 2) : "❌ No user loaded from token."}
       </pre>
     </Container>
   );

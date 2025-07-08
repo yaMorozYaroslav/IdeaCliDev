@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",      // 👈 required to make "paths" work
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"]     // 👈 alias: "@/lib/x" → "./lib/x"
     }
   }
 }

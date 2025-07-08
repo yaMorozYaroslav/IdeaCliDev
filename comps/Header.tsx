@@ -5,7 +5,6 @@ import { FiMenu } from "react-icons/fi";
 import { FaSearch, FaInfoCircle } from "react-icons/fa";
 import * as S from "./header.styled";
 import getBaseUrl from "../lib/getBaseUrl";
-import Cookies from "js-cookie";
 
 interface User {
   userId: string;
@@ -13,6 +12,7 @@ interface User {
   email?: string;
   picture?: string;
   status?: string;
+  unansweredCount?: number;
   [key: string]: any;
 }
 
@@ -25,71 +25,8 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(user ?? null);
-  const [unansweredCount, setUnansweredCount] = useState<number>(0);
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [screenWidth, setScreenWidth] = useState<number | null>(null);
-
-  const loadUserFromCookie = () => {
-    try {
-      const match = document.cookie.match(/(?:^| )user_data=([^;]*)/);
-      console.log("🔍 Matched user_data raw cookie:", match?.[1]);
-      if (!match) return setCurrentUser(null);
-
-      const decoded = decodeURIComponent(match[1]);
-      console.log("📦 Decoded user_data:", decoded);
-
-      const user = JSON.parse(decoded);
-      if (user && user.userId) {
-        setCurrentUser(user);
-
-        // 🛡️ Normalize encoding for future use
-        Cookies.set("user_data", encodeURIComponent(JSON.stringify(user)), {
-          sameSite: "Lax",
-          secure: true,
-          path: "/",
-        });
-      } else {
-        setCurrentUser(null);
-      }
-    } catch (err) {
-      console.error("❌ Failed to parse user_data cookie:", err);
-      setCurrentUser(null);
-    }
-  };
-
-  const loadUnansweredFromCookie = () => {
-    try {
-      const raw = Cookies.get("unanswered");
-      if (!raw) return setUnansweredCount(0);
-      const parsed = JSON.parse(decodeURIComponent(raw));
-      if (Array.isArray(parsed)) {
-        setUnansweredCount(parsed.length);
-      }
-    } catch (err) {
-      console.error("❌ Failed to parse unanswered cookie:", err);
-    }
-  };
-
-  useEffect(() => {
-    loadUserFromCookie();
-    loadUnansweredFromCookie();
-
-    const handleTokenRefreshed = () => {
-      loadUserFromCookie();
-      loadUnansweredFromCookie();
-    };
-
-    window.addEventListener("tokenRefreshed", handleTokenRefreshed);
-    return () => window.removeEventListener("tokenRefreshed", handleTokenRefreshed);
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      loadUserFromCookie();
-      loadUnansweredFromCookie();
-    }, 15000);
-    return () => clearInterval(interval);
-  }, []);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -118,10 +55,9 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
     if (popup) {
       const handleMessage = (event: MessageEvent) => {
         if (event.data?.loginDone) {
-          loadUserFromCookie();
-          loadUnansweredFromCookie();
           setIsLoggingIn(false);
           window.removeEventListener("message", handleMessage);
+          window.location.reload(); // reload to refresh user prop
         }
       };
       window.addEventListener("message", handleMessage);
@@ -134,9 +70,8 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
     try {
       await fetch("/api/logout", { method: "POST" });
       setCurrentUser(null);
-      Cookies.remove("user_data");
-      Cookies.remove("unanswered");
       window.dispatchEvent(new Event("tokenRefreshed"));
+      window.location.reload(); // force refresh after logout
     } catch (error) {
       console.error("❌ Logout failed:", error);
     }
@@ -178,7 +113,7 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
                   <S.UserAvatar src={currentUser.picture} alt={currentUser.name} />
                 )}
                 <S.UserNameLink
-                  href={`/${currentUser.userId}`}
+                  href={`/profiles/${currentUser.userId}`}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -198,7 +133,7 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
                   >
                     {currentUser.name}
                   </span>
-                  <span>({unansweredCount})</span>
+                  <span>({currentUser.unansweredCount || 0})</span>
                 </S.UserNameLink>
               </>
             ) : (
