@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { decodeUserForCookies } from "../../../lib/decodeUserForCookies";
 
 export async function POST(request: Request) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const refreshToken = cookieStore.get("refresh_token")?.value;
 
   console.log("🍪 Received refresh token:", !!refreshToken);
