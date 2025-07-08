@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { decodeUserForCookies } from "@/lib/decodeUserForCookies";
+import { decodeUserForCookies } from "../../../lib/decodeUserForCookies";
 
 export async function POST(request: Request) {
   const cookieStore = cookies();
