@@ -28,15 +28,14 @@ export async function POST(request: Request) {
     }
 
     const accessToken = data.accessToken;
-    const isLocal = process.env.LOCALHOST === "true" || process.env.NODE_ENV !== "production";
-
-    // ✅ Decode user
     const user = decodeUserForCookies(accessToken);
 
     if (!user?.userId) {
       console.warn("❌ Invalid decoded user from refreshed token:", user);
       return NextResponse.json({ message: "Invalid token after refresh" }, { status: 401 });
     }
+
+    const isLocal = process.env.LOCALHOST === "true" || process.env.NODE_ENV !== "production";
 
     const response = NextResponse.json(
       { message: "Refreshed successfully", userId: user.userId },
@@ -49,7 +48,7 @@ export async function POST(request: Request) {
       secure: !isLocal,
       sameSite: isLocal ? "lax" : "strict",
       path: "/",
-      maxAge: 15 * 60, // 15 min
+      maxAge: 15 * 60,
     });
     console.log("🍪 access_token refreshed (HttpOnly)");
 
