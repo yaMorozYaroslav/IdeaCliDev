@@ -52,13 +52,14 @@ export default function LayoutClient({ user, children }) {
     setMounted(true);
   }, []);
 
-  // 🔁 Setup refresh logic
+  // 🔁 Setup refresh logic and resume-check
   useEffect(() => {
     const REFRESH_INTERVAL = 14 * 60 * 1000; // 14 minutes
-    const INITIAL_DELAY = 30 * 1000; // 30 seconds
+    const INITIAL_DELAY = 30 * 1000; // first refresh after 30s
+    const AWAY_THRESHOLD = 10 * 60 * 1000; // consider user away after 10 minutes
 
-    const triggerRefresh = async () => {
-      console.log("🔄 Attempting token refresh...");
+    const triggerRefresh = async (reason) => {
+      console.log(`🔄 Attempting token refresh${reason ? ` (${reason})` : ""}`);
       try {
         const res = await fetch("/api/refresh", { method: "POST" });
         const data = await res.json();
@@ -73,18 +74,39 @@ export default function LayoutClient({ user, children }) {
       }
     };
 
+    const checkAndRefreshOnReturn = () => {
+      const last = sessionStorage.getItem("lastActive");
+      const now = Date.now();
+      if (last && now - parseInt(last) > AWAY_THRESHOLD) {
+        console.log("🕑 User returned after long absence");
+        triggerRefresh("user return");
+      }
+      sessionStorage.setItem("lastActive", now.toString());
+    };
+
     const startRefreshLoop = () => {
-      console.log(`⏱️ Starting refresh loop: first in 30s, then every 14m`);
-      triggerRefresh(); // first call
-      refreshTimer.current = setInterval(triggerRefresh, REFRESH_INTERVAL);
+      console.log("⏱️ Starting refresh loop: first in 30s, then every 14m");
+      triggerRefresh("initial");
+      refreshTimer.current = setInterval(() => triggerRefresh("interval"), REFRESH_INTERVAL);
     };
 
     const firstTimeout = setTimeout(startRefreshLoop, INITIAL_DELAY);
 
+    // 👁️ Watch for tab visibility or focus
+    sessionStorage.setItem("lastActive", Date.now().toString());
+    window.addEventListener("focus", checkAndRefreshOnReturn);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        checkAndRefreshOnReturn();
+      }
+    });
+
     return () => {
       clearTimeout(firstTimeout);
       if (refreshTimer.current) clearInterval(refreshTimer.current);
-      console.log("🛑 Refresh loop cleared");
+      window.removeEventListener("focus", checkAndRefreshOnReturn);
+      document.removeEventListener("visibilitychange", checkAndRefreshOnReturn);
+      console.log("🛑 Refresh loop and listeners cleared");
     };
   }, []);
 
