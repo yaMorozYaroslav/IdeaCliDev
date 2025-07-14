@@ -7,7 +7,6 @@ import ProfileHeader from "./ProfileHeader";
 import UnansweredList from "./UnansweredList";
 import AnsweredList from "./AnsweredList";
 import { getUserFromCookies } from "../../../lib/getUserFromCookies";
-import Cookies from "js-cookie";
 
 export default function ClientUserProfile({
   userId: profileUserId,
@@ -76,27 +75,6 @@ export default function ClientUserProfile({
 
       if (isOwnerRef.current && updated.unanswered) {
         setUnanswered(updated.unanswered);
-
-        // 🍪 Update unanswered cookie
-        Cookies.set("unanswered", JSON.stringify(updated.unanswered), {
-          path: "/",
-          sameSite: "strict",
-        });
-
-        // 🍪 Update user_data count
-        const raw = Cookies.get("user_data");
-        if (raw) {
-          try {
-            const parsed = JSON.parse(raw);
-            parsed.unanswered = updated.unanswered.length;
-            Cookies.set("user_data", JSON.stringify(parsed), {
-              path: "/",
-              sameSite: "strict",
-            });
-          } catch (err) {
-            console.warn("⚠️ Failed to update user_data cookie:", err);
-          }
-        }
       }
     } catch (err) {
       console.error("❌ Error refreshing user:", err);

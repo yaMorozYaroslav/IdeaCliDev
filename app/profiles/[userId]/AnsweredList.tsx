@@ -38,32 +38,16 @@ export default function AnsweredList({
   loading,
   onDelete,
 }: AnsweredListProps) {
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const baseUrl = getBaseUrl();
 
-  useEffect(() => {
-    const cookie = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("user_data="));
-    if (cookie) {
-      try {
-        const raw = cookie.split("=")[1];
-        const parsed = JSON.parse(raw);
-        setCurrentUserId(parsed?.userId || null);
-      } catch {
-        setCurrentUserId(null);
-      }
-    }
-  }, []);
-
   const canDelete = (q: any) =>
-    q?.authorId === currentUserId || isOwner || user?.status === "admin";
+    q?.authorId === user?.googleId || isOwner || user?.status === "admin";
 
   const handleDelete = async (questionId: string) => {
     const res = await fetch(`${baseUrl}/personal/${questionId}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: currentUserId }),
+      body: JSON.stringify({ userId: user?.googleId }),
     });
 
     if (res.ok) {
