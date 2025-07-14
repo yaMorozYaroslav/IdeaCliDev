@@ -28,7 +28,7 @@ interface AnsweredListProps {
   user: any;
   isOwner: boolean;
   loading: boolean;
-  onDelete: (id: string) => void;
+  onDelete: () => void;
 }
 
 export default function AnsweredList({
@@ -47,7 +47,7 @@ export default function AnsweredList({
       .find((row) => row.startsWith("user_data="));
     if (cookie) {
       try {
-        const raw = cookie.split("=")[1]; // ✅ no decodeURIComponent
+        const raw = cookie.split("=")[1];
         const parsed = JSON.parse(raw);
         setCurrentUserId(parsed?.userId || null);
       } catch {
@@ -67,7 +67,8 @@ export default function AnsweredList({
     });
 
     if (res.ok) {
-      onDelete(questionId);
+      alert("✅ Question deleted!");
+      onDelete();
     } else {
       const error = await res.text();
       alert(`Failed to delete question: ${res.status}\n${error}`);

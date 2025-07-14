@@ -1,7 +1,7 @@
 "use client";
 
 import styled from "styled-components";
-import getBaseUrl from "../../../lib/getBaseUrl"; // ✅ Make sure this exists
+import getBaseUrl from "../../../lib/getBaseUrl";
 
 const Card = styled.div`
   border: 1px solid #ccc;
@@ -62,7 +62,8 @@ export default function UnansweredList({
     });
 
     if (res.ok) {
-      onAnswered();
+      alert("✅ Answer saved!");
+      onAnswered(); // ✅ Rehydrate answered list immediately
     } else {
       let err;
       try {
@@ -82,7 +83,8 @@ export default function UnansweredList({
     });
 
     if (res.ok) {
-      onDelete();
+      alert("✅ Question deleted!");
+      onDelete(); // ✅ Rehydrate unanswered list immediately
     } else {
       const error = await res.text();
       alert(`Failed to delete question: ${res.status}\n${error}`);
@@ -96,7 +98,9 @@ export default function UnansweredList({
       {unanswered.map((q) =>
         q?.title ? (
           <Card key={q._id}>
-            <p><strong>{q.title}</strong></p>
+            <p>
+              <strong>{q.title}</strong>
+            </p>
             <ByLine>by {q.authorName}</ByLine>
 
             <Button onClick={() => handleAnswer(q._id)}>Answer</Button>
