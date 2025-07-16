@@ -20,7 +20,10 @@ export default function LayoutClient({ user, children }) {
           await fetch("/api/store-tokens", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ access_token: accessToken, refresh_token: refreshToken }),
+            body: JSON.stringify({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            }),
           });
 
           console.log("✅ Tokens stored from popup");
@@ -35,7 +38,7 @@ export default function LayoutClient({ user, children }) {
     return () => window.removeEventListener("message", handleMessage);
   }, []);
 
-  // ✅ Rehydrate user from cookie
+  // ✅ Rehydrate user from cookie on initial load
   useEffect(() => {
     try {
       const raw = Cookies.get("user_data");
@@ -50,35 +53,48 @@ export default function LayoutClient({ user, children }) {
     setMounted(true);
   }, []);
 
-  // ✅ Refresh loop + wake/resume detection
+  // ✅ Refresh loop + resume detection
   useEffect(() => {
     const REFRESH_INTERVAL = 14 * 60 * 1000;
-    const INITIAL_DELAY = 30 * 1000;
     const AWAY_THRESHOLD = 10 * 60 * 1000;
 
     const triggerRefresh = async (reason) => {
-  console.log(`🔄 Attempting token refresh${reason ? ` (${reason})` : ""}`);
-  try {
-    const res = await fetch("/api/refresh", { method: "POST" });
-    const data = await res.json();
-    if (!res.ok) {
-      console.warn("⚠️ Refresh failed:", data.message);
-    } else {
-      console.log("✅ Token refreshed:", data);
-    }
-  } catch (err) {
-    console.error("❌ Refresh error:", err);
-  }
-};
+      console.log(`🔄 Attempting token refresh${reason ? ` (${reason})` : ""}`);
+      try {
+        const res = await fetch("/api/refresh", { method: "POST" });
+        const data = await res.json();
 
+        if (!res.ok) {
+          console.warn("⚠️ Refresh failed:", data.message);
+        } else {
+          console.log("✅ Token refreshed:", data);
+
+          // 🧠 Use returned data if present
+          if (data.userData) {
+            setRehydratedUser(data.userData);
+            Cookies.set("user_data", JSON.stringify(data.userData), { path: "/" });
+            console.log("📦 User updated directly from refresh response:", data.userData);
+          } else {
+            const raw = Cookies.get("user_data");
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              setRehydratedUser(parsed);
+              console.log("🔁 Fallback rehydrated user from cookie:", parsed);
+            }
+          }
+
+          window.dispatchEvent(new Event("tokenRefreshed"));
+        }
+      } catch (err) {
+        console.error("❌ Refresh error:", err);
+      }
+    };
 
     const startLoop = () => {
-      triggerRefresh("initial after 30s");
+      triggerRefresh("initial");
       refreshTimer.current = setInterval(() => triggerRefresh("interval"), REFRESH_INTERVAL);
       console.log("⏱️ Refresh interval set");
     };
-
-    const timeout = setTimeout(startLoop, INITIAL_DELAY);
 
     // 🕹️ Update activity timestamp on interaction
     const markActive = () => {
@@ -96,7 +112,8 @@ export default function LayoutClient({ user, children }) {
       markActive();
     };
 
-    // Start with initial timestamp
+    // Initial setup
+    startLoop();
     markActive();
 
     window.addEventListener("focus", onResume);
@@ -105,14 +122,11 @@ export default function LayoutClient({ user, children }) {
         onResume();
       }
     });
-
-    // Update activity on user input
     document.addEventListener("mousemove", markActive);
     document.addEventListener("keydown", markActive);
     document.addEventListener("click", markActive);
 
     return () => {
-      clearTimeout(timeout);
       if (refreshTimer.current) clearInterval(refreshTimer.current);
       window.removeEventListener("focus", onResume);
       document.removeEventListener("visibilitychange", onResume);

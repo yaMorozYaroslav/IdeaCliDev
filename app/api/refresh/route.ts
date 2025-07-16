@@ -37,8 +37,17 @@ export async function POST(request: Request) {
 
     const isLocal = process.env.LOCALHOST === "true" || process.env.NODE_ENV !== "production";
 
+    const userData = {
+      userId: user.userId,
+      email: user.email,
+      name: user.name,
+      picture: user.picture,
+      status: user.status,
+      unansweredCount: user.unansweredCount ?? 0,
+    };
+
     const response = NextResponse.json(
-      { message: "Refreshed successfully", userId: user.userId },
+      { message: "Refreshed successfully", userId: user.userId, userData },
       { status: 200 }
     );
 
@@ -53,15 +62,6 @@ export async function POST(request: Request) {
     console.log("🍪 access_token refreshed (HttpOnly)");
 
     // 🍪 USER DATA
-    const userData = {
-      userId: user.userId,
-      email: user.email,
-      name: user.name,
-      picture: user.picture,
-      status: user.status,
-      unansweredCount: user.unansweredCount ?? 0,
-    };
-
     response.cookies.set("user_data", JSON.stringify(userData), {
       httpOnly: false,
       secure: !isLocal,

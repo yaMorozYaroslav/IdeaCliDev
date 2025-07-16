@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { FiMenu } from "react-icons/fi";
 import { FaSearch, FaInfoCircle } from "react-icons/fa";
+import Cookies from "js-cookie"; // ✅ NEW: To read user_data cookie
 import * as S from "./header.styled";
 import getBaseUrl from "../lib/getBaseUrl";
 
@@ -28,6 +29,7 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
   const [screenWidth, setScreenWidth] = useState<number | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
+  // ✅ Listen for scroll to show/hide header
   useEffect(() => {
     const handleScroll = () => {
       setIsVisible(window.scrollY <= lastScrollY);
@@ -38,6 +40,7 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
+  // ✅ Track screen width for responsive behavior
   useEffect(() => {
     const updateWidth = () => setScreenWidth(window.innerWidth);
     updateWidth();
@@ -45,6 +48,26 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
     return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
+  // ✅ Listen for global user updates and refresh state from cookie
+  useEffect(() => {
+    const updateUserFromCookie = () => {
+      try {
+        const raw = Cookies.get("user_data");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          setCurrentUser(parsed);
+          console.log("🔁 Header updated from cookie:", parsed);
+        }
+      } catch (err) {
+        console.warn("❌ Failed to parse user_data in header:", err);
+      }
+    };
+
+    window.addEventListener("tokenRefreshed", updateUserFromCookie);
+    return () => window.removeEventListener("tokenRefreshed", updateUserFromCookie);
+  }, []);
+
+  // ✅ Handle Google login popup
   const handleLogin = () => {
     const baseUrl = getBaseUrl();
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}&redirect_uri=${baseUrl}/google/oauth/callback&response_type=code&scope=openid%20email%20profile`;
@@ -57,7 +80,7 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
         if (event.data?.loginDone) {
           setIsLoggingIn(false);
           window.removeEventListener("message", handleMessage);
-          window.location.reload(); // reload to refresh user prop
+          window.location.reload(); // force rehydration
         }
       };
       window.addEventListener("message", handleMessage);
@@ -66,12 +89,13 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
     }
   };
 
+  // ✅ Handle logout + force refresh
   const handleLogout = async () => {
     try {
       await fetch("/api/logout", { method: "POST" });
       setCurrentUser(null);
       window.dispatchEvent(new Event("tokenRefreshed"));
-      window.location.reload(); // force refresh after logout
+      window.location.reload(); // refresh to reset SSR props too
     } catch (error) {
       console.error("❌ Logout failed:", error);
     }

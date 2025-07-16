@@ -6,6 +6,7 @@ import AskPersonalWrapper from "./AskPersonalWrapper";
 import ProfileHeader from "./ProfileHeader";
 import UnansweredList from "./UnansweredList";
 import AnsweredList from "./AnsweredList";
+import Cookies from "js-cookie";
 import { getUserFromCookies } from "../../../lib/getUserFromCookies";
 
 export default function ClientUserProfile({
@@ -50,7 +51,7 @@ export default function ClientUserProfile({
     return () => clearInterval(interval);
   }, []);
 
-  // ✅ Rehydration logic from API route
+  // ✅ Rehydration logic from API route + cookie + token refresh
   const refresh = async () => {
     try {
       const res = await fetch("/api/refresh-profile", {
@@ -76,6 +77,32 @@ export default function ClientUserProfile({
       if (isOwnerRef.current && updated.unanswered) {
         setUnanswered(updated.unanswered);
       }
+
+      // ✅ Update user_data cookie
+      if (updated.userId) {
+        Cookies.set(
+          "user_data",
+          JSON.stringify({
+            userId: updated.userId,
+            email: updated.email,
+            name: updated.name,
+            picture: updated.picture,
+            status: updated.status,
+            unansweredCount: updated.unanswered?.length ?? 0,
+          }),
+          { path: "/" }
+        );
+      }
+
+      // ✅ Refresh token + HttpOnly access_token + synced cookie
+      const tokenRes = await fetch("/api/refresh", { method: "POST" });
+      const tokenData = await tokenRes.json();
+      if (!tokenRes.ok) {
+        console.warn("⚠️ Token refresh failed after profile update:", tokenData.message);
+      }
+
+      // ✅ Let Header and others know
+      window.dispatchEvent(new Event("tokenRefreshed"));
     } catch (err) {
       console.error("❌ Error refreshing user:", err);
     }
