@@ -101,12 +101,13 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
     }
   };
 
-  const authLabel = isLoggingIn
+  const authLabel =
+  isLoggingIn
     ? "Logging in..."
+    : !currentUser && screenWidth !== null && screenWidth <= 400
+    ? "Login"
     : currentUser
     ? "Logout"
-    : screenWidth !== null && screenWidth <= 400
-    ? "Login"
     : "Login with Google";
 
   return (
