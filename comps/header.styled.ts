@@ -167,7 +167,7 @@ export const UserAvatar = styled.img`
   flex-shrink: 0;
 `;
 
-export const AuthButton = styled.button`
+export const AuthButton = styled.button<{ $authLabel?: string }>`
   background: #0052cc;
   color: white;
   padding: 0.4rem 0.75rem;
@@ -192,7 +192,7 @@ export const AuthButton = styled.button`
     color: transparent;
 
     &::before {
-      content: "Login";
+      content: "${({ $authLabel }) => $authLabel || "Login"}";
       color: white;
       position: absolute;
       left: 50%;

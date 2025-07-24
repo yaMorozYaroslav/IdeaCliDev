@@ -166,12 +166,14 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
             )}
 
             <S.AuthButton
-              onClick={currentUser ? handleLogout : handleLogin}
-              disabled={isLoggingIn}
-              data-label={authLabel}
-            >
-              {authLabel}
-            </S.AuthButton>
+  onClick={currentUser ? handleLogout : handleLogin}
+  disabled={isLoggingIn}
+  data-label={authLabel}
+  $authLabel={authLabel} // ✅ add this line
+>
+  {authLabel}
+</S.AuthButton>
+
           </S.UserContainer>
 
           <S.BurgerDesktop>
