@@ -2,7 +2,7 @@
 
 import React from "react";
 import styled from "styled-components";
-import Questions from "/comps/quests/Quests.js";
+import Questions from "/comps/quests/Quests";
 
 const Container = styled.div`
   display: flex;
@@ -13,37 +13,33 @@ const Container = styled.div`
   padding-top: 100px;
   min-height: 60vh;
   background-color: black;
-  overflow-x: hidden;
 
   @media (max-width: 750px) {
     padding-top: 133px;
   }
+
+  @media (max-width: 480px) {
+    margin-left: -10px;
+    width: 107%;
+  }
 `;
 
-const WelcomeMessage = styled.h1<{ $first?: boolean }>`
+const WelcomeMessage = styled.h1`
   margin-top: ${(props) => (props.$first ? "15px" : "-20px")};
   font-size: 32px;
   color: white;
-  text-align: center;
 
   @media (max-width: 480px) {
     font-size: 24px;
-  }
-
-  @media (max-width: 400px) {
-    font-size: 20px;
-  }
-
-  @media (max-width: 300px) {
-    font-size: 18px;
   }
 `;
 
 export default function HomeClient({ user }) {
   return (
     <Container>
-      <WelcomeMessage $first>Ask & Answer Questions</WelcomeMessage>
-      <WelcomeMessage>Anonymously & Personally</WelcomeMessage>
+      <WelcomeMessage $first={true}>Ask & Answer Questions</WelcomeMessage>
+      <br />
+      <WelcomeMessage $first={false}>Anonymously & Personally</WelcomeMessage>
 
       <Questions user={user} />
 
