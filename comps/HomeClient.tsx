@@ -15,13 +15,18 @@ const Container = styled.div`
   background-color: black;
   overflow-x: hidden;
 
-  @media (max-width: 750px) {
+  @media (max-width: 800px) {
     padding-top: 133px;
   }
+  
+  @media (max-width: 600px) {
+    padding-top: 120px;
+  }
+  
 `;
 
 const WelcomeMessage = styled.h1<{ $first?: boolean }>`
-  margin-top: ${(props) => (props.$first ? "15px" : "-20px")};
+  margin-top: ${(props) => (props.$first ? "10px" : "5px")};
   font-size: 32px;
   color: white;
   text-align: center;
@@ -31,11 +36,11 @@ const WelcomeMessage = styled.h1<{ $first?: boolean }>`
   }
 
   @media (max-width: 400px) {
-    font-size: 20px;
+  margin-top: ${(props) => (props.$first ? "5px" : "3px")};
   }
 
   @media (max-width: 300px) {
-    font-size: 18px;
+    font-size: 20px;
   }
 `;
 
