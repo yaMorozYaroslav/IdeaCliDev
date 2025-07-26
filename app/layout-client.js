@@ -5,13 +5,30 @@ import Header from "../comps/Header";
 import { StyleSheetManager } from "styled-components";
 import isPropValid from "@emotion/is-prop-valid";
 import Cookies from "js-cookie";
+import styled from "styled-components";
+import GlobalStyle from "./GlobalStyle";
+
+const FullPageWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
+  @media (max-width: 300px) {
+    min-height: 100dvh; /* use dynamic viewport height on tiny screens */
+  }
+`;
+
+const MainContent = styled.main`
+  flex: 1;
+  padding-top: 50px; // ⬅️ enough to clear the fixed header
+`;
+
 
 export default function LayoutClient({ user, children }) {
   const [mounted, setMounted] = useState(false);
   const [rehydratedUser, setRehydratedUser] = useState(user);
   const refreshTimer = useRef(null);
 
-  // ✅ Handle token from popup
   useEffect(() => {
     const handleMessage = async (event) => {
       if (event.data?.type === "SET_TOKENS") {
@@ -38,7 +55,6 @@ export default function LayoutClient({ user, children }) {
     return () => window.removeEventListener("message", handleMessage);
   }, []);
 
-  // ✅ Rehydrate user from cookie on initial load
   useEffect(() => {
     try {
       const raw = Cookies.get("user_data");
@@ -53,7 +69,6 @@ export default function LayoutClient({ user, children }) {
     setMounted(true);
   }, []);
 
-  // ✅ Refresh loop + resume detection
   useEffect(() => {
     const REFRESH_INTERVAL = 14 * 60 * 1000;
     const AWAY_THRESHOLD = 10 * 60 * 1000;
@@ -69,7 +84,6 @@ export default function LayoutClient({ user, children }) {
         } else {
           console.log("✅ Token refreshed:", data);
 
-          // 🧠 Use returned data if present
           if (data.userData) {
             setRehydratedUser(data.userData);
             Cookies.set("user_data", JSON.stringify(data.userData), { path: "/" });
@@ -96,12 +110,10 @@ export default function LayoutClient({ user, children }) {
       console.log("⏱️ Refresh interval set");
     };
 
-    // 🕹️ Update activity timestamp on interaction
     const markActive = () => {
       sessionStorage.setItem("lastActive", Date.now().toString());
     };
 
-    // ⏪ Resume detection
     const onResume = () => {
       const last = sessionStorage.getItem("lastActive");
       const now = Date.now();
@@ -112,7 +124,6 @@ export default function LayoutClient({ user, children }) {
       markActive();
     };
 
-    // Initial setup
     startLoop();
     markActive();
 
@@ -141,8 +152,13 @@ export default function LayoutClient({ user, children }) {
 
   return (
     <StyleSheetManager shouldForwardProp={(prop) => isPropValid(prop)}>
+  <>
+    <GlobalStyle />
+    <FullPageWrapper>
       <Header user={rehydratedUser} />
-      {children}
-    </StyleSheetManager>
+      <MainContent>{children}</MainContent>
+    </FullPageWrapper>
+  </>
+</StyleSheetManager>
   );
 }

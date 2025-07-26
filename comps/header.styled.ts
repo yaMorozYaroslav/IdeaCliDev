@@ -5,15 +5,26 @@ export const HeaderContainer = styled.header<{ $isVisible: boolean }>`
   position: fixed;
   top: ${({ $isVisible }) => ($isVisible ? "0" : "-100px")};
   left: 0;
-  right: 0;
   width: 100%;
   background-color: #001f3f;
   color: white;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   transition: top 0.3s ease-in-out;
-  overflow-x: hidden;        /* ✅ prevent pushing content */
-  max-width: 100vw;          /* ✅ hard limit width */
+
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  max-width: 100vw;
+  min-height: 72px;
+
+  @media (max-width: 400px) {
+    min-height: 68px;
+  }
+
+  @media (max-width: 300px) {
+    min-height: 64px;
+  }
 `;
 
 export const FlexWrapper = styled.div`
@@ -78,20 +89,23 @@ export const LogoContainer = styled.div`
 
   @media (max-width: 400px) {
     gap: 0.3rem;
-    padding-right:2%;
+    padding-right: 2%;
 
     h1 {
       font-size: 1.3rem;
     }
   }
 `;
-
-
 export const LogoImage = styled.img`
   height: 85px;
   width: auto;
   flex-shrink: 0;
+
+  @media (max-width: 400px) {
+    height: 80px; /* smaller logo for narrow viewports */
+  }
 `;
+
 
 export const BurgerMobile = styled.div`
   display: flex;
@@ -110,7 +124,7 @@ export const BurgerDesktop = styled.div`
     align-items: center;
     justify-content: flex-end;
     position: relative;
-    margin-left: auto;  // ✅ Push to far right inside flex container
+    margin-left: auto;
   }
 `;
 
@@ -205,7 +219,7 @@ export const AuthButton = styled.button<{ $authLabel?: string }>`
 
 export const MenuDropdownFixed = styled.div`
   position: fixed;
-  top: 90px; /* Adjust depending on header height */
+  top: 90px;
   right: 16px;
   background: white;
   color: black;
