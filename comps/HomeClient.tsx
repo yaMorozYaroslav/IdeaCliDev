@@ -2,7 +2,7 @@
 
 import React from "react";
 import styled from "styled-components";
-import Questions from "/comps/quests/Quests.js";
+import Questions from "/quests/Quests.js";
 
 const Container = styled.div`
   display: flex;
