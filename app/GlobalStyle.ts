@@ -1,12 +1,14 @@
-// app/GlobalStyle.ts
-"use client";
-import { createGlobalStyle } from "styled-components";
+// app/GlobalStyle.ts  (ESM/CJS-safe for styled-components v6)
+import * as StyledComponents from "styled-components";
+const { createGlobalStyle } = StyledComponents as any;
 
 const GlobalStyle = createGlobalStyle`
   html, body {
-    overflow-x: hidden;
     margin: 0;
-    padding: 0;
+    overflow-x: hidden;
+  }
+  *, *::before, *::after {
+    box-sizing: border-box;
   }
 `;
 
