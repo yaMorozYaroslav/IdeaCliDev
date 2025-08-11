@@ -1,27 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import styled from "styled-components";
 import getBaseUrl from "../../../lib/getBaseUrl";
-
-const Spinner = styled.div`
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #333;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-`;
+import {
+  SectionWrapper,
+  SectionTitle,
+  Card,
+  Title,
+  Meta,
+  AnswerBlock,
+  AnswerAuthor,
+  Spinner,
+  LoadingWrap,
+  EmptyState,
+  PrimaryButton, // <-- import the shared button
+} from "./section.styled";
 
 interface AnsweredListProps {
   answered: any[];
@@ -60,60 +52,45 @@ export default function AnsweredList({
   };
 
   return (
-    <>
-      <h2>Answered Questions</h2>
+    <SectionWrapper>
+      <SectionTitle>Answered Questions</SectionTitle>
 
       {loading ? (
-        <div style={{ textAlign: "center", padding: "1rem" }}>
+        <LoadingWrap>
           <Spinner />
           <p style={{ color: "#666", fontStyle: "italic" }}>
             Loading answered questions...
           </p>
-        </div>
+        </LoadingWrap>
       ) : answered.length === 0 ? (
-        <p>No answered questions</p>
+        <EmptyState>No answered questions</EmptyState>
       ) : (
         answered.map((q) =>
           q?.title ? (
-            <div
-              key={q._id}
-              style={{
-                border: "1px solid #ccc",
-                padding: "1rem",
-                marginBottom: "1rem",
-              }}
-            >
-              <p>
-                <strong>{q.title}</strong>
-              </p>
-              <p style={{ fontSize: "0.9em", color: "#666" }}>
-                by {q.authorName}
-              </p>
+            <Card key={q._id} $indentLeft="3.5rem">
+              <Title>{q.title}</Title>
+              <Meta>by {q.authorName}</Meta>
 
               {q.answer && (
-                <div
-                  style={{
-                    marginTop: "1rem",
-                    paddingLeft: "1rem",
-                    borderLeft: "3px solid #333",
-                  }}
-                >
+                <AnswerBlock $indentLeft="1.5rem">
                   <p>💬 {q.answer}</p>
-                  <p style={{ fontSize: "0.8em", color: "#999" }}>
-                    — {user?.name || "Anonymous"}
-                  </p>
-                </div>
+                  <AnswerAuthor>— {user?.name || "Anonymous"}</AnswerAuthor>
+                </AnswerBlock>
               )}
 
               {canDelete(q) && (
-                <button onClick={() => handleDelete(q._id)}>
+                <PrimaryButton
+                  $danger
+                  onClick={() => handleDelete(q._id)}
+                  aria-label="Delete Question"
+                >
                   Delete Question
-                </button>
+                </PrimaryButton>
               )}
-            </div>
+            </Card>
           ) : null
         )
       )}
-    </>
+    </SectionWrapper>
   );
 }

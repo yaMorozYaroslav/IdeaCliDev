@@ -2,11 +2,11 @@
 import "@testing-library/jest-dom";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import React from "react";
-import Header from "./Header";
+import Header from "../../comps/Header";
 import Cookies from "js-cookie";
 
 // Use full relative path (no @ alias)
-jest.mock("../lib/getBaseUrl", () => () => "http://localhost:3000");
+jest.mock("../../lib/getBaseUrl", () => () => "http://localhost:3000");
 
 // Mock js-cookie (Header reads counts etc. from this, but NOT display name)
 jest.mock("js-cookie", () => {

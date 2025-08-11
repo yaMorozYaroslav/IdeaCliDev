@@ -31,7 +31,13 @@ const MainContent = styled.main`
 export default function LayoutClient({ user, children }) {
   const [mounted, setMounted] = useState(false);
   const [rehydratedUser, setRehydratedUser] = useState(user);
+
   const refreshTimer = useRef(null);
+  const lastRefreshAtRef = useRef(Date.now());
+
+  // new: robust "away" detection via hidden timer
+  const needsRefreshRef = useRef(false);
+  const hiddenTimerRef = useRef(null);
 
   // handle tokens from popup
   useEffect(() => {
@@ -93,12 +99,18 @@ export default function LayoutClient({ user, children }) {
         if (typeof fetch === "undefined") return;
 
         const res = await fetch("/api/refresh", { method: "POST" });
-        const data = await res.json();
+        let data = null;
+        try {
+          data = await res.json();
+        } catch {
+          // not all test mocks return JSON
+        }
 
         if (!res.ok) {
           console.warn("⚠️ Refresh failed:", data?.message);
         } else {
           console.log("✅ Token refreshed");
+          lastRefreshAtRef.current = Date.now();
 
           if (data?.userData) {
             setRehydratedUser(data.userData);
@@ -128,6 +140,7 @@ export default function LayoutClient({ user, children }) {
       }
     };
 
+    // activity tracking (for your existing logic)
     const markActive = () => {
       try {
         if (typeof sessionStorage !== "undefined") {
@@ -136,48 +149,101 @@ export default function LayoutClient({ user, children }) {
       } catch {
         /* ignore */
       }
+      // clearing the hidden timer on activity prevents accidental flips while visible
+      clearHiddenTimer();
     };
 
-    const onResume = () => {
+    // hidden timer machinery
+    const armHiddenTimer = () => {
+      clearHiddenTimer();
+      hiddenTimerRef.current = window.setTimeout(() => {
+        needsRefreshRef.current = true;
+      }, AWAY_THRESHOLD);
+    };
+
+    const clearHiddenTimer = () => {
+      if (hiddenTimerRef.current != null) {
+        clearTimeout(hiddenTimerRef.current);
+        hiddenTimerRef.current = null;
+      }
+    };
+
+    const maybeRefreshNow = () => {
+      // once we become visible/focused, if we were away long enough, refresh
+      clearHiddenTimer();
+      if (needsRefreshRef.current) {
+        needsRefreshRef.current = false;
+        void triggerRefresh("resume");
+        return;
+      }
+
+      // fallback: also consider time since last activity/refresh
       try {
-        const last = sessionStorage.getItem("lastActive");
+        const raw = sessionStorage.getItem("lastActive");
+        const lastActive = raw ? parseInt(raw, 10) : 0;
         const now = Date.now();
-        if (last && now - parseInt(last, 10) > AWAY_THRESHOLD) {
-          console.log("🕑 Resumed after long absence");
-          triggerRefresh("resume");
+        const awayByActivity = lastActive && now - lastActive > AWAY_THRESHOLD;
+        const awayByTimeSinceRefresh = now - lastRefreshAtRef.current > AWAY_THRESHOLD;
+
+        if (awayByActivity || awayByTimeSinceRefresh) {
+          console.log("🕑 Resumed after long absence (fallback)");
+          void triggerRefresh("resume-fallback");
         }
       } catch {
         /* ignore */
       }
-      markActive();
     };
 
     const onVisibilityChange = () => {
-      if (document.visibilityState === "visible") onResume();
+      if (document.hidden) {
+        armHiddenTimer();
+      } else {
+        maybeRefreshNow();
+      }
+    };
+
+    const onFocus = () => {
+      // focusing window should check the flag too
+      maybeRefreshNow();
+    };
+
+    // pageshow fires on bfcache/tab restore; good moment to test for resume
+    const onPageShow = () => {
+      maybeRefreshNow();
     };
 
     const startLoop = () => {
-      triggerRefresh("initial");
-      refreshTimer.current = setInterval(() => triggerRefresh("interval"), REFRESH_INTERVAL);
+      // initial refresh to normalize state
+      void triggerRefresh("initial");
+      refreshTimer.current = setInterval(() => void triggerRefresh("interval"), REFRESH_INTERVAL);
       console.log("⏱️ Refresh interval set");
     };
 
     startLoop();
     markActive();
 
-    window.addEventListener("focus", onResume);
+    // if mounting while hidden (e.g., test toggled), arm the timer immediately
+    if (document.hidden) armHiddenTimer();
+
+    window.addEventListener("focus", onFocus);
+    window.addEventListener("pageshow", onPageShow);
     document.addEventListener("visibilitychange", onVisibilityChange);
+
     document.addEventListener("mousemove", markActive);
     document.addEventListener("keydown", markActive);
     document.addEventListener("click", markActive);
 
     return () => {
       if (refreshTimer.current) clearInterval(refreshTimer.current);
-      window.removeEventListener("focus", onResume);
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("pageshow", onPageShow);
       document.removeEventListener("visibilitychange", onVisibilityChange);
+
       document.removeEventListener("mousemove", markActive);
       document.removeEventListener("keydown", markActive);
       document.removeEventListener("click", markActive);
+
+      clearHiddenTimer();
       console.log("🛑 Cleaned up refresh loop");
     };
   }, []);

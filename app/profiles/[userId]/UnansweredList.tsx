@@ -1,33 +1,15 @@
 "use client";
 
-import styled from "styled-components";
 import getBaseUrl from "../../../lib/getBaseUrl";
-
-const Card = styled.div`
-  border: 1px solid #ccc;
-  padding: 1rem;
-  margin-bottom: 1rem;
-`;
-
-const ByLine = styled.p`
-  font-size: 0.9em;
-  color: #666;
-`;
-
-const Button = styled.button`
-  margin-right: 0.5rem;
-  padding: 0.3rem 0.6rem;
-  font-size: 0.9rem;
-  cursor: pointer;
-  background: #0052cc;
-  color: white;
-  border: none;
-  border-radius: 4px;
-
-  &:hover {
-    background: #0066ff;
-  }
-`;
+import {
+  SectionWrapper,
+  SectionTitle,
+  Card,
+  Title,
+  ByLine,
+  EmptyState,
+  PrimaryButton,
+} from "./section.styled";
 
 interface UnansweredListProps {
   unanswered: any[];
@@ -63,7 +45,7 @@ export default function UnansweredList({
 
     if (res.ok) {
       alert("✅ Answer saved!");
-      onAnswered(); // ✅ Rehydrate answered list immediately
+      onAnswered();
     } else {
       let err;
       try {
@@ -84,7 +66,7 @@ export default function UnansweredList({
 
     if (res.ok) {
       alert("✅ Question deleted!");
-      onDelete(); // ✅ Rehydrate unanswered list immediately
+      onDelete();
     } else {
       const error = await res.text();
       alert(`Failed to delete question: ${res.status}\n${error}`);
@@ -92,24 +74,32 @@ export default function UnansweredList({
   };
 
   return (
-    <>
-      <h2>Unanswered Questions</h2>
-      {unanswered.length === 0 && <p>No unanswered questions</p>}
+    <SectionWrapper>
+      <SectionTitle>Unanswered Questions</SectionTitle>
+
+      {unanswered.length === 0 && <EmptyState>No unanswered questions</EmptyState>}
+
       {unanswered.map((q) =>
         q?.title ? (
-          <Card key={q._id}>
-            <p>
-              <strong>{q.title}</strong>
-            </p>
+          <Card key={q._id} $indentLeft="3.5rem">
+            <Title>{q.title}</Title>
             <ByLine>by {q.authorName}</ByLine>
 
-            <Button onClick={() => handleAnswer(q._id)}>Answer</Button>
+            <PrimaryButton onClick={() => handleAnswer(q._id)} aria-label="Answer question">
+              Answer
+            </PrimaryButton>
             {canDelete(q) && (
-              <Button onClick={() => handleDelete(q._id)}>Delete Question</Button>
+              <PrimaryButton
+                $danger
+                onClick={() => handleDelete(q._id)}
+                aria-label="Delete question"
+              >
+                Delete Question
+              </PrimaryButton>
             )}
           </Card>
         ) : null
       )}
-    </>
+    </SectionWrapper>
   );
 }
