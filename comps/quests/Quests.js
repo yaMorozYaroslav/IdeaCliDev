@@ -97,13 +97,12 @@ export default function Questions({ user }) {
         </S.DotLoaderContainer>
       ) : (
         <QuestionList
-          key={questions.length}
-          questions={questions}
-          setQuestions={setQuestions}
-          userId={user?.userId}
-          userStatus={user?.status}
-          userName={user?.name}
-        />
+  questions={questions}
+  setQuestions={setQuestions}
+  userId={user?.userId || cookieUser?.userId}
+  userStatus={user?.status || cookieUser?.status}
+  userName={user?.name || cookieUser?.name}
+/>
       )}
     </S.Container>
   );

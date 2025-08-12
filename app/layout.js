@@ -1,8 +1,12 @@
-import { getUserFromCookiesServer } from "../lib/getUserFromCookiesServer.js"; // updated name & path
+// app/layout.tsx (server component)
+import { getUserFromCookiesServer } from "../lib/getUserFromCookiesServer";
 import LayoutClient from "./layout-client";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function Layout({ children }) {
-  const user = await getUserFromCookiesServer(); // ⬅️ now async
+  const user = getUserFromCookiesServer(); // no await
 
   return (
     <html lang="en">

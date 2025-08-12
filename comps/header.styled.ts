@@ -55,6 +55,7 @@ export const TopRow = styled.div`
 
   @media (max-width: 768px) {
     width: 100%;
+    margin-bottom:-25px;
   }
 `;
 
@@ -65,6 +66,10 @@ export const BottomRow = styled.div`
   width: 100%;
   gap: 1rem;
   overflow: hidden;
+   @media (max-width: 768px) {
+    width: 100%;
+    margin-bottom:10px;
+  }
 `;
 
 export const LogoContainer = styled.div`
@@ -82,7 +87,7 @@ export const LogoContainer = styled.div`
 
   @media (max-width: 768px) {
     gap: 0.75rem;
-
+    font-size: 1.3px;
     h1 {
       font-size: 2rem;
     }
@@ -93,7 +98,7 @@ export const LogoContainer = styled.div`
     padding-right: 2%;
 
     h1 {
-      font-size: 1.3rem;
+      font-size: 1.4rem;
     }
   }
 `;
@@ -152,7 +157,14 @@ export const UserContainer = styled.div`
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
+
+  @media (max-width: 770px) {
+    justify-content: center;
+    align-items: center;
+    padding-top: 0.2rem; /* lifts it slightly above bottom edge */
+  }
 `;
+
 
 export const UserName = styled.span`
   font-weight: 600;

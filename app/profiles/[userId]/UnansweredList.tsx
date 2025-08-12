@@ -96,7 +96,7 @@ export default function UnansweredList({
                 Answer
               </PrimaryButton>
               {canDelete(q) && (
-                <PrimaryButton
+                <PrimaryButton $danger
                   data-danger="true"
                   onClick={() => handleDelete(q._id)}
                   aria-label="Delete question"

@@ -30,26 +30,38 @@ export const Card = styled.div`
     `}
 `;
 
-export const TitleGroup = styled.div`
-  display: inline-block;
-  position: relative;
-  margin-bottom:10px;
-`;
-
 export const Title = styled.p`
   font-weight: 700;
   margin: 0;
 `;
+export const TitleGroup = styled.div`
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;      /* right-align both lines */
+  max-width: 100%;
+  margin-bottom: 10px;
+`;
 
 export const ByLine = styled.p`
-  position: absolute;
-  top: 80%; /* places it right below the Title */
-  right:0;   /* aligns to left edge of TitleGroup */
-  transform: translateY(0.2rem); /* small gap under the title */
+  /* sits under Title, aligned to its right edge */
+  margin: 0.2rem 0 0;
   font-size: 0.8em;
   color: #666;
-  white-space: nowrap; /* prevents breaking into a second line */
+
+  /* sizing rules: at least N chars wide, but never overflow the card */
+  min-width: 10ch;            /* adjust to taste */
+  max-width: 100%;            /* cap to container */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  /* if you prefer wrapping on tiny screens, let it wrap instead of ellipsis: */
+  @media (max-width: 420px) {
+    white-space: normal;
+  }
 `;
+
+
 
 
 
@@ -105,27 +117,16 @@ export const EmptyState = styled.p`
 /* Buttons */
 export const PrimaryButton = styled.button`
   margin-right: 0.5rem;
-  padding: 0.3rem 0.6rem;
-  font-size: 0.9rem;
+  padding: ${({ $danger }) => ($danger ? "0.4rem 0.8rem" : "0.3rem 0.6rem")};
+  font-size: ${({ $danger }) => ($danger ? "0.85rem" : "0.9rem")};
   cursor: pointer;
-  background: #0052cc;
+  background: ${({ $danger }) => ($danger ? "#cc0000" : "#0052cc")};
   color: #fff;
   border: none;
   border-radius: 4px;
   transition: background 120ms ease;
 
   &:hover {
-    background: #0066ff;
+    background: ${({ $danger }) => ($danger ? "#e00000" : "#0066ff")};
   }
-
-  ${({ $danger }) =>
-    $danger &&
-    css`
-      background: #cc0000;
-      color: #fff;
-
-      &:hover {
-        background: #e00000;
-      }
-    `}
 `;
