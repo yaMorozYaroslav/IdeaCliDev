@@ -1,7 +1,7 @@
 // app/profiles/[userId]/section.styled.js
 "use client";
 
-import styled, { keyframes, css } from "styled-components";
+import styled, { keyframes } from "styled-components";
 
 /* Section shell */
 export const SectionWrapper = styled.section`
@@ -24,12 +24,8 @@ export const Card = styled.div`
   margin-bottom: 1rem;
   background: #fff;
 
-  /* optional left indent for all inner content */
-  ${({ $indentLeft }) =>
-    $indentLeft &&
-    css`
-      padding-left: ${$indentLeft};
-    `}
+  /* optional left indent for all inner content via CSS var */
+  padding-left: var(--indent-left, 0);
 `;
 
 export const Title = styled.p`
@@ -52,7 +48,9 @@ export const ByLine = styled.p`
 export const AnswerBlock = styled.div`
   margin-top: 1rem;
   border-left: 3px solid #333;
-  padding-left: ${({ $indentLeft }) => ($indentLeft ? $indentLeft : "1rem")};
+
+  /* inner indent via CSS var */
+  padding-left: var(--answer-indent, 1rem);
 
   p {
     margin: 0.25rem 0;
@@ -93,7 +91,6 @@ export const EmptyState = styled.p`
 `;
 
 /* Buttons */
-
 export const PrimaryButton = styled.button`
   margin-right: 0.5rem;
   padding: 0.3rem 0.6rem;
@@ -109,14 +106,11 @@ export const PrimaryButton = styled.button`
     background: #0066ff;
   }
 
-  ${({ $danger }) =>
-    $danger &&
-    css`
-      background: #cc0000;
-      color: #fff;
-
-      &:hover {
-        background: #e00000;
-      }
-    `}
+  /* danger variant via data attribute (no TS props needed) */
+  &[data-danger="true"] {
+    background: #cc0000;
+    &:hover {
+      background: #e00000;
+    }
+  }
 `;

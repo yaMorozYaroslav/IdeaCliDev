@@ -81,7 +81,10 @@ export default function UnansweredList({
 
       {unanswered.map((q) =>
         q?.title ? (
-          <Card key={q._id} $indentLeft="3.5rem">
+          <Card
+            key={q._id}
+            style={{ ["--indent-left" as any]: "3.5rem" }}
+          >
             <Title>{q.title}</Title>
             <ByLine>by {q.authorName}</ByLine>
 
@@ -90,7 +93,7 @@ export default function UnansweredList({
             </PrimaryButton>
             {canDelete(q) && (
               <PrimaryButton
-                $danger
+                data-danger="true"
                 onClick={() => handleDelete(q._id)}
                 aria-label="Delete question"
               >

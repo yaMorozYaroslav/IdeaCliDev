@@ -12,7 +12,7 @@ import {
   Spinner,
   LoadingWrap,
   EmptyState,
-  PrimaryButton, // <-- import the shared button
+  PrimaryButton,
 } from "./section.styled";
 
 interface AnsweredListProps {
@@ -67,12 +67,17 @@ export default function AnsweredList({
       ) : (
         answered.map((q) =>
           q?.title ? (
-            <Card key={q._id} $indentLeft="3.5rem">
+            <Card
+              key={q._id}
+              style={{ ["--indent-left" as any]: "3.5rem" }}
+            >
               <Title>{q.title}</Title>
               <Meta>by {q.authorName}</Meta>
 
               {q.answer && (
-                <AnswerBlock $indentLeft="1.5rem">
+                <AnswerBlock
+                  style={{ ["--answer-indent" as any]: "1.5rem" }}
+                >
                   <p>💬 {q.answer}</p>
                   <AnswerAuthor>— {user?.name || "Anonymous"}</AnswerAuthor>
                 </AnswerBlock>
@@ -80,9 +85,9 @@ export default function AnsweredList({
 
               {canDelete(q) && (
                 <PrimaryButton
-                  $danger
+                  data-danger="true"
                   onClick={() => handleDelete(q._id)}
-                  aria-label="Delete Question"
+                  aria-label="Delete question"
                 >
                   Delete Question
                 </PrimaryButton>
