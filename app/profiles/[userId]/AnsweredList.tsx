@@ -89,6 +89,7 @@ export default function AnsweredList({
               {canDelete(q) && (
                 <div style={{ marginTop: "0.75rem" }}>
                   <PrimaryButton
+                    
                     data-danger="true"
                     onClick={() => handleDelete(q._id)}
                     aria-label="Delete question"

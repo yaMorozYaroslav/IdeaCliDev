@@ -115,18 +115,29 @@ export const EmptyState = styled.p`
 `;
 
 /* Buttons */
+/* Buttons */
 export const PrimaryButton = styled.button`
   margin-right: 0.5rem;
-  padding: ${({ $danger }) => ($danger ? "0.4rem 0.8rem" : "0.3rem 0.6rem")};
-  font-size: ${({ $danger }) => ($danger ? "0.85rem" : "0.9rem")};
+  padding: 0.3rem 0.6rem;
+  font-size: 0.9rem;
   cursor: pointer;
-  background: ${({ $danger }) => ($danger ? "#cc0000" : "#0052cc")};
+  background: #0052cc;
   color: #fff;
   border: none;
   border-radius: 4px;
   transition: background 120ms ease;
 
   &:hover {
-    background: ${({ $danger }) => ($danger ? "#e00000" : "#0066ff")};
+    background: #0066ff;
+  }
+
+  /* Danger variant (triggered by data attribute) */
+  &[data-danger="true"] {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    background: #cc0000;
+  }
+  &[data-danger="true"]:hover {
+    background: #e00000;
   }
 `;
