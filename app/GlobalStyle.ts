@@ -12,17 +12,11 @@ const GlobalStyle = createGlobalStyle`
     box-sizing: border-box;
   }
 
-  /* Universal offset for the fixed header */
-  body {
-    padding-top: 72px;
-  }
-
-  @media (max-width: 400px) {
-    body { padding-top: 68px; }
-  }
-
-  @media (max-width: 300px) {
-    body { padding-top: 64px; }
+  
+    body { padding-top: 72px;
+    @media (max-width: 770px) {
+      padding-top: 110px; /* adjust to match your mobile header height */
+    }
   }
 `;
 

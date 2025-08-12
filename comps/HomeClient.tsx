@@ -12,7 +12,7 @@ const Container = styled.div`
   align-items: center;
 
   /* Removed local padding-top so layout controls the offset */
-  padding-top: 0;
+  margin-top: -120px;
 
   min-height: 60vh;
   background-color: black;
@@ -20,7 +20,7 @@ const Container = styled.div`
 `;
 
 const WelcomeMessage = styled.h1<{ $first?: boolean }>`
-  margin-top: ${(props) => (props.$first ? "20px" : "-10px")};
+  margin-top: ${(props) => (props.$first ? "150px" : "-10px")};
   font-size: 32px;
   color: white;
   text-align: center;

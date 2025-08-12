@@ -1,48 +1,47 @@
 import styled from "styled-components";
-import Link from "next/link";
+
+/**
+ * No layout shift space:
+ * - Header is fixed at top:0 always
+ * - Slide is done with inline transform (in the component)
+ * - Pages should use padding-top: var(--header-gap, 0px);
+ *   The component writes --header-gap to 0 when hidden, real height when visible
+ */
 
 export const HeaderContainer = styled.header<{ $isVisible: boolean }>`
-  --header-h: 72px;
+  --header-h: 68px; /* was 72px */
 
   position: fixed;
-  top: ${({ $isVisible }) => ($isVisible ? "0" : "-100px")};
+  top: 0;
   left: 0;
   width: 100%;
   background-color: #001f3f;
   color: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  transition: top 0.3s ease-in-out;
 
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
-  max-width: 100vw;
   min-height: var(--header-h);
 
-  @media (max-width: 400px) {
-    --header-h: 68px;
-  }
-
-  @media (max-width: 300px) {
-    --header-h: 64px;
-  }
+  transform: translateY(${({ $isVisible }) => ($isVisible ? "0%" : "-100%")});
+  transition: transform 0.28s ease-in-out;
+  pointer-events: ${({ $isVisible }) => ($isVisible ? "auto" : "none")};
+  box-shadow: ${({ $isVisible }) =>
+    $isVisible ? "0 2px 10px rgba(0, 0, 0, 0.1)" : "none"};
 `;
 
 export const FlexWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 0.5rem 1rem;
+  padding: 0.3rem 1rem; /* reduced from 0.5rem */
   gap: 1rem;
   margin: 0;
-  max-width: 100%;
-  overflow-x: hidden;
 
   @media (min-width: 768px) {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem 2rem;
+    padding: 0.6rem 2rem; /* reduced from 1rem */
   }
 `;
 
@@ -100,7 +99,7 @@ export const LogoContainer = styled.div`
 `;
 
 export const LogoImage = styled.img`
-  height: 85px;
+  height: 80px;
   width: auto;
   flex-shrink: 0;
 
@@ -170,6 +169,7 @@ export const UserNameLink = styled.a`
   display: inline-block;
   vertical-align: middle;
   color: white;
+  text-decoration: none;
 
   &:hover {
     text-decoration: underline;
@@ -221,7 +221,8 @@ export const AuthButton = styled.button<{ $authLabel?: string }>`
 
 export const MenuDropdownFixed = styled.div`
   position: fixed;
-  top: 90px;
+  /* Place right under the visible header (the component writes --header-gap live) */
+  top: calc(var(--header-gap, 0px) + 8px);
   right: 16px;
   background: white;
   color: black;
@@ -234,7 +235,6 @@ export const MenuDropdownFixed = styled.div`
   box-sizing: border-box;
 
   @media (max-width: 768px) {
-    top: 80px;
     right: 24px;
   }
 `;
