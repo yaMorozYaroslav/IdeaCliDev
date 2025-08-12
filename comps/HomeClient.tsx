@@ -8,25 +8,19 @@ const Container = styled.div`
   display: flex;
   width: 100%;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start; /* start right under header */
   align-items: center;
-  padding-top: 100px;
+
+  /* Removed local padding-top so layout controls the offset */
+  padding-top: 0;
+
   min-height: 60vh;
   background-color: black;
   overflow-x: hidden;
-
-  @media (max-width: 800px) {
-    padding-top: 133px;
-  }
-  
-  @media (max-width: 600px) {
-    padding-top: 120px;
-  }
-  
 `;
 
 const WelcomeMessage = styled.h1<{ $first?: boolean }>`
-  margin-top: ${(props) => (props.$first ? "10px" : "5px")};
+  margin-top: ${(props) => (props.$first ? "20px" : "-10px")};
   font-size: 32px;
   color: white;
   text-align: center;
@@ -36,7 +30,7 @@ const WelcomeMessage = styled.h1<{ $first?: boolean }>`
   }
 
   @media (max-width: 400px) {
-  margin-top: ${(props) => (props.$first ? "5px" : "3px")};
+    margin-top: ${(props) => (props.$first ? "0" : "3px")};
   }
 
   @media (max-width: 300px) {

@@ -1,17 +1,16 @@
-// app/profiles/[userId]/section.styled.js
 "use client";
 
-import styled, { keyframes } from "styled-components";
+import styled, { keyframes, css } from "styled-components";
 
 /* Section shell */
 export const SectionWrapper = styled.section`
-  margin-top: 2rem; /* consistent gap before each section */
+  margin-top: 2rem;
   padding: 0 1rem;
 `;
 
 export const SectionTitle = styled.h2`
   text-align: center;
-  margin: 0 0 1rem; /* remove default top margin */
+  margin: 0 0 1rem;
   font-size: 1.5rem;
   font-weight: 600;
 `;
@@ -24,14 +23,35 @@ export const Card = styled.div`
   margin-bottom: 1rem;
   background: #fff;
 
-  /* optional left indent for all inner content via CSS var */
-  padding-left: var(--indent-left, 0);
+  ${({ $indentLeft }) =>
+    $indentLeft &&
+    css`
+      padding-left: ${$indentLeft};
+    `}
+`;
+
+export const TitleGroup = styled.div`
+  display: inline-block;
+  position: relative;
+  margin-bottom:10px;
 `;
 
 export const Title = styled.p`
   font-weight: 700;
-  margin: 0 0 0.25rem;
+  margin: 0;
 `;
+
+export const ByLine = styled.p`
+  position: absolute;
+  top: 80%; /* places it right below the Title */
+  right:0;   /* aligns to left edge of TitleGroup */
+  transform: translateY(0.2rem); /* small gap under the title */
+  font-size: 0.8em;
+  color: #666;
+  white-space: nowrap; /* prevents breaking into a second line */
+`;
+
+
 
 export const Meta = styled.p`
   font-size: 0.9em;
@@ -39,18 +59,10 @@ export const Meta = styled.p`
   margin: 0 0 0.5rem;
 `;
 
-export const ByLine = styled.p`
-  font-size: 0.9em;
-  color: #666;
-  margin: 0.25rem 0 0.5rem;
-`;
-
 export const AnswerBlock = styled.div`
   margin-top: 1rem;
   border-left: 3px solid #333;
-
-  /* inner indent via CSS var */
-  padding-left: var(--answer-indent, 1rem);
+  padding-left: ${({ $indentLeft }) => ($indentLeft ? $indentLeft : "1rem")};
 
   p {
     margin: 0.25rem 0;
@@ -106,11 +118,14 @@ export const PrimaryButton = styled.button`
     background: #0066ff;
   }
 
-  /* danger variant via data attribute (no TS props needed) */
-  &[data-danger="true"] {
-    background: #cc0000;
-    &:hover {
-      background: #e00000;
-    }
-  }
+  ${({ $danger }) =>
+    $danger &&
+    css`
+      background: #cc0000;
+      color: #fff;
+
+      &:hover {
+        background: #e00000;
+      }
+    `}
 `;

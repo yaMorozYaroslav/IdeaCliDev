@@ -2,6 +2,8 @@ import styled from "styled-components";
 import Link from "next/link";
 
 export const HeaderContainer = styled.header<{ $isVisible: boolean }>`
+  --header-h: 72px;
+
   position: fixed;
   top: ${({ $isVisible }) => ($isVisible ? "0" : "-100px")};
   left: 0;
@@ -16,14 +18,14 @@ export const HeaderContainer = styled.header<{ $isVisible: boolean }>`
   flex-direction: column;
   overflow-x: hidden;
   max-width: 100vw;
-  min-height: 72px;
+  min-height: var(--header-h);
 
   @media (max-width: 400px) {
-    min-height: 68px;
+    --header-h: 68px;
   }
 
   @media (max-width: 300px) {
-    min-height: 64px;
+    --header-h: 64px;
   }
 `;
 
@@ -96,16 +98,16 @@ export const LogoContainer = styled.div`
     }
   }
 `;
+
 export const LogoImage = styled.img`
   height: 85px;
   width: auto;
   flex-shrink: 0;
 
   @media (max-width: 400px) {
-    height: 80px; /* smaller logo for narrow viewports */
+    height: 80px;
   }
 `;
-
 
 export const BurgerMobile = styled.div`
   display: flex;

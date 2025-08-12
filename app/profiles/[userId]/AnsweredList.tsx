@@ -6,7 +6,8 @@ import {
   SectionTitle,
   Card,
   Title,
-  Meta,
+  TitleGroup,
+  ByLine,
   AnswerBlock,
   AnswerAuthor,
   Spinner,
@@ -71,8 +72,10 @@ export default function AnsweredList({
               key={q._id}
               style={{ ["--indent-left" as any]: "3.5rem" }}
             >
-              <Title>{q.title}</Title>
-              <Meta>by {q.authorName}</Meta>
+              <TitleGroup>
+                <Title as="div">{q.title}</Title>
+                <ByLine as="div">by {q.authorName}</ByLine>
+              </TitleGroup>
 
               {q.answer && (
                 <AnswerBlock
@@ -84,13 +87,15 @@ export default function AnsweredList({
               )}
 
               {canDelete(q) && (
-                <PrimaryButton
-                  data-danger="true"
-                  onClick={() => handleDelete(q._id)}
-                  aria-label="Delete question"
-                >
-                  Delete Question
-                </PrimaryButton>
+                <div style={{ marginTop: "0.75rem" }}>
+                  <PrimaryButton
+                    data-danger="true"
+                    onClick={() => handleDelete(q._id)}
+                    aria-label="Delete question"
+                  >
+                    Delete Question
+                  </PrimaryButton>
+                </div>
               )}
             </Card>
           ) : null

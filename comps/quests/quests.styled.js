@@ -10,7 +10,7 @@ export const Container = styled.div`
   position: relative;
   background: white;
   overflow: visible;
-  min-height: calc(100vh - 80px);
+  min-height: auto;
 
   @media (max-width: 480px) {
     width: 98%;

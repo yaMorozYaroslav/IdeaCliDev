@@ -6,6 +6,7 @@ import {
   SectionTitle,
   Card,
   Title,
+  TitleGroup,
   ByLine,
   EmptyState,
   PrimaryButton,
@@ -85,21 +86,25 @@ export default function UnansweredList({
             key={q._id}
             style={{ ["--indent-left" as any]: "3.5rem" }}
           >
-            <Title>{q.title}</Title>
-            <ByLine>by {q.authorName}</ByLine>
+            <TitleGroup>
+              <Title as="div">{q.title}</Title>
+              <ByLine as="div">by {q.authorName}</ByLine>
+            </TitleGroup>
 
-            <PrimaryButton onClick={() => handleAnswer(q._id)} aria-label="Answer question">
-              Answer
-            </PrimaryButton>
-            {canDelete(q) && (
-              <PrimaryButton
-                data-danger="true"
-                onClick={() => handleDelete(q._id)}
-                aria-label="Delete question"
-              >
-                Delete Question
+            <div style={{ marginTop: "0.75rem" }}>
+              <PrimaryButton onClick={() => handleAnswer(q._id)} aria-label="Answer question">
+                Answer
               </PrimaryButton>
-            )}
+              {canDelete(q) && (
+                <PrimaryButton
+                  data-danger="true"
+                  onClick={() => handleDelete(q._id)}
+                  aria-label="Delete question"
+                >
+                  Delete Question
+                </PrimaryButton>
+              )}
+            </div>
           </Card>
         ) : null
       )}

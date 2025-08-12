@@ -156,5 +156,6 @@ export default function ClientUserProfile({
 }
 
 const ContentWrapper = styled.div`
-  margin-top: 180px;
+  margin-top: 30px;   /* was 180px */
+  padding-top: 0;  /* keep flush with layout/main offset */
 `;

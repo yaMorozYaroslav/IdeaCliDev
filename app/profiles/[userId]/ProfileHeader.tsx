@@ -25,7 +25,9 @@ export default function ProfileHeader({
 
 const HeaderContainer = styled.div`
   text-align: center;
-  padding: 2rem;
+  /* remove top gap, keep some bottom breathing room */
+  padding: 0 1rem 1.25rem;
+  margin: 0; /* ensure no accidental top margin */
 `;
 
 const Avatar = styled.img`
@@ -33,10 +35,12 @@ const Avatar = styled.img`
   height: 100px;
   border-radius: 50%;
   object-fit: cover;
+  display: block;
+  margin: 0 auto; /* center without adding vertical gap */
 `;
 
 const Name = styled.h2`
-  margin-top: 1rem;
+  margin: 0.5rem 0 0; /* tighter than 1rem, no extra top gap */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -46,4 +50,5 @@ const Name = styled.h2`
 const Note = styled.p`
   color: #666;
   font-style: italic;
+  margin: 0.5rem 0 0; /* avoid default top margin bumps */
 `;
