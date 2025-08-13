@@ -45,10 +45,6 @@ export default function HomeClient({ user }) {
       <WelcomeMessage>Anonymously & Personally</WelcomeMessage>
 
       <Questions user={user} />
-
-      <pre style={{ color: "white", marginTop: "40px" }}>
-        {user ? JSON.stringify(user, null, 2) : "❌ No user loaded from token."}
-      </pre>
     </Container>
   );
 }

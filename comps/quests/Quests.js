@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
-import * as S from "./quests.styled"; // Import styles
+import * as S from "./quests.styled";
 import QuestionList from "./QuestList";
-import getBaseUrl from "../../lib/getBaseUrl"; // ✅ fixed import path
+import getBaseUrl from "../../lib/getBaseUrl";
 
 export default function Questions({ user }) {
   const [questions, setQuestions] = useState([]);
   const [newQuestion, setNewQuestion] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const BASE_URL = `${getBaseUrl()}/questions`; // ✅ correct dynamic backend base
+  const BASE_URL = `${getBaseUrl()}/questions`;
 
   useEffect(() => {
     fetchQuestions();
@@ -18,11 +18,11 @@ export default function Questions({ user }) {
     setLoading(true);
     try {
       const res = await fetch(BASE_URL);
+      if (!res.ok) throw new Error(`Failed to load questions: ${res.status}`);
       const data = await res.json();
 
-      // 🕒 Simulate loading delay
       setTimeout(() => {
-        setQuestions(data.reverse()); // Newest first
+        setQuestions(Array.isArray(data) ? data.slice().reverse() : []);
         setLoading(false);
       }, 1500);
     } catch (error) {
@@ -39,11 +39,10 @@ export default function Questions({ user }) {
 
     const questionData = {
       title: questionTitle.trim(),
-      userId: user?.userId || null,
+      // prefer googleId if present, fall back to userId or null
+      userId: user?.googleId || user?.userId || null,
       name: user?.name || "Anonymous",
     };
-
-    console.log("Submitting question:", JSON.stringify(questionData));
 
     try {
       const response = await fetch(`${BASE_URL}/new`, {
@@ -52,11 +51,8 @@ export default function Questions({ user }) {
         body: JSON.stringify(questionData),
       });
 
-      console.log("Response Status:", response.status);
-
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Error Response:", errorText);
         throw new Error(errorText || "Failed to submit question");
       }
 
@@ -97,12 +93,12 @@ export default function Questions({ user }) {
         </S.DotLoaderContainer>
       ) : (
         <QuestionList
-  questions={questions}
-  setQuestions={setQuestions}
-  userId={user?.userId || cookieUser?.userId}
-  userStatus={user?.status || cookieUser?.status}
-  userName={user?.name || cookieUser?.name}
-/>
+          questions={questions}
+          setQuestions={setQuestions}
+          userId={user?.googleId || user?.userId || null}
+          userStatus={user?.status || null}
+          userName={user?.name || undefined}
+        />
       )}
     </S.Container>
   );
