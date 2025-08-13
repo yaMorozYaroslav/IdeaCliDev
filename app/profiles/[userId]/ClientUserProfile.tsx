@@ -20,28 +20,46 @@ export default function ClientUserProfile({
   const [isOwner, setIsOwner] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
   const [needsRefresh, setNeedsRefresh] = useState(false);
-  const isOwnerRef = useRef(false);
 
-  // ✅ Detect current user
-  useEffect(() => {
-    const cookieUser = getUserFromCookies();
-    if (cookieUser?.userId) {
-      const owner = cookieUser.userId === profileUserId;
-      setCurrentUserId(cookieUser.userId);
-      setIsOwner(owner);
-      isOwnerRef.current = owner;
-    } else {
-      setCurrentUserId(null);
-      setIsOwner(false);
-      isOwnerRef.current = false;
+  // guards to prevent rapid or overlapping refreshes
+  const isOwnerRef = useRef(false);
+  const refreshingRef = useRef(false);
+  const lastRefreshAtRef = useRef(0);
+  const REFRESH_COOLDOWN_MS = 8000; // minimal gap between refreshes
+
+  const readCookieUser = () => {
+    try {
+      const u = getUserFromCookies();
+      return u && typeof u === "object" ? u : null;
+    } catch {
+      try {
+        const raw = Cookies.get("user_data");
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
     }
+  };
+
+  const computeIsOwner = (cookieUser, routeId) => {
+    const cid = cookieUser?.googleId || cookieUser?.userId || null;
+    setCurrentUserId(cid);
+    const owner = !!cid && String(cid) === String(routeId);
+    setIsOwner(owner);
+    isOwnerRef.current = owner;
+  };
+
+  // detect current user on mount / route change
+  useEffect(() => {
+    const cookieUser = readCookieUser();
+    computeIsOwner(cookieUser, profileUserId);
   }, [profileUserId]);
 
-  // ✅ Watch for logout (cookie deletion)
+  // watch for logout (cookie removed) — no refresh here
   useEffect(() => {
     const interval = setInterval(() => {
-      const stillExists = document.cookie.includes("user_data=");
-      if (!stillExists) {
+      const exists = document.cookie.includes("user_data=");
+      if (!exists) {
         setIsOwner(false);
         isOwnerRef.current = false;
         setCurrentUserId(null);
@@ -51,39 +69,40 @@ export default function ClientUserProfile({
     return () => clearInterval(interval);
   }, []);
 
-  // ✅ Rehydration logic from API route + cookie + token refresh
-  const refresh = async () => {
+  const refreshProfile = async () => {
+    // throttle
+    if (refreshingRef.current) return;
+    const now = Date.now();
+    if (now - lastRefreshAtRef.current < REFRESH_COOLDOWN_MS) return;
+
+    refreshingRef.current = true;
     try {
       const res = await fetch("/api/refresh-profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: profileUserId }),
+        cache: "no-store",
       });
 
-      if (!res.ok) {
-        console.warn("❌ Failed to refresh profile:", res.status);
+      const payload = await res.json().catch(() => null);
+      if (!res.ok || !payload?.ok) {
+        console.warn("❌ Failed to refresh profile:", res.status, payload?.message);
         return;
       }
 
-      const updated = await res.json();
-      if (!updated || typeof updated !== "object") {
-        console.warn("❌ Invalid user data received during refresh:", updated);
-        return;
-      }
-
-      setHydratedUser(updated);
-      setAnswered(updated.answered || []);
-
-      if (isOwnerRef.current && updated.unanswered) {
+      const updated = payload.profile;
+      setHydratedUser(updated || null);
+      setAnswered(updated?.answered || []);
+      if (isOwnerRef.current && updated?.unanswered) {
         setUnanswered(updated.unanswered);
       }
 
-      // ✅ Update user_data cookie
-      if (updated.userId) {
+      // Optional: update user_data for header badge; do NOT dispatch tokenRefreshed here
+      if (updated?.userId || updated?.googleId) {
         Cookies.set(
           "user_data",
           JSON.stringify({
-            userId: updated.userId,
+            userId: updated.userId || updated.googleId,
             email: updated.email,
             name: updated.name,
             picture: updated.picture,
@@ -93,30 +112,48 @@ export default function ClientUserProfile({
           { path: "/" }
         );
       }
-
-      // ✅ Refresh token + HttpOnly access_token + synced cookie
-      const tokenRes = await fetch("/api/refresh", { method: "POST" });
-      const tokenData = await tokenRes.json();
-      if (!tokenRes.ok) {
-        console.warn("⚠️ Token refresh failed after profile update:", tokenData.message);
-      }
-
-      // ✅ Let Header and others know
-      window.dispatchEvent(new Event("tokenRefreshed"));
     } catch (err) {
       console.error("❌ Error refreshing user:", err);
+    } finally {
+      refreshingRef.current = false;
+      lastRefreshAtRef.current = Date.now();
     }
   };
 
-  // ✅ SSR first-load hydration
+  // first load: if owner, try to upgrade to include private fields
   useEffect(() => {
-    refresh();
+    if (isOwner) refreshProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOwner]);
+
+  // react to global token refreshes (event fired by layout)
+  useEffect(() => {
+    const onTokenRefreshed = () => {
+      const cookieUser = readCookieUser();
+      computeIsOwner(cookieUser, profileUserId);
+      if (isOwnerRef.current) refreshProfile();
+    };
+    window.addEventListener("tokenRefreshed", onTokenRefreshed);
+    return () => window.removeEventListener("tokenRefreshed", onTokenRefreshed);
+  }, [profileUserId]);
+
+  // refresh when returning from absence
+  useEffect(() => {
+    const onFocus = () => {
+      if (isOwnerRef.current) refreshProfile();
+    };
+    window.addEventListener("focus", onFocus);
+    window.addEventListener("pageshow", onFocus);
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("pageshow", onFocus);
+    };
   }, []);
 
-  // ✅ Manual rehydration after actions
+  // manual refresh trigger from children
   useEffect(() => {
     if (needsRefresh) {
-      refresh().finally(() => setNeedsRefresh(false));
+      refreshProfile().finally(() => setNeedsRefresh(false));
     }
   }, [needsRefresh]);
 
@@ -156,6 +193,6 @@ export default function ClientUserProfile({
 }
 
 const ContentWrapper = styled.div`
-  margin-top: 30px;   /* was 180px */
-  padding-top: 0;  /* keep flush with layout/main offset */
+  margin-top: 30px;
+  padding-top: 0;
 `;
