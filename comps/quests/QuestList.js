@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Cookies from "js-cookie";
 import * as S from "./quest-list.styled";
 import QuestionDetail from "./QuestDetail";
@@ -6,163 +6,174 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faTrash } from "@fortawesome/free-solid-svg-icons";
 import getBaseUrl from "../../lib/getBaseUrl";
 
-export default function QuestionList({
-  questions,
+function readUserFromCookie() {
+  try {
+    const raw = Cookies.get("user_data");
+    if (!raw) return { userId: null, name: null, status: null };
+    const u = JSON.parse(raw);
+    return {
+      userId: u.googleId || u.userId || null,
+      name: u.name || u.displayName || null,
+      status: u.status || u.role || null,
+    };
+  } catch {
+    return { userId: null, name: null, status: null };
+  }
+}
+
+export default function QuestList({
+  questions = [],
   setQuestions,
-  userId,
-  userStatus,
-  userName,
+  userId: propUserId,
+  userStatus: propUserStatus,
+  userName: propUserName,
 }) {
-  const [expandedQuestionId, setExpandedQuestionId] = useState(null);
+  const [expandedId, setExpandedId] = useState(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [questionDetails, setQuestionDetails] = useState(null);
 
-  // Derive identity/admin from props OR cookie (cookie wins if valid)
-  const [cookieUserId, setCookieUserId] = useState(null);
-  const [cookieStatus, setCookieStatus] = useState(null);
+  const [cookieUser, setCookieUser] = useState(readUserFromCookie());
 
   useEffect(() => {
-    try {
-      const raw = Cookies.get("user_data");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        setCookieUserId(parsed?.userId || parsed?.googleId || null);
-        setCookieStatus(parsed?.status || null);
-      }
-    } catch (e) {
-      console.warn("Failed to parse user_data cookie:", e);
-    }
+    const onUserUpdate = () => setCookieUser(readUserFromCookie());
+    window.addEventListener("userDataUpdated", onUserUpdate);
+    window.addEventListener("tokenRefreshed", onUserUpdate);
+    return () => {
+      window.removeEventListener("userDataUpdated", onUserUpdate);
+      window.removeEventListener("tokenRefreshed", onUserUpdate);
+    };
   }, []);
 
-  const effectiveUserId = cookieUserId || userId || null;
-  const effectiveStatus = (cookieStatus || userStatus || "").toString().trim().toLowerCase();
-  const isAdmin = effectiveStatus === "admin";
-
-  // Local user id for actions/like/delete; fallback to IP only if no user at all
-  const [localUserId, setLocalUserId] = useState(effectiveUserId);
-
-  useEffect(() => {
-    setLocalUserId(effectiveUserId);
-  }, [effectiveUserId]);
-
-  useEffect(() => {
-    const fetchIpIfAnonymous = async () => {
-      if (!effectiveUserId) {
-        try {
-          const res = await fetch("https://api.ipify.org?format=json");
-          const data = await res.json();
-          setLocalUserId(`Anonymous_${data.ip}`);
-        } catch {
-          setLocalUserId("Anonymous_unknown");
-        }
-      }
+  const effective = useMemo(() => {
+    return {
+      userId: cookieUser.userId ?? propUserId ?? null,
+      status: cookieUser.status ?? propUserStatus ?? null,
+      name: cookieUser.name ?? propUserName ?? null,
     };
-    fetchIpIfAnonymous();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // run once; we already react to effectiveUserId via the effect above
+  }, [cookieUser, propUserId, propUserStatus, propUserName]);
 
-  const baseUrl = getBaseUrl();
+  const isAdmin = effective.status === "admin";
 
-  const toggleQuestionDetail = async (questionId) => {
-    if (expandedQuestionId === questionId) {
-      setExpandedQuestionId(null);
-      setQuestionDetails(null);
-      return;
-    }
-    setExpandedQuestionId(questionId);
-    setDetailsLoading(true);
-    try {
-      const res = await fetch(`${baseUrl}/questions/${questionId}`);
-      if (!res.ok) throw new Error("Failed to fetch question details");
-      const data = await res.json();
-      setQuestionDetails(data);
-    } catch {
-      setExpandedQuestionId(null);
-      setQuestionDetails(null);
-    } finally {
-      setDetailsLoading(false);
-    }
+  const likeCountOf = (q) => {
+    if (typeof q.likes === "number") return q.likes;
+    const arr1 = Array.isArray(q.likes) ? q.likes.length : 0; // legacy
+    const arr2 = Array.isArray(q.likedBy) ? q.likedBy.length : 0;
+    const arr3 = Array.isArray(q.anonymousLikes) ? q.anonymousLikes.length : 0;
+    return arr1 || arr2 + arr3;
   };
 
-  const handleLikeQuestion = async (questionId) => {
+  const toggleExpand = (qid) => {
+    setExpandedId((prev) => (prev === qid ? null : qid));
+    // if you want lazy details, set loading & fetch here then setQuestionDetails
+  };
+
+  // Optional helper if you create questions from here:
+  const createQuestion = async (title) => {
+    if (!title || !title.trim()) return;
+    const payload = {
+      title: title.trim(),
+      userId: effective.userId ?? undefined,
+      name: effective.name ?? undefined,
+    };
+    const res = await fetch(`${getBaseUrl()}/questions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      console.warn("Create failed", await res.text());
+      return null;
+    }
+    const created = await res.json();
+    setQuestions?.((prev) => [created, ...(prev || [])]);
+    return created;
+  };
+
+  const handleLike = async (qid) => {
+    const payload = { userId: effective.userId ?? undefined };
     try {
-      const res = await fetch(`${baseUrl}/questions/${questionId}/like`, {
+      const res = await fetch(`${getBaseUrl()}/questions/${qid}/like`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: localUserId }),
+        credentials: "include",
+        body: JSON.stringify(payload),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to like question");
-      setQuestions((prev) =>
-        prev.map((q) => (q._id === questionId ? { ...q, likes: data.likes } : q))
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        console.warn("Like failed", data || (await res.text()));
+        return;
+      }
+      // Server returns { _id, likes, likedBy, anonymousLikes }
+      setQuestions?.((prev) =>
+        (prev || []).map((q) =>
+          q._id === qid
+            ? { ...q, likes: data.likes, likedBy: data.likedBy, anonymousLikes: data.anonymousLikes }
+            : q
+        )
       );
     } catch (e) {
-      console.error("❌ Error liking question:", e.message);
+      console.warn("Like error", e);
     }
   };
 
-  const handleDeleteQuestion = async (questionId) => {
+  const handleDelete = async (qid) => {
+    // Frontend gate: allow if admin or author
+    const authoredByUser = (questions || []).some(
+      (q) => q._id === qid && String(q.authorId ?? "") === String(effective.userId ?? "")
+    );
+    if (!isAdmin && !authoredByUser) return;
+
+    const payload = { userId: effective.userId ?? undefined };
     try {
-      const res = await fetch(`${baseUrl}/questions/${questionId}`, {
+      const res = await fetch(`${getBaseUrl()}/questions/${qid}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: localUserId || "Anonymous_unknown" }),
+        credentials: "include",
+        body: JSON.stringify(payload), // your backend reads userId from body for DELETE
       });
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.message || "Failed to delete question");
-      setQuestions((prev) => prev.filter((q) => String(q._id) !== String(questionId)));
+      if (res.ok) {
+        setQuestions?.((prev) => (prev || []).filter((q) => q._id !== qid));
+      } else {
+        console.warn("Delete failed", await res.text());
+      }
     } catch (e) {
-      console.error("❌ Error deleting question:", e.message);
+      console.warn("Delete error", e);
     }
   };
 
-  // Debug once to confirm admin + ids
-  useEffect(() => {
-    if (questions?.length) {
-      console.log({
-        fromProps_userStatus: userStatus,
-        fromCookie_status: cookieStatus,
-        effectiveStatus,
-        isAdmin,
-        localUserId,
-        firstQuestionAuthorId: questions[0]?.authorId,
-      });
-    }
-  }, [questions, userStatus, cookieStatus, effectiveStatus, isAdmin, localUserId]);
+  if (!Array.isArray(questions)) return null;
 
   return (
     <S.Container>
-      <S.Title>Questions</S.Title>
-
-      {questions.map((question) => {
+      {questions.map((q) => {
         const authoredByUser =
-          String(question.authorId ?? "") === String(localUserId ?? "");
+          String(q.authorId ?? "") === String(effective.userId ?? "");
         const canDelete = isAdmin || authoredByUser;
 
         return (
-          <S.QuestionItem key={question._id}>
+          <S.QuestionItem key={q._id}>
             <S.QuestionHeader>
-              <div>
-                <S.QuestionTitle onClick={() => toggleQuestionDetail(question._id)}>
-                  {question.title}
-                  <S.AnswerCount title={`Show ${question.answers?.length || 0} answers`}>
-                    ({question.answers?.length || 0} answers)
-                  </S.AnswerCount>
+              <div style={{ minWidth: 0 }}>
+                <S.QuestionTitle onClick={() => toggleExpand(q._id)}>
+                  {q.title || q.content || "Question"}
                 </S.QuestionTitle>
-                <S.AuthorName>
-                  Asked by: {question.authorName || "Anonymous"}
-                </S.AuthorName>
+                {typeof q.answerCount === "number" && (
+                  <S.AnswerCount>({q.answerCount})</S.AnswerCount>
+                )}
+                {q.authorName && <S.AuthorName>by {q.authorName}</S.AuthorName>}
               </div>
 
               <S.ActionButtons>
-                <S.LikeButton onClick={() => handleLikeQuestion(question._id)}>
-                  <FontAwesomeIcon icon={faHeart} /> {question.likes || 0}
+                <S.LikeButton aria-label="like" onClick={() => handleLike(q._id)}>
+                  <FontAwesomeIcon icon={faHeart} />
+                  <span>{likeCountOf(q)}</span>
                 </S.LikeButton>
 
                 {canDelete && (
                   <S.DeleteButton
-                    title={isAdmin ? "Admin: delete question" : "Delete your question"}
-                    onClick={() => handleDeleteQuestion(question._id)}
+                    aria-label="delete"
+                    onClick={() => handleDelete(q._id)}
                   >
                     <FontAwesomeIcon icon={faTrash} />
                   </S.DeleteButton>
@@ -170,23 +181,19 @@ export default function QuestionList({
               </S.ActionButtons>
             </S.QuestionHeader>
 
-            {expandedQuestionId === question._id && (
-              <S.DetailWrapper isVisible>
-                {detailsLoading ? (
-                  <S.LoadingMessage>Loading question details...</S.LoadingMessage>
-                ) : (
-                  questionDetails && (
-                    <QuestionDetail
-                      question={questionDetails}
-                      userId={localUserId}
-                      userStatus={effectiveStatus}
-                      onNewAnswer={() => {}}
-                      userName={userName || undefined}
-                    />
-                  )
-                )}
-              </S.DetailWrapper>
-            )}
+            <S.DetailWrapper isVisible={expandedId === q._id}>
+              {detailsLoading ? (
+                <S.LoadingMessage>Loading…</S.LoadingMessage>
+              ) : (
+                expandedId === q._id && (
+                  <QuestionDetail
+                    question={questionDetails || q}
+                    loading={detailsLoading}
+                    onClose={() => setExpandedId(null)}
+                  />
+                )
+              )}
+            </S.DetailWrapper>
           </S.QuestionItem>
         );
       })}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import getBaseUrl from "../../../lib/getBaseUrl";
 import {
   SectionWrapper,
@@ -21,7 +22,7 @@ interface AnsweredListProps {
   user: any;
   isOwner: boolean;
   loading: boolean;
-  onDelete: () => void;
+  onDelete: () => void; // still called after confirmed delete (e.g., to update counters)
 }
 
 export default function AnsweredList({
@@ -33,22 +34,52 @@ export default function AnsweredList({
 }: AnsweredListProps) {
   const baseUrl = getBaseUrl();
 
+  // Local mirror so we can remove items after confirmed delete
+  const [items, setItems] = useState<any[]>(answered || []);
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    setItems(answered || []);
+  }, [answered]);
+
+  const userId = user?.googleId ?? null;
+  const isAdmin = user?.status === "admin";
+
   const canDelete = (q: any) =>
-    q?.authorId === user?.googleId || isOwner || user?.status === "admin";
+    q?.authorId === userId || isOwner || isAdmin;
 
   const handleDelete = async (questionId: string) => {
-    const res = await fetch(`${baseUrl}/personal/${questionId}`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: user?.googleId }),
-    });
+    if (!questionId || deletingIds.has(questionId)) return;
 
-    if (res.ok) {
-      alert("✅ Question deleted!");
-      onDelete();
-    } else {
-      const error = await res.text();
-      alert(`Failed to delete question: ${res.status}\n${error}`);
+    setDeletingIds((prev) => new Set(prev).add(questionId));
+
+    try {
+      const res = await fetch(`${baseUrl}/personal/${questionId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ userId }),
+      });
+
+      if (res.ok || res.status === 404) {
+        // Confirmed by server (or already gone) -> remove from UI now
+        setItems((prev) => prev.filter((q) => q._id !== questionId));
+        // Let parent update counts/badges if needed
+        try {
+          onDelete?.();
+        } catch {}
+      } else {
+        const errorText = await res.text().catch(() => "");
+        console.warn("Failed to delete question:", res.status, errorText);
+      }
+    } catch (err) {
+      console.warn("Delete error:", err);
+    } finally {
+      setDeletingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(questionId);
+        return next;
+      });
     }
   };
 
@@ -63,24 +94,19 @@ export default function AnsweredList({
             Loading answered questions...
           </p>
         </LoadingWrap>
-      ) : answered.length === 0 ? (
+      ) : (items?.length ?? 0) === 0 ? (
         <EmptyState>No answered questions</EmptyState>
       ) : (
-        answered.map((q) =>
+        items.map((q) =>
           q?.title ? (
-            <Card
-              key={q._id}
-              style={{ ["--indent-left" as any]: "3.5rem" }}
-            >
+            <Card key={q._id} style={{ ["--indent-left" as any]: "3.5rem" }}>
               <TitleGroup>
                 <Title as="div">{q.title}</Title>
                 <ByLine as="div">by {q.authorName}</ByLine>
               </TitleGroup>
 
               {q.answer && (
-                <AnswerBlock
-                  style={{ ["--answer-indent" as any]: "1.5rem" }}
-                >
+                <AnswerBlock style={{ ["--answer-indent" as any]: "1.5rem" }}>
                   <p>💬 {q.answer}</p>
                   <AnswerAuthor>— {user?.name || "Anonymous"}</AnswerAuthor>
                 </AnswerBlock>
@@ -89,12 +115,13 @@ export default function AnsweredList({
               {canDelete(q) && (
                 <div style={{ marginTop: "0.75rem" }}>
                   <PrimaryButton
-                    
                     data-danger="true"
                     onClick={() => handleDelete(q._id)}
                     aria-label="Delete question"
+                    disabled={deletingIds.has(q._id)}
+                    title={deletingIds.has(q._id) ? "Deleting…" : "Delete question"}
                   >
-                    Delete Question
+                    {deletingIds.has(q._id) ? "Deleting…" : "Delete Question"}
                   </PrimaryButton>
                 </div>
               )}

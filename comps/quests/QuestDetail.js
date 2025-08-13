@@ -1,42 +1,62 @@
-import { useState, useEffect } from "react";
+"use client";
+
+import { useState, useEffect, useMemo } from "react";
 import * as S from "./quest-detail.styled";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faTrash } from "@fortawesome/free-solid-svg-icons";
+import getBaseUrl from "../../lib/getBaseUrl";
 
-const QuestionDetail = ({ question, userId, userStatus, userName,
-	                      userIP, onNewAnswer, user }) => {
+const QuestionDetail = ({
+  question,
+  userId,        // googleId or similar (preferred)
+  userStatus,     // "admin" enables deletion
+  userName,       // for posting new answers
+  userIP,         // optional IP for anonymous fallback
+  onNewAnswer,    // callback after posting
+}) => {
   const [newAnswer, setNewAnswer] = useState("");
   const [posting, setPosting] = useState(false);
   const [answers, setAnswers] = useState(question.answers || []);
-  const [localUserIP, setLocalUserIP] = useState(userIP || "");
 
-  // ✅ Fetch user IP if not already provided
+  // Build a fully-formed anonymous id once, if needed
+  const [anonId, setAnonId] = useState(() => {
+    if (!userIP) return "";
+    return userIP.startsWith("Anonymous_") ? userIP : `Anonymous_${userIP}`;
+  });
+
+  // Only fetch IP if we have no logged-in id and no anonId yet
   useEffect(() => {
-    if (!userIP) {
+    if (!userId && !anonId) {
       fetch("https://api64.ipify.org?format=json")
-        .then(response => response.json())
-        .then(data => setLocalUserIP(`Anonymous_${data.ip}`))
-        .catch(error => console.error("Failed to get user IP:", error));
+        .then((r) => r.json())
+        .then((d) => setAnonId(`Anonymous_${d.ip}`))
+        .catch(() => setAnonId("Anonymous_unknown"));
     }
-  }, [userIP]);
+  }, [userId, anonId]);
 
-  const canDelete = (authorId) =>
-    authorId === userId || userStatus === "admin";
+  // Single source of truth for identity
+  const effectiveUserId = useMemo(
+    () => userId || anonId || "Anonymous_unknown",
+    [userId, anonId]
+  );
+  const isAdmin = (userStatus || "").toString().trim().toLowerCase() === "admin";
+  const canDelete = (authorId) => String(authorId || "") === String(effectiveUserId) || isAdmin;
+
+  const baseUrl = getBaseUrl();
 
   const handleDelete = async (answerId, questionId) => {
-    const userIdentifier = userId || `Anonymous_${localUserIP}`;
-    const url = `https://idea-sphere-50bb3c5bc07b.herokuapp.com/questions/${questionId}/answers/${answerId}`;
-
     try {
-      const response = await fetch(url, {
+      const res = await fetch(`${baseUrl}/questions/${questionId}/answers/${answerId}`, {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: userIdentifier }),
+        headers: {
+          "Content-Type": "application/json",
+          "x-user-id": effectiveUserId,       // harmless if backend ignores
+          "x-user-status": isAdmin ? "admin" : "",
+        },
+        body: JSON.stringify({ userId: effectiveUserId }),
       });
-
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.message || "Failed to delete answer");
-
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(result?.message || "Failed to delete answer");
       setAnswers((prev) => prev.filter((a) => a._id !== answerId));
     } catch (error) {
       console.error("❌ Error deleting answer:", error.message);
@@ -45,23 +65,22 @@ const QuestionDetail = ({ question, userId, userStatus, userName,
 
   const handleLikeAnswer = async (answerId) => {
     try {
-      const response = await fetch(
-        `https://idea-sphere-50bb3c5bc07b.herokuapp.com/questions/${question._id}/answers/${answerId}/like`,
+      const res = await fetch(
+        `${baseUrl}/questions/${question._id}/answers/${answerId}/like`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "x-user-id": userId || localUserIP,
+            "x-user-id": effectiveUserId,
           },
-          body: JSON.stringify({ userId: userId || localUserIP }),
+          body: JSON.stringify({ userId: effectiveUserId }),
         }
       );
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.message || "Failed to like answer");
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Failed to like answer");
-
-      setAnswers(prevAnswers =>
-        prevAnswers.map(a =>
+      setAnswers((prev) =>
+        prev.map((a) =>
           a._id === answerId
             ? {
                 ...a,
@@ -79,29 +98,26 @@ const QuestionDetail = ({ question, userId, userStatus, userName,
 
   const handleSubmitAnswer = async (e) => {
     e.preventDefault();
-    if (!newAnswer.trim()) return;
+    const content = newAnswer.trim();
+    if (!content) return;
 
     setPosting(true);
     try {
-      const response = await fetch(
-        `https://idea-sphere-50bb3c5bc07b.herokuapp.com/questions/${question._id}/answers`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            content: newAnswer.trim(),
-            userId: userId || localUserIP,
-            name: userName || "Anonymous", // ✅ Include author name
-          }),
-        }
-      );
+      const res = await fetch(`${baseUrl}/questions/${question._id}/answers`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content,
+          userId: effectiveUserId,
+          name: userName || "Anonymous",
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to submit answer");
 
-      if (!response.ok) throw new Error("Failed to submit answer");
-
-      const updatedAnswer = await response.json();
-      setAnswers(prev => [...prev, updatedAnswer]);
+      const created = await res.json();
+      setAnswers((prev) => [...prev, created]);
       setNewAnswer("");
-      onNewAnswer(updatedAnswer);
+      onNewAnswer?.(created);
     } catch (error) {
       console.error("Error submitting answer:", error.message);
     } finally {
@@ -112,7 +128,7 @@ const QuestionDetail = ({ question, userId, userStatus, userName,
   return (
     <S.Container>
       <S.QuestionTitle>{question.title}</S.QuestionTitle>
-      <S.QuestionContent>{question.content}</S.QuestionContent>
+      {question.content && <S.QuestionContent>{question.content}</S.QuestionContent>}
 
       <S.AnswersContainer>
         <S.AnswerList>
@@ -122,10 +138,13 @@ const QuestionDetail = ({ question, userId, userStatus, userName,
               <S.AuthorName>by {answer.authorName || "Anonymous"}</S.AuthorName>
               <S.ActionButtons>
                 <S.LikeButton onClick={() => handleLikeAnswer(answer._id)}>
-                  <FontAwesomeIcon icon={faHeart} /> {(answer.likes || 0)}
+                  <FontAwesomeIcon icon={faHeart} /> {answer.likes || 0}
                 </S.LikeButton>
                 {canDelete(answer.authorId) && (
-                  <S.DeleteButton onClick={() => handleDelete(answer._id, question._id)}>
+                  <S.DeleteButton
+                    title={isAdmin ? "Admin: delete answer" : "Delete your answer"}
+                    onClick={() => handleDelete(answer._id, question._id)}
+                  >
                     <FontAwesomeIcon icon={faTrash} />
                   </S.DeleteButton>
                 )}
