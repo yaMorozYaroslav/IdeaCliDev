@@ -30,39 +30,50 @@ export const Card = styled.div`
     `}
 `;
 
+export const TitleGroup = styled.div`
+  /* two-line inline grid: row 1 = title, row 2 = byline */
+  display: inline-grid;
+  grid-template-rows: auto auto;
+  row-gap: 2px;
+  max-width: 100%;
+  margin-bottom: -10px;
+
+  /* MIN LEFT OFFSET + tuck control */
+  --tuck-x: 8px;                          /* how much to tuck left visually */
+  padding-left: calc(20px + var(--tuck-x)); /* ensures ≥20px absolute left gap */
+  box-sizing: border-box;
+`;
+
 export const Title = styled.p`
   font-weight: 700;
   margin: 0;
-`;
-export const TitleGroup = styled.div`
-  display: inline-flex;
-  flex-direction: column;
-  align-items: flex-end;      /* right-align both lines */
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
   max-width: 100%;
-  margin-bottom: 10px;
+  justify-self: start;
+  min-width: 0;
 `;
 
 export const ByLine = styled.p`
-  /* sits under Title, aligned to its right edge */
-  margin: 0.2rem 0 0;
+  margin: 0;
   font-size: 0.8em;
   color: #666;
 
-  /* sizing rules: at least N chars wide, but never overflow the card */
-  min-width: 10ch;            /* adjust to taste */
-  max-width: 100%;            /* cap to container */
+  grid-row: 2;
+  justify-self: end;           /* aligns under the title’s end */
+  max-width: 100%;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  margin-left:40px;
+  padding-top:2px;
 
-  /* if you prefer wrapping on tiny screens, let it wrap instead of ellipsis: */
-  @media (max-width: 420px) {
-    white-space: normal;
-  }
+  /* visual tuck under the tail without breaking the ≥20px rule */
+  transform: translateX(calc(-1 * var(--tuck-x)));
 `;
-
-
-
 
 
 export const Meta = styled.p`
@@ -114,7 +125,6 @@ export const EmptyState = styled.p`
   margin: 0.5rem 0 0;
 `;
 
-/* Buttons */
 /* Buttons */
 export const PrimaryButton = styled.button`
   margin-right: 0.5rem;
