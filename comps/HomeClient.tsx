@@ -17,6 +17,9 @@ const Container = styled.div`
   min-height: 60vh;
   background-color: black;
   overflow-x: hidden;
+  @media (max-width: 768px) {
+    margin-top: -145px;
+  }
 `;
 
 const WelcomeMessage = styled.h1<{ $first?: boolean }>`
@@ -29,8 +32,9 @@ const WelcomeMessage = styled.h1<{ $first?: boolean }>`
     font-size: 24px;
   }
 
+  }
   @media (max-width: 400px) {
-    margin-top: ${(props) => (props.$first ? "0" : "3px")};
+    margin-top: ${(props) => (props.$first ? "150px" : "3px")};
   }
 
   @media (max-width: 300px) {
