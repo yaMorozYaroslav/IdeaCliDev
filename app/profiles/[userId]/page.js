@@ -1,7 +1,7 @@
 import ClientUserProfile from "./ClientUserProfile";
 import { cookies } from "next/headers";
-import getBaseUrl from "../../../lib/getBaseUrl";
-import { decodeUserForCookies } from "../../../lib/decodeUserForCookies";
+import getBaseUrl from "@/lib/getBaseUrl";
+import { decodeUserForCookies } from "@/lib/cookies/decodeUserForCookies";
 import { notFound } from "next/navigation";
 
 export default async function Page(props) {

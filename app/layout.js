@@ -1,5 +1,5 @@
 // app/layout.js (server component — JS)
-import { getUserFromCookiesServer } from "../lib/getUserFromCookiesServer";
+import { getUserFromCookiesServer } from "@/lib/cookies/getUserFromCookiesServer";
 import LayoutClient from "./layout-client";
 
 export const dynamic = "force-dynamic";
