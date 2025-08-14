@@ -1,3 +1,4 @@
+// app/profiles/[userId]/ClientUserProfile.tsx
 "use client";
 
 import styled from "styled-components";
@@ -5,13 +6,20 @@ import AskPersonalWrapper from "./AskPersonalWrapper";
 import ProfileHeader from "./ProfileHeader";
 import UnansweredList from "./UnansweredList";
 import AnsweredList from "./AnsweredList";
-import { useProfileData } from "@/lib/profiles/useProfileData";
+import { useProfileData } from "@/lib/useProfileData";
+import type { ProfileUser } from "@/lib/profile-client"; // adjust path if needed
+
+type ClientUserProfileProps = {
+  userId: string;
+  user?: ProfileUser | null;
+  initialUnanswered?: unknown[];
+};
 
 export default function ClientUserProfile({
   userId: profileUserId,
   user,
   initialUnanswered = [],
-}) {
+}: ClientUserProfileProps) {
   const {
     hydratedUser,
     answered,
@@ -37,7 +45,7 @@ export default function ClientUserProfile({
         <UnansweredList
           unanswered={unanswered}
           user={hydratedUser}
-          isOwner={true}
+          isOwner
           onDelete={triggerRefresh}
           onAnswered={triggerRefresh}
         />
