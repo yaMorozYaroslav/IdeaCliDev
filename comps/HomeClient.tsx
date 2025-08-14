@@ -1,29 +1,34 @@
 "use client";
 
-import React from "react";
 import styled from "styled-components";
 import Questions from "./quests/Quests.js";
+import type { ProfileUser } from "@/lib/profiles/profile-client";
+
+type HomeClientProps = {
+  user?: ProfileUser | null;
+};
 
 const Container = styled.div`
   display: flex;
   width: 100%;
   flex-direction: column;
-  justify-content: flex-start; /* start right under header */
+  justify-content: flex-start;
   align-items: center;
 
-  /* Removed local padding-top so layout controls the offset */
-  margin-top: -120px;
+  /* Let the fixed header define the gap */
+  padding-top: var(--header-gap, 50px);
 
   min-height: 60vh;
   background-color: black;
   overflow-x: hidden;
+
   @media (max-width: 768px) {
-    margin-top: -145px;
+    padding-top: var(--header-gap, 60px);
   }
 `;
 
 const WelcomeMessage = styled.h1<{ $first?: boolean }>`
-  margin-top: ${(props) => (props.$first ? "150px" : "-10px")};
+  margin-top: ${(props) => (props.$first ? "120px" : "0")};
   font-size: 32px;
   color: white;
   text-align: center;
@@ -32,9 +37,8 @@ const WelcomeMessage = styled.h1<{ $first?: boolean }>`
     font-size: 24px;
   }
 
-  }
   @media (max-width: 400px) {
-    margin-top: ${(props) => (props.$first ? "150px" : "3px")};
+    margin-top: ${(props) => (props.$first ? "120px" : "4px")};
   }
 
   @media (max-width: 300px) {
@@ -42,11 +46,11 @@ const WelcomeMessage = styled.h1<{ $first?: boolean }>`
   }
 `;
 
-export default function HomeClient({ user }) {
+export default function HomeClient({ user }: HomeClientProps) {
   return (
     <Container>
-      <WelcomeMessage $first>Ask & Answer Questions</WelcomeMessage>
-      <WelcomeMessage>Anonymously & Personally</WelcomeMessage>
+      <WelcomeMessage $first>Ask &amp; Answer Questions</WelcomeMessage>
+      <WelcomeMessage>Anonymously &amp; Personally</WelcomeMessage>
 
       <Questions user={user} />
     </Container>
