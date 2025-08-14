@@ -6,8 +6,8 @@ import AskPersonalWrapper from "./AskPersonalWrapper";
 import ProfileHeader from "./ProfileHeader";
 import UnansweredList from "./UnansweredList";
 import AnsweredList from "./AnsweredList";
-import { useProfileData } from "@/lib/useProfileData";
-import type { ProfileUser } from "@/lib/profile-client"; // adjust path if needed
+import { useProfileData } from "@/lib/profiles/useProfileData";
+import type { ProfileUser } from "@/lib/profiles/profile-client"; // adjust path if needed
 
 type ClientUserProfileProps = {
   userId: string;
