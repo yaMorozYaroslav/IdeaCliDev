@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { decodeUserForCookies } from "../../../lib/decodeUserForCookies";
+import { decodeUserForCookies } from "@/lib/cookies/decodeUserForCookies";
 
 export async function POST(request: NextRequest) {
   try {

@@ -1,7 +1,7 @@
 // app/api/refresh-profile/route.ts
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { refreshUserProfile } from "../../../lib/refreshUserProfile";
+import { refreshUserProfile } from "@/lib/refreshUserProfile";
 
 export async function POST(req: Request) {
   try {
