@@ -1,7 +1,7 @@
 // app/layout-client.js
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Header from "../comps/Header";
 
 // ESM/CJS-safe import for styled-components v6
@@ -19,27 +19,44 @@ const FullPageWrapper = styled.div`
   min-height: 100vh;
 
   @media (max-width: 300px) {
-    min-height: 100dvh; /* use dynamic viewport height on tiny screens */
+    min-height: 100dvh;
   }
 `;
 
 const MainContent = styled.main`
   flex: 1;
-  padding-top: 50px; /* enough to clear the fixed header */
+  padding-top: 50px;
 `;
 
+const safeParse = (v) => {
+  if (!v) return null;
+  try {
+    return JSON.parse(v);
+  } catch {
+    try {
+      return JSON.parse(decodeURIComponent(v));
+    } catch {
+      return null;
+    }
+  }
+};
+
+const isValidUser = (u) => !!u && (u.googleId || u.userId);
+
 export default function LayoutClient({ user, children }) {
+  // Only trust SSR user if it has an id; otherwise start as null
   const [mounted, setMounted] = useState(false);
-  const [rehydratedUser, setRehydratedUser] = useState(user);
+  const [rehydratedUser, setRehydratedUser] = useState(() =>
+    isValidUser(user) ? user : null
+  );
 
   const refreshTimer = useRef(null);
   const lastRefreshAtRef = useRef(Date.now());
 
-  // new: robust "away" detection via hidden timer
   const needsRefreshRef = useRef(false);
   const hiddenTimerRef = useRef(null);
 
-  // handle tokens from popup
+  // Handle tokens from popup
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -49,16 +66,14 @@ export default function LayoutClient({ user, children }) {
         const { accessToken, refreshToken } = event.data || {};
         if (!accessToken || !refreshToken) return;
 
-        if (typeof fetch !== "undefined") {
-          await fetch("/api/store-tokens", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              access_token: accessToken,
-              refresh_token: refreshToken,
-            }),
-          });
-        }
+        await fetch("/api/store-tokens", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          }),
+        });
 
         // Reload to let SSR pick up new cookies
         window.location.href = window.location.pathname;
@@ -71,22 +86,21 @@ export default function LayoutClient({ user, children }) {
     return () => window.removeEventListener("message", handleMessage);
   }, []);
 
-  // rehydrate user from cookie
+  // Optional: one-time cookie rehydrate, but only if cookie includes an id
   useEffect(() => {
-    try {
-      const raw = Cookies.get("user_data");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        setRehydratedUser(parsed);
-        console.log("🔁 Rehydrated user from cookie:", parsed);
-      }
-    } catch (err) {
-      console.warn("❌ Failed to parse user_data:", err);
+    if (isValidUser(rehydratedUser)) {
+      setMounted(true);
+      return;
+    }
+    const parsed = safeParse(Cookies.get("user_data"));
+    if (isValidUser(parsed)) {
+      setRehydratedUser(parsed);
+      console.log("🔁 Rehydrated user from cookie:", parsed);
     }
     setMounted(true);
-  }, []);
+  }, []); // once
 
-  // refresh loop and resume handling
+  // Refresh loop and resume handling
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -94,71 +108,40 @@ export default function LayoutClient({ user, children }) {
     const AWAY_THRESHOLD = 10 * 60 * 1000;
 
     const triggerRefresh = async (reason) => {
-      console.log(`🔄 Attempting token refresh${reason ? ` (${reason})` : ""}`);
       try {
-        if (typeof fetch === "undefined") return;
-
         const res = await fetch("/api/refresh", { method: "POST" });
         let data = null;
         try {
           data = await res.json();
         } catch {
-          // not all test mocks return JSON
+          // tests may not return JSON
         }
 
         if (!res.ok) {
           console.warn("⚠️ Refresh failed:", data?.message);
         } else {
-          console.log("✅ Token refreshed");
           lastRefreshAtRef.current = Date.now();
 
-          if (data?.userData) {
+          // Only adopt user if it has an id; else clear it
+          if (isValidUser(data?.userData)) {
             setRehydratedUser(data.userData);
             try {
               Cookies.set("user_data", JSON.stringify(data.userData), { path: "/" });
-            } catch {
-              /* cookie might be blocked in some envs */
-            }
-            console.log("📦 User updated directly from refresh response:", data.userData);
+            } catch {}
           } else {
-            const raw = Cookies.get("user_data");
-            if (raw) {
-              const parsed = JSON.parse(raw);
-              setRehydratedUser(parsed);
-              console.log("🔁 Fallback rehydrated user from cookie:", parsed);
-            }
+            setRehydratedUser(null);
+            try {
+              Cookies.remove("user_data", { path: "/" });
+            } catch {}
           }
 
           try {
             window.dispatchEvent(new Event("tokenRefreshed"));
-          } catch {
-            /* ignore in tests */
-          }
+          } catch {}
         }
       } catch (err) {
         console.error("❌ Refresh error:", err);
       }
-    };
-
-    // activity tracking (for your existing logic)
-    const markActive = () => {
-      try {
-        if (typeof sessionStorage !== "undefined") {
-          sessionStorage.setItem("lastActive", Date.now().toString());
-        }
-      } catch {
-        /* ignore */
-      }
-      // clearing the hidden timer on activity prevents accidental flips while visible
-      clearHiddenTimer();
-    };
-
-    // hidden timer machinery
-    const armHiddenTimer = () => {
-      clearHiddenTimer();
-      hiddenTimerRef.current = window.setTimeout(() => {
-        needsRefreshRef.current = true;
-      }, AWAY_THRESHOLD);
     };
 
     const clearHiddenTimer = () => {
@@ -167,62 +150,59 @@ export default function LayoutClient({ user, children }) {
         hiddenTimerRef.current = null;
       }
     };
+    const armHiddenTimer = () => {
+      clearHiddenTimer();
+      hiddenTimerRef.current = window.setTimeout(() => {
+        needsRefreshRef.current = true;
+      }, AWAY_THRESHOLD);
+    };
+
+    const markActive = () => {
+      try {
+        if (typeof sessionStorage !== "undefined") {
+          sessionStorage.setItem("lastActive", Date.now().toString());
+        }
+      } catch {}
+      clearHiddenTimer();
+    };
 
     const maybeRefreshNow = () => {
-      // once we become visible/focused, if we were away long enough, refresh
       clearHiddenTimer();
       if (needsRefreshRef.current) {
         needsRefreshRef.current = false;
         void triggerRefresh("resume");
         return;
       }
-
-      // fallback: also consider time since last activity/refresh
       try {
         const raw = sessionStorage.getItem("lastActive");
         const lastActive = raw ? parseInt(raw, 10) : 0;
         const now = Date.now();
         const awayByActivity = lastActive && now - lastActive > AWAY_THRESHOLD;
         const awayByTimeSinceRefresh = now - lastRefreshAtRef.current > AWAY_THRESHOLD;
-
         if (awayByActivity || awayByTimeSinceRefresh) {
-          console.log("🕑 Resumed after long absence (fallback)");
           void triggerRefresh("resume-fallback");
         }
-      } catch {
-        /* ignore */
-      }
+      } catch {}
     };
 
     const onVisibilityChange = () => {
-      if (document.hidden) {
-        armHiddenTimer();
-      } else {
-        maybeRefreshNow();
-      }
+      if (document.hidden) armHiddenTimer();
+      else maybeRefreshNow();
     };
-
-    const onFocus = () => {
-      // focusing window should check the flag too
-      maybeRefreshNow();
-    };
-
-    // pageshow fires on bfcache/tab restore; good moment to test for resume
-    const onPageShow = () => {
-      maybeRefreshNow();
-    };
+    const onFocus = () => maybeRefreshNow();
+    const onPageShow = () => maybeRefreshNow();
 
     const startLoop = () => {
-      // initial refresh to normalize state
       void triggerRefresh("initial");
-      refreshTimer.current = setInterval(() => void triggerRefresh("interval"), REFRESH_INTERVAL);
-      console.log("⏱️ Refresh interval set");
+      refreshTimer.current = setInterval(
+        () => void triggerRefresh("interval"),
+        REFRESH_INTERVAL
+      );
     };
 
     startLoop();
     markActive();
 
-    // if mounting while hidden (e.g., test toggled), arm the timer immediately
     if (document.hidden) armHiddenTimer();
 
     window.addEventListener("focus", onFocus);
@@ -238,13 +218,10 @@ export default function LayoutClient({ user, children }) {
       window.removeEventListener("focus", onFocus);
       window.removeEventListener("pageshow", onPageShow);
       document.removeEventListener("visibilitychange", onVisibilityChange);
-
       document.removeEventListener("mousemove", markActive);
       document.removeEventListener("keydown", markActive);
       document.removeEventListener("click", markActive);
-
       clearHiddenTimer();
-      console.log("🛑 Cleaned up refresh loop");
     };
   }, []);
 

@@ -16,7 +16,7 @@ export default function ClientUserProfile({
 }) {
   const [answered, setAnswered] = useState(user?.answered || []);
   const [unanswered, setUnanswered] = useState(initialUnanswered);
-  const [hydratedUser, setHydratedUser] = useState(user);
+  const [hydratedUser, setHydratedUser] = useState(user || null);
   const [isOwner, setIsOwner] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
   const [needsRefresh, setNeedsRefresh] = useState(false);
@@ -49,25 +49,28 @@ export default function ClientUserProfile({
     isOwnerRef.current = owner;
   };
 
-  // detect current user on mount / route change
+  // Utility: shallow guards so we only set state when it actually changes
+  const sameId = (a, b) => {
+    const aId = a?.googleId || a?.userId || a?._id || null;
+    const bId = b?.googleId || b?.userId || b?._id || null;
+    return String(aId) === String(bId);
+  };
+  const sameUserShallow = (a, b) =>
+    sameId(a, b) &&
+    a?.name === b?.name &&
+    a?.picture === b?.picture &&
+    a?.status === b?.status &&
+    (a?.unanswered?.length ?? a?.unansweredCount ?? 0) ===
+      (b?.unanswered?.length ?? b?.unansweredCount ?? 0) &&
+    (a?.answered?.length ?? 0) === (b?.answered?.length ?? 0);
+
+  const sameArrayLen = (a = [], b = []) => (a?.length || 0) === (b?.length || 0);
+
+  // detect current user on mount / route change (no polling)
   useEffect(() => {
     const cookieUser = readCookieUser();
     computeIsOwner(cookieUser, profileUserId);
   }, [profileUserId]);
-
-  // watch for logout (cookie removed) — no refresh here
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const exists = document.cookie.includes("user_data=");
-      if (!exists) {
-        setIsOwner(false);
-        isOwnerRef.current = false;
-        setCurrentUserId(null);
-        setUnanswered([]);
-      }
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
 
   const refreshProfile = async () => {
     // throttle
@@ -90,27 +93,37 @@ export default function ClientUserProfile({
         return;
       }
 
-      const updated = payload.profile;
-      setHydratedUser(updated || null);
-      setAnswered(updated?.answered || []);
-      if (isOwnerRef.current && updated?.unanswered) {
-        setUnanswered(updated.unanswered);
+      const updated = payload.profile || null;
+
+      // Update main user object only if changed
+      setHydratedUser((prev) => (sameUserShallow(prev, updated) ? prev : updated));
+
+      // Update answered if length changed (cheap guard)
+      setAnswered((prev) => (sameArrayLen(prev, updated?.answered) ? prev : (updated?.answered || [])));
+
+      // Update unanswered only for owner (and only if length changed)
+      if (isOwnerRef.current) {
+        setUnanswered((prev) =>
+          sameArrayLen(prev, updated?.unanswered) ? prev : (updated?.unanswered || [])
+        );
       }
 
       // Optional: update user_data for header badge; do NOT dispatch tokenRefreshed here
       if (updated?.userId || updated?.googleId) {
-        Cookies.set(
-          "user_data",
-          JSON.stringify({
-            userId: updated.userId || updated.googleId,
-            email: updated.email,
-            name: updated.name,
-            picture: updated.picture,
-            status: updated.status,
-            unansweredCount: updated.unanswered?.length ?? 0,
-          }),
-          { path: "/" }
-        );
+        try {
+          Cookies.set(
+            "user_data",
+            JSON.stringify({
+              userId: updated.userId || updated.googleId,
+              email: updated.email,
+              name: updated.name,
+              picture: updated.picture,
+              status: updated.status,
+              unansweredCount: updated.unanswered?.length ?? 0,
+            }),
+            { path: "/" }
+          );
+        } catch {}
       }
     } catch (err) {
       console.error("❌ Error refreshing user:", err);
@@ -122,22 +135,23 @@ export default function ClientUserProfile({
 
   // first load: if owner, try to upgrade to include private fields
   useEffect(() => {
-    if (isOwner) refreshProfile();
+    if (isOwnerRef.current) refreshProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOwner]);
 
-  // react to global token refreshes (event fired by layout)
+  // react to global token refreshes (event fired by layout/header on login/logout/refresh)
   useEffect(() => {
     const onTokenRefreshed = () => {
       const cookieUser = readCookieUser();
       computeIsOwner(cookieUser, profileUserId);
       if (isOwnerRef.current) refreshProfile();
+      // if logged out, isOwner becomes false here; no need for polling
     };
     window.addEventListener("tokenRefreshed", onTokenRefreshed);
     return () => window.removeEventListener("tokenRefreshed", onTokenRefreshed);
   }, [profileUserId]);
 
-  // refresh when returning from absence
+  // refresh when returning from absence (no polling)
   useEffect(() => {
     const onFocus = () => {
       if (isOwnerRef.current) refreshProfile();
@@ -195,4 +209,7 @@ export default function ClientUserProfile({
 const ContentWrapper = styled.div`
   margin-top: 30px;
   padding-top: 0;
+   @media (max-width: 768px) {
+      margin-top: 0px; /* adjust to match your mobile header height */
+    }
 `;

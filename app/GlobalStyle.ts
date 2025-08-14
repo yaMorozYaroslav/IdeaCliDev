@@ -14,7 +14,7 @@ const GlobalStyle = createGlobalStyle`
 
   
     body { padding-top: 45px;
-    @media (max-width: 770px) {
+    @media (max-width: 768px) {
       padding-top: 110px; /* adjust to match your mobile header height */
     }
   }
