@@ -14,16 +14,14 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-
-  /* Let the fixed header define the gap */
-  padding-top: var(--header-gap, 50px);
+  margin-top:-90px;
 
   min-height: 60vh;
   background-color: black;
   overflow-x: hidden;
 
   @media (max-width: 768px) {
-    padding-top: var(--header-gap, 60px);
+    margin-top: -120px;
   }
 `;
 
