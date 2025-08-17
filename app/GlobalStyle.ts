@@ -11,11 +11,11 @@ const GlobalStyle = createGlobalStyle`
   *, *::before, *::after {
     box-sizing: border-box;
   }
-
+ 
+  body { padding-top: 45px;
   
-    body { padding-top: 45px;
-    @media (max-width: 768px) {
-      padding-top: 110px; /* adjust to match your mobile header height */
+   @media (max-width: 768px) {
+    padding-top: 110px; /* adjust to match your mobile header height */
     }
   }
 `;
