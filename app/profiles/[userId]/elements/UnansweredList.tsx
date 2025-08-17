@@ -1,6 +1,6 @@
 "use client";
 
-import getBaseUrl from "../../../lib/getBaseUrl";
+import getBaseUrl from "@/lib/getBaseUrl";
 import {
   SectionWrapper,
   SectionTitle,

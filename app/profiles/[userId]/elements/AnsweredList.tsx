@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import getBaseUrl from "../../../lib/getBaseUrl";
+import getBaseUrl from "@/lib/getBaseUrl";
 import {
   SectionWrapper,
   SectionTitle,
