@@ -1,134 +1,59 @@
+// app/profiles/[userId]/elements/ProfileHeader.tsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import getBaseUrl from "@/lib/getBaseUrl";
-import {
-  SectionWrapper,
-  SectionTitle,
-  Card,
-  Title,
-  TitleGroup,
-  ByLine,
-  AnswerBlock,
-  AnswerAuthor,
-  Spinner,
-  LoadingWrap,
-  EmptyState,
-  PrimaryButton,
-} from "./section.styled";
+import React from "react";
+import styled from "styled-components";
+import type { ProfileUser } from "@/lib/profiles/profile-client";
 
-interface AnsweredListProps {
-  answered: any[];
-  user: any;
+type ProfileHeaderProps = {
+  user: ProfileUser | null;
   isOwner: boolean;
-  loading: boolean;
-  onDelete: () => void; // still called after confirmed delete (e.g., to update counters)
-}
+};
 
-export default function AnsweredList({
-  answered,
-  user,
-  isOwner,
-  loading,
-  onDelete,
-}: AnsweredListProps) {
-  const baseUrl = getBaseUrl();
-
-  // Local mirror so we can remove items after confirmed delete
-  const [items, setItems] = useState<any[]>(answered || []);
-  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    setItems(answered || []);
-  }, [answered]);
-
-  const userId = user?.googleId ?? null;
-  const isAdmin = user?.status === "admin";
-
-  const canDelete = (q: any) =>
-    q?.authorId === userId || isOwner || isAdmin;
-
-  const handleDelete = async (questionId: string) => {
-    if (!questionId || deletingIds.has(questionId)) return;
-
-    setDeletingIds((prev) => new Set(prev).add(questionId));
-
-    try {
-      const res = await fetch(`${baseUrl}/personal/${questionId}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ userId }),
-      });
-
-      if (res.ok || res.status === 404) {
-        // Confirmed by server (or already gone) -> remove from UI now
-        setItems((prev) => prev.filter((q) => q._id !== questionId));
-        // Let parent update counts/badges if needed
-        try {
-          onDelete?.();
-        } catch {}
-      } else {
-        const errorText = await res.text().catch(() => "");
-        console.warn("Failed to delete question:", res.status, errorText);
-      }
-    } catch (err) {
-      console.warn("Delete error:", err);
-    } finally {
-      setDeletingIds((prev) => {
-        const next = new Set(prev);
-        next.delete(questionId);
-        return next;
-      });
-    }
-  };
+export default function ProfileHeader({ user, isOwner }: ProfileHeaderProps) {
+  if (!user) return null;
 
   return (
-    <SectionWrapper>
-      <SectionTitle>Answered Questions</SectionTitle>
-
-      {loading ? (
-        <LoadingWrap>
-          <Spinner />
-          <p style={{ color: "#666", fontStyle: "italic" }}>
-            Loading answered questions...
-          </p>
-        </LoadingWrap>
-      ) : (items?.length ?? 0) === 0 ? (
-        <EmptyState>No answered questions</EmptyState>
-      ) : (
-        items.map((q) =>
-          q?.title ? (
-            <Card key={q._id} style={{ ["--indent-left" as any]: "3.5rem" }}>
-              <TitleGroup>
-                <Title as="div">{q.title}</Title>
-                <ByLine as="div">by {q.authorName}</ByLine>
-              </TitleGroup>
-
-              {q.answer && (
-                <AnswerBlock style={{ ["--answer-indent" as any]: "1.5rem" }}>
-                  <p>💬 {q.answer}</p>
-                  <AnswerAuthor>— {user?.name || "Anonymous"}</AnswerAuthor>
-                </AnswerBlock>
-              )}
-
-              {canDelete(q) && (
-                <div style={{ marginTop: "0.75rem" }}>
-                  <PrimaryButton
-                    data-danger="true"
-                    onClick={() => handleDelete(q._id)}
-                    aria-label="Delete question"
-                    disabled={deletingIds.has(q._id)}
-                    title={deletingIds.has(q._id) ? "Deleting…" : "Delete question"}
-                  >
-                    {deletingIds.has(q._id) ? "Deleting…" : "Delete Question"}
-                  </PrimaryButton>
-                </div>
-              )}
-            </Card>
-          ) : null
-        )
-      )}
-    </SectionWrapper>
+    <HeaderWrap>
+      <Avatar
+        src={user.picture ?? "/avatar.svg"}
+        alt={user.name ?? "User"}
+        width={56}
+        height={56}
+      />
+      <Info>
+        <Name>{user.name ?? "Użytkownik"}</Name>
+        {isOwner && <Badge>Twój profil</Badge>}
+      </Info>
+    </HeaderWrap>
   );
 }
+
+const HeaderWrap = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+`;
+
+const Avatar = styled.img`
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+`;
+
+const Info = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const Name = styled.div`
+  font-size: 1.05rem;
+  line-height: 1.2;
+`;
+
+const Badge = styled.div`
+  font-size: 0.8rem;
+  opacity: 0.75;
+`;
