@@ -1,172 +1,27 @@
 // comps/Header.tsx
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { FiMenu } from "react-icons/fi";
 import { FaSearch, FaInfoCircle } from "react-icons/fa";
-import Cookies from "js-cookie";
 import * as S from "./header.styled";
-import getBaseUrl from "@/lib/getBaseUrl";
+import { User } from "@/lib/header/user-type";
+import { useAuthUser, useAuthActions } from "@/lib/header/use-auth";
+import { useHeaderVisibility } from "@/lib/header/use-visibility";
+import { useScreenWidth } from "@/lib/header/use-width";
+import { useHeaderGap } from "@/lib/header/use-gap";
 
-interface User {
-  userId?: string;
-  googleId?: string;
-  name?: string;
-  email?: string;
-  picture?: string;
-  status?: string;
-  unansweredCount?: number;
-  [key: string]: any;
-}
+type HeaderProps = { user?: User | null };
 
-interface HeaderProps {
-  user?: User | null;
-}
-
-const safeParse = (v?: string | null) => {
-  if (!v) return null;
-  try {
-    return JSON.parse(v);
-  } catch {
-    try {
-      return JSON.parse(decodeURIComponent(v));
-    } catch {
-      return null;
-    }
-  }
-};
-
-const isValidUser = (u: any): u is User => !!u && (u.googleId || u.userId);
-
-const Header: React.FC<HeaderProps> = ({ user }) => {
-  const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+export default function Header({ user }: HeaderProps) {
+  const { currentUser, isAuthed, setCurrentUser } = useAuthUser(user ?? null);
+  const { isVisible } = useHeaderVisibility();
+  const screenWidth = useScreenWidth();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState<User | null>(
-    isValidUser(user) ? user! : null
-  );
-  const [screenWidth, setScreenWidth] = useState<number | null>(null);
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const { login, logout, isLoggingIn } = useAuthActions(setCurrentUser);
   const headerRef = useRef<HTMLDivElement | null>(null);
 
-  const isAuthed = !!(currentUser?.googleId || currentUser?.userId);
-
-  // Scroll show/hide (and close menu when scrolling down)
-  useEffect(() => {
-    let ticking = false;
-    const onScroll = () => {
-      const y = window.scrollY;
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          setIsVisible(y <= lastScrollY);
-          setLastScrollY(y);
-          if (y > lastScrollY) setMenuOpen(false);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [lastScrollY]);
-
-  // Track width
-  useEffect(() => {
-    const updateWidth = () => setScreenWidth(window.innerWidth);
-    updateWidth();
-    window.addEventListener("resize", updateWidth);
-    return () => window.removeEventListener("resize", updateWidth);
-  }, []);
-
-  // Hydrate from cookie on mount, but only if cookie includes an id
-  useEffect(() => {
-    if (isAuthed) return;
-    const parsed = safeParse(Cookies.get("user_data"));
-    if (isValidUser(parsed)) {
-      setCurrentUser(parsed);
-      // console.debug("Header hydrated from cookie:", parsed);
-    }
-  }, []); // once
-
-  // React to tokenRefreshed: adopt/clear user depending on id presence
-  useEffect(() => {
-    const updateUserFromCookie = () => {
-      const parsed = safeParse(Cookies.get("user_data"));
-      if (isValidUser(parsed)) {
-        setCurrentUser(parsed);
-      } else {
-        setCurrentUser(null);
-      }
-    };
-    window.addEventListener("tokenRefreshed", updateUserFromCookie);
-    return () => window.removeEventListener("tokenRefreshed", updateUserFromCookie);
-  }, []);
-
-  // Live header gap for fixed header
-  useEffect(() => {
-    const setGap = () => {
-      const height = headerRef.current
-        ? Math.round(headerRef.current.getBoundingClientRect().height)
-        : 0;
-      const gap = isVisible ? height : 0;
-      document.documentElement.style.setProperty("--header-gap", `${gap}px`);
-    };
-
-    let ro: ResizeObserver | null = null;
-    if ("ResizeObserver" in window && headerRef.current) {
-      ro = new ResizeObserver(setGap);
-      ro.observe(headerRef.current);
-    }
-
-    setGap();
-    const onResize = () => setGap();
-    const onScroll = () => setGap();
-    window.addEventListener("resize", onResize);
-    window.addEventListener("scroll", onScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener("resize", onResize);
-      window.removeEventListener("scroll", onScroll);
-      if (ro && headerRef.current) ro.unobserve(headerRef.current);
-    };
-  }, [isVisible]);
-
-  // Google login popup
-  const handleLogin = () => {
-    const baseUrl = getBaseUrl();
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}&redirect_uri=${baseUrl}/google/oauth/callback&response_type=code&scope=openid%20email%20profile`;
-
-    setIsLoggingIn(true);
-    const popup = window.open(authUrl, "oauthPopup", "width=500,height=600");
-
-    if (popup) {
-      const handleMessage = (event: MessageEvent) => {
-        if (event.data?.loginDone) {
-          setIsLoggingIn(false);
-          window.removeEventListener("message", handleMessage);
-          window.location.reload();
-        }
-      };
-      window.addEventListener("message", handleMessage);
-    } else {
-      setIsLoggingIn(false);
-    }
-  };
-
-  // Logout
-  const handleLogout = async () => {
-    try {
-      await fetch("/api/logout", { method: "POST" });
-      setCurrentUser(null);
-      try {
-        Cookies.remove("user_data", { path: "/" });
-      } catch {}
-      window.dispatchEvent(new Event("tokenRefreshed"));
-      window.location.reload();
-    } catch (error) {
-      console.error("❌ Logout failed:", error);
-    }
-  };
+  useHeaderGap(headerRef, isVisible);
 
   const authLabel =
     isLoggingIn
@@ -236,7 +91,6 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
                   >
                     {currentUser?.name ?? "User"}
                   </span>
-                  {/* Show the count only when authenticated */}
                   <span>({currentUser?.unansweredCount ?? 0})</span>
                 </S.UserNameLink>
               </>
@@ -245,7 +99,7 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
             )}
 
             <S.AuthButton
-              onClick={isAuthed ? handleLogout : handleLogin}
+              onClick={isAuthed ? logout : login}
               disabled={isLoggingIn}
               $authLabel={authLabel}
             >
@@ -277,6 +131,4 @@ const Header: React.FC<HeaderProps> = ({ user }) => {
       </S.FlexWrapper>
     </S.HeaderContainer>
   );
-};
-
-export default Header;
+}
