@@ -1,5 +1,5 @@
 // app/page.js (Server Component)
-import HomeClient from "/comps/HomeClient";
+import HomeClient from "./main-comps/HomeClient";
 import { getUserFromCookiesServer } from "@/lib/cookies/getUserFromCookiesServer"; // ✅ server-safe cookie reader
 
 export default async function Home() {

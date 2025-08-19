@@ -2,10 +2,10 @@
 "use client";
 
 import styled from "styled-components";
-import AskPersonalWrapper from "./elements/AskPersonalWrapper";
-import ProfileHeader from   "./elements/ProfileHeader";
-import UnansweredList from "./elements/UnansweredList";
-import AnsweredList from   "./elements/AnsweredList";
+import AskPersonalWrapper from "./prof-comps/AskPersonalWrapper";
+import ProfileHeader from       "./prof-comps/ProfileHeader";
+import UnansweredList from     "./prof-comps/UnansweredList";
+import AnsweredList from       "./prof-comps/AnsweredList";
 
 import { useProfileData } from "@/lib/profiles/useProfileData";
 import type { ProfileUser } from "@/lib/profiles/profile-client"; // adjust path if needed

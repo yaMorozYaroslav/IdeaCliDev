@@ -6,7 +6,7 @@ import { FiMenu } from "react-icons/fi";
 import { FaSearch, FaInfoCircle } from "react-icons/fa";
 import Cookies from "js-cookie";
 import * as S from "./header.styled";
-import getBaseUrl from "../lib/getBaseUrl";
+import getBaseUrl from "@/lib/getBaseUrl";
 
 interface User {
   userId?: string;

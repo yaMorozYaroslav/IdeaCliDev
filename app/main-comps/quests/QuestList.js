@@ -4,7 +4,7 @@ import * as S from "./quest-list.styled";
 import QuestionDetail from "./QuestDetail";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faTrash } from "@fortawesome/free-solid-svg-icons";
-import getBaseUrl from "../../lib/getBaseUrl";
+import getBaseUrl from "@/lib/getBaseUrl";
 
 function readUserFromCookie() {
   try {

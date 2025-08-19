@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Header from "../comps/Header";
+import Header from "./main-comps/Header";
 
 // ESM/CJS-safe import for styled-components v6
 import * as StyledComponents from "styled-components";

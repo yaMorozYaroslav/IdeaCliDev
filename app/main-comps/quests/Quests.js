@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Cookies from "js-cookie";
 import * as S from "./quests.styled";
 import QuestionList from "./QuestList";
-import { fetchAllQuestions, createQuestion } from "../../lib/questionsApi";
+import { fetchAllQuestions, createQuestion } from "@/lib/questionsApi";
 
 export default function Questions({ user }) {
   const [questions, setQuestions] = useState([]);

@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import * as S from "./quest-detail.styled";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faTrash } from "@fortawesome/free-solid-svg-icons";
-import getBaseUrl from "../../lib/getBaseUrl";
+import getBaseUrl from "@/lib/getBaseUrl";
 
 const QuestionDetail = ({
   question,
